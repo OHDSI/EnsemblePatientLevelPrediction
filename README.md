@@ -2,11 +2,11 @@ A Package Skeleton for Validating Prognositic Models Over OHDSI
 ========================================================
 A skeleton package, to be used as a starting point when replicating existing models
 
-Vignette: [Using the package skeleton for validating exisitng prediction studies](https://raw.githubusercontent.com/OHDSI/StudyProtocolSandbox/master/SkeletonExistingModelStudy/inst/doc/UsingSkeletonPackage.pdf)
+Vignette: [Using the package skeleton for validating exisitng prediction studies](https://raw.githubusercontent.com/OHDSI/SkeletonExistingPredictionModelStudy/master/inst/doc/UsingSkeletonPackage.pdf)
 
 Instructions To Prepare Package Outside Atlas
 ===================
-To create the package outside of ATLAS please see [Populating the settings in the package skeleton for validating exisitng prediction studies](https://raw.githubusercontent.com/OHDSI/StudyProtocolSandbox/master/SkeletonExistingModelStudy/inst/doc/PopulatingSkeletonPackage.pdf)
+To create the package outside of ATLAS please see [Populating the settings in the package skeleton for validating exisitng prediction studies](https://raw.githubusercontent.com/OHDSI/SkeletonExistingPredictionModelStudy/master/inst/doc/PopulatingSkeletonPackage.pdf)
 
 Instructions To Install and Run Package From Github
 ===================
