@@ -102,7 +102,7 @@
 
 \title{Populating the study package}
 \author{Jenna M. Reps}
-\date{2020-03-19}
+\date{2020-03-27}
 
 \begin{document}
 \maketitle
@@ -291,11 +291,11 @@ model}\label{step-3-execute-the-study-to-validate-an-existing-model}}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-  \KeywordTok{library}\NormalTok{(SkeletonExistingModelStudy)}
+  \KeywordTok{library}\NormalTok{(SkeletonExistingPredictionModelStudy)}
   \KeywordTok{options}\NormalTok{(}\DataTypeTok{fftempdir =} \StringTok{"location with space to save big data"}\NormalTok{)}
   
   \CommentTok{# The folder where the study intermediate and result files will be written:}
-\NormalTok{  outputFolder <-}\StringTok{ "./SkeletonExistingModelStudyResults"}
+\NormalTok{  outputFolder <-}\StringTok{ "./SkeletonExistingPredictionModelStudyResults"}
   
   \CommentTok{# Details for connecting to the server:}
 \NormalTok{  dbms <-}\StringTok{ "you dbms"}
@@ -318,7 +318,7 @@ model}\label{step-3-execute-the-study-to-validate-an-existing-model}}
 \NormalTok{  oracleTempSchema <-}\StringTok{ }\OtherTok{NULL}
   
   \CommentTok{# table name where the cohorts will be generated}
-\NormalTok{  cohortTable <-}\StringTok{ 'SkeletonPredictionStudyCohort'}
+\NormalTok{  cohortTable <-}\StringTok{ 'SkeletonExistingPredictionModelStudyCohort'}
   
   \CommentTok{# TAR settings}
 \NormalTok{  sampleSize <-}\StringTok{ }\OtherTok{NULL}
@@ -338,7 +338,7 @@ model}\label{step-3-execute-the-study-to-validate-an-existing-model}}
   
 \NormalTok{  standardCovariates <-}\StringTok{ }\NormalTok{FeatureExtraction}\OperatorTok{::}\KeywordTok{createCovariateSettings}\NormalTok{(}\DataTypeTok{useDemographicsAgeGroup =}\NormalTok{ T, }\DataTypeTok{useDemographicsGender =}\NormalTok{ T)}
   
-\NormalTok{  SkeletonExistingModelStudy}\OperatorTok{::}\KeywordTok{execute}\NormalTok{(}\DataTypeTok{connectionDetails =}\NormalTok{ connectionDetails,}
+\NormalTok{  SkeletonExistingPredictionModelStudy}\OperatorTok{::}\KeywordTok{execute}\NormalTok{(}\DataTypeTok{connectionDetails =}\NormalTok{ connectionDetails,}
                                       \DataTypeTok{cdmDatabaseSchema =}\NormalTok{ cdmDatabaseSchema,}
                                       \DataTypeTok{cdmDatabaseName =}\NormalTok{ cdmDatabaseName,}
                                       \DataTypeTok{cohortDatabaseSchema =}\NormalTok{ cohortDatabaseSchema,}

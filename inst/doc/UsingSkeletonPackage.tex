@@ -111,7 +111,7 @@
 
 \title{Using the package skeleton for validating existing model studies}
 \author{Jenna M. Reps}
-\date{2020-03-19}
+\date{2020-03-27}
 
 \begin{document}
 \maketitle
@@ -195,7 +195,7 @@ database connection settings). See the R help system for details:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{library}\NormalTok{(SkeletonExistingModelStudy)}
+\KeywordTok{library}\NormalTok{(SkeletonExistingPredictionModelStudy)}
 \NormalTok{?execute}
 \end{Highlighting}
 \end{Shaded}
@@ -207,7 +207,7 @@ By default all the options are set to F for the execute fuction:
 \KeywordTok{options}\NormalTok{(}\DataTypeTok{fftempdir =} \StringTok{"location with space to save big data"}\NormalTok{)}
 
 \CommentTok{# The folder where the study intermediate and result files will be written:}
-\NormalTok{outputFolder <-}\StringTok{ "./SkeletonExistingModelStudyResults"}
+\NormalTok{outputFolder <-}\StringTok{ "./SkeletonExistingPredictionModelStudyResults"}
 
 \CommentTok{# Details for connecting to the server:}
 \NormalTok{dbms <-}\StringTok{ "you dbms"}
@@ -230,7 +230,7 @@ By default all the options are set to F for the execute fuction:
 \NormalTok{oracleTempSchema <-}\StringTok{ }\OtherTok{NULL}
 
 \CommentTok{# table name where the cohorts will be generated}
-\NormalTok{cohortTable <-}\StringTok{ 'SkeletonPredictionStudyCohort'}
+\NormalTok{cohortTable <-}\StringTok{ 'SkeletonExistingPredictionModelStudyCohort'}
 
 \CommentTok{# TAR settings}
 \NormalTok{sampleSize <-}\StringTok{ }\OtherTok{NULL}
@@ -250,7 +250,7 @@ By default all the options are set to F for the execute fuction:
 
 \NormalTok{standardCovariates <-}\StringTok{ }\NormalTok{FeatureExtraction}\OperatorTok{::}\KeywordTok{createCovariateSettings}\NormalTok{(}\DataTypeTok{useDemographicsAgeGroup =}\NormalTok{ T, }\DataTypeTok{useDemographicsGender =}\NormalTok{ T)}
 
-\NormalTok{SkeletonExistingModelStudy}\OperatorTok{::}\KeywordTok{execute}\NormalTok{(}\DataTypeTok{connectionDetails =}\NormalTok{ connectionDetails,}
+\NormalTok{SkeletonExistingPredictionModelStudy}\OperatorTok{::}\KeywordTok{execute}\NormalTok{(}\DataTypeTok{connectionDetails =}\NormalTok{ connectionDetails,}
                                     \DataTypeTok{cdmDatabaseSchema =}\NormalTok{ cdmDatabaseSchema,}
                                     \DataTypeTok{cdmDatabaseName =}\NormalTok{ cdmDatabaseName,}
                                     \DataTypeTok{cohortDatabaseSchema =}\NormalTok{ cohortDatabaseSchema,}
