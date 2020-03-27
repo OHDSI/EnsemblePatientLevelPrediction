@@ -48,7 +48,7 @@ includeAllOutcomes <- T
 
 standardCovariates <- FeatureExtraction::createCovariateSettings(useDemographicsAgeGroup = T, useDemographicsGender = T)
 
-SkeletonExistingModelStudy::execute(connectionDetails = connectionDetails,
+SkeletonExistingPredictionModelStudy::execute(connectionDetails = connectionDetails,
                                     cdmDatabaseSchema = cdmDatabaseSchema,
                                     cdmDatabaseName = cdmDatabaseName,
                                     cohortDatabaseSchema = cohortDatabaseSchema,
