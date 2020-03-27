@@ -24,19 +24,19 @@ Instructions To Install and Run Package From Github
 - Then install the study package:
 ```r
   # install the network package
-  devtools::install_github("OHDSI/StudyProtocolSandbox/SkeletonExistingModelStudy")
+  devtools::install_github("OHDSI/SkeletonExistingPredictionModelStudy")
 ```
 
 - Execute the study by running the code in (extras/CodeToRun.R) but make sure to edit the settings:
 ```r
-library(SkeletonExistingModelStudy)
+library(SkeletonExistingPredictionModelStudy)
 # USER INPUTS
 #=======================
 # Specify where the temporary files (used by the ff package) will be created:
 options(fftempdir = "location with space to save big data")
 
 # The folder where the study intermediate and result files will be written:
-outputFolder <- "./SkeletonExistingModelStudyResults"
+outputFolder <- "./SkeletonExistingPredictionModelStudyResults"
 
 # Details for connecting to the server:
 dbms <- "you dbms"
@@ -59,7 +59,7 @@ cohortDatabaseSchema <- 'work database schema'
 oracleTempSchema <- NULL
 
 # table name where the cohorts will be generated
-cohortTable <- 'SkeletonPredictionStudyCohort'
+cohortTable <- 'SkeletonExistingPredictionModelStudyCohort'
 
 # TAR settings
 sampleSize <- NULL
@@ -79,7 +79,7 @@ includeAllOutcomes <- T
 
 standardCovariates <- FeatureExtraction::createCovariateSettings(useDemographicsAgeGroup = T, useDemographicsGender = T)
 
-SkeletonExistingModelStudy::execute(connectionDetails = connectionDetails,
+SkeletonExistingPredictionModelStudy::execute(connectionDetails = connectionDetails,
                                     cdmDatabaseSchema = cdmDatabaseSchema,
                                     cdmDatabaseName = cdmDatabaseName,
                                     cohortDatabaseSchema = cohortDatabaseSchema,
