@@ -1,42 +1,11 @@
-A Package Skeleton for Validating Prognositic Models Over OHDSI
-========================================================
-A skeleton package, to be used as a starting point when replicating existing models
-
-Vignette: [Using the package skeleton for validating exisitng prediction studies](https://raw.githubusercontent.com/OHDSI/StudyProtocolSandbox/master/SkeletonExistingModelStudy/inst/doc/UsingSkeletonPackage.pdf)
-
-Instructions To Prepare Package Outside Atlas
-===================
-To create the package outside of ATLAS please see [Populating the settings in the package skeleton for validating exisitng prediction studies](https://raw.githubusercontent.com/OHDSI/StudyProtocolSandbox/master/SkeletonExistingModelStudy/inst/doc/PopulatingSkeletonPackage.pdf)
-
-Instructions To Install and Run Package From Github
-===================
-
-- Make sure you have PatientLevelPrediction installed:
-
-```r
-  # get the latest PatientLevelPrediction
-  install.packages("devtools")
-  devtools::install_github("OHDSI/PatientLevelPrediction")
-  # check the package
-  PatientLevelPrediction::checkPlpInstallation()
-```
-
-- Then install the study package:
-```r
-  # install the network package
-  devtools::install_github("OHDSI/StudyProtocolSandbox/SkeletonExistingModelStudy")
-```
-
-- Execute the study by running the code in (extras/CodeToRun.R) but make sure to edit the settings:
-```r
-library(SkeletonExistingModelStudy)
+library(SkeletonExistingPredictionModelStudy)
 # USER INPUTS
 #=======================
 # Specify where the temporary files (used by the ff package) will be created:
 options(fftempdir = "location with space to save big data")
 
 # The folder where the study intermediate and result files will be written:
-outputFolder <- "./SkeletonExistingModelStudyResults"
+outputFolder <- "./SkeletonExistingPredictionModelStudyResults"
 
 # Details for connecting to the server:
 dbms <- "you dbms"
@@ -59,7 +28,7 @@ cohortDatabaseSchema <- 'work database schema'
 oracleTempSchema <- NULL
 
 # table name where the cohorts will be generated
-cohortTable <- 'SkeletonPredictionStudyCohort'
+cohortTable <- 'SkeletonExistingPredictionModelStudyCohort'
 
 # TAR settings
 sampleSize <- NULL
@@ -104,6 +73,3 @@ SkeletonExistingModelStudy::execute(connectionDetails = connectionDetails,
                                     minCellCount= 5,
                                     verbosity = "INFO",
                                     cdmVersion = 5)
-```
-# Development status
-Under development.

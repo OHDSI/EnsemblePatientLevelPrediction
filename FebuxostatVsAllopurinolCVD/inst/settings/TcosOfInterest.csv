@@ -1,2 +1,0 @@
-targetId,targetName,comparatorId,comparatorName,outcomeIds,OutcomeNames,excludedCovariateConceptIds
-863,FebuxostatGeneral,864,AllopurinolGeneral,824;756;20;60;763;736;586;862,SCD;CVDInpatient;death;AcuteMIinpatient;StrokeInpatient;AllopurinolHypersensitivity;HeartFailure;GoutFlare,19017742;1167322
