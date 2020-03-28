@@ -49,7 +49,7 @@ getCohortCovariateData <- function(connection,
   # Some SQL to construct the covariate:
   sql <- paste(
     "select a.@row_id_field AS row_id, @covariate_id AS covariate_id,",
-     "{@ageInteraction}?{max(datepart(year, a.cohort_start_date)-p.year_of_birth)}{",
+     "{@ageInteraction}?{max(datepart(year, a.cohort_start_date)-p.year_of_birth)}:{",
      "{@countval}?{count(distinct b.cohort_start_date)}:{max(1)}",
      "} as covariate_value",
     "from @cohort_temp_table a inner join @covariate_cohort_schema.@covariate_cohort_table b",
@@ -83,7 +83,12 @@ getCohortCovariateData <- function(connection,
   sql <- "select @covariate_id as covariate_id, '@concept_set' as covariate_name,
   456 as analysis_id, -1 as concept_id"
   sql <- SqlRender::render(sql, covariate_id = covariateSettings$covariateId,
-                           concept_set=paste(covariateSettings$covariateName,' days before:', covariateSettings$startDay, 'days after:', covariateSettings$endDay))
+                           concept_set=paste(ifelse(covariateSettings$count, 'Number of', ''), 
+                                             covariateSettings$covariateName,
+                                             ifelse(covariateSettings$ageInteraction, ' X Age', ''),
+                                             ' days before:', covariateSettings$startDay, 'days after:', covariateSettings$endDay)
+                          
+                           )
   sql <- SqlRender::translate(sql, targetDialect = attr(connection, "dbms"),
                               oracleTempSchema = oracleTempSchema)
   # Retrieve the covariateRef:
