@@ -45,7 +45,9 @@ populatePackage <- function(targetCohortId,
                             atlasCovariateNames = c('Testing 1', 'Testing 109'),
                             startDays = c(-999,-30),
                             endDays = c(-1,0),
-                            points = c(1,2)){
+                            points = c(1,2),
+                            count = rep(F, length(points)),
+                            ageInteraction = rep(F, length(points))){
   
   # insert the target and outcome cohorts:
   cohortsToCreate <- data.frame(cohortId = 1:2,
@@ -69,7 +71,9 @@ populatePackage <- function(targetCohortId,
                                 atlasId = atlasCovariateIds, 
                                 cohortName = atlasCovariateNames,
                                 startDay = startDays,
-                                endDay = endDays)
+                                endDay = endDays,
+                                count = count,
+                                ageInteraction = ageInteraction)
   
   write.csv(cohortsToCreate, file.path("./inst/settings",'CustomCovariates.csv' ), row.names = F)
   
@@ -83,9 +87,12 @@ populatePackage <- function(targetCohortId,
   
   
   # add the model
-  model <- data.frame(covariateName = paste0(atlasCovariateNames, 
+  model <- data.frame(covariateName = paste0(ifelse(count, ' Number of ', ''),
+                                             atlasCovariateNames, 
+                                             ifelse(ageInteraction, ' X Age', ''),
                                              '- start day: ', startDays,
-                                             '- end day: ', endDays),
+                                             '- end day: ', endDays
+                                             ),
                       covariateId = 1000*(3:(2+length(atlasCovariateIds)))+456,
                       points = points
   )

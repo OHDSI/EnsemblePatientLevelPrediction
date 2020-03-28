@@ -18,12 +18,14 @@ getData <- function(connectionDetails,
   
   for(i in 1:nrow(cohortVarsToCreate)){
     covSets[[1+i]] <- createCohortCovariateSettings(covariateName = as.character(cohortVarsToCreate$cohortName[i]),
-                                                      covariateId = cohortVarsToCreate$cohortId[i]*1000+456, count = F,
+                                                      covariateId = cohortVarsToCreate$cohortId[i]*1000+456,
                                                       cohortDatabaseSchema = cohortDatabaseSchema,
                                                       cohortTable = cohortTable,
                                                       cohortId = cohortVarsToCreate$atlasId[i],
                                                       startDay=cohortVarsToCreate$startDay[i], 
-                                                      endDay=cohortVarsToCreate$endDay[i])
+                                                      endDay=cohortVarsToCreate$endDay[i],
+                                                      count= ifelse(is.null(cohortVarsToCreate$count), F, cohortVarsToCreate$count[i]), 
+                                                      ageInteraction = ifelse(is.null(cohortVarsToCreate$ageInteraction), F, cohortVarsToCreate$ageInteraction[i]))
   }
   
   result <- PatientLevelPrediction::getPlpData(connectionDetails = connectionDetails,
@@ -62,6 +64,9 @@ predictExisting <- function(plpData, population){
   colnames(prediction) <- c("rowId", "value")
   prediction <- merge(population, prediction, by ="rowId", all.x = TRUE)
   prediction$value[is.na(prediction$value)] <- 0
+  
+  
+  # add any final mapping here (e.g., add intercept and mapping)
   
   scaleVal <- max(prediction$value)
   if(scaleVal>1){
