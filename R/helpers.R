@@ -58,14 +58,19 @@ getModel <- function(){
 predictExisting <- function(plpData, population){
   coefficients <- getModel()
   
-  prediction <- merge(plpData$covariates, ff::as.ffdf(coefficients), by = "covariateId")
-  prediction$value <- prediction$covariateValue * prediction$points
-  prediction <- PatientLevelPrediction:::bySumFf(prediction$value, prediction$rowId)
-  colnames(prediction) <- c("rowId", "value")
+  plpData$covariateData$coefficients <- coefficients
+  on.exit(plpData$covariateData$coefficients <- NULL, add = TRUE)
+  
+  prediction <- plpData$covariateData$covariates %>% 
+    dplyr::inner_join(plpData$covariateData$coefficients, by= 'covariateId') %>% 
+    dplyr::mutate(values = covariateValue*points) %>%
+    dplyr::group_by(rowId) %>%
+    dplyr::summarise(value = sum(values, na.rm = TRUE)) %>%
+    dplyr::select(rowId, value) %>% dplyr::collect() 
+  
   prediction <- merge(population, prediction, by ="rowId", all.x = TRUE)
   prediction$value[is.na(prediction$value)] <- 0
-  
-  
+
   # add any final mapping here (e.g., add intercept and mapping)
   
   scaleVal <- max(prediction$value)

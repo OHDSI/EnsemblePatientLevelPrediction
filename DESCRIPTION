@@ -1,7 +1,7 @@
 Package: SkeletonExistingPredictionModelStudy
 Type: Package
 Title: A Package Skeleton for Replicating Published Prediction Models
-Version: 0.0.2
+Version: 1.0.0
 Author: Jenna Reps [aut, cre]
 Maintainer: Jenna M Reps <reps@ohdsi.org>
 Description: A skeleton package, to be used as a starting point when implementing patient-level prediction studies.
@@ -12,16 +12,15 @@ Imports:
     SqlRender,
     Cyclops,
     FeatureExtraction,
-    PatientLevelPrediction (>= 3.0.14),
+    PatientLevelPrediction (>= 4.0.0),
     ggplot2,
-    ff,
-    ffbase,
     OhdsiSharing,
     zip,
     ParallelLogger,
     magrittr,
     dplyr,
-    officer
+    officer,
+    Andromeda
 Suggests:
     knitr,
     rmarkdown,
