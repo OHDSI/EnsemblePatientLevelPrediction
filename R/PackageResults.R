@@ -48,26 +48,37 @@ packageResults <- function(outputFolder,
     if(dir.exists(file.path(outputFolder,folder, 'plpResult'))){
       plpResult <- PatientLevelPrediction::loadPlpResult(file.path(outputFolder,folder, 'plpResult'))
       
+      plpResult$model$predict <- NULL
+      cvst <- plpResult$inputSetting$dataExtrractionSettings$covariateSettings
+      
       if(minCellCount!=0){
-        PatientLevelPrediction::transportPlp(plpResult,
-                                             outputFolder=file.path(exportFolder,folder, 'plpResult'), 
-                                             n=minCellCount,
-                                             includeEvaluationStatistics=T,
-                                             includeThresholdSummary=T, 
-                                             includeDemographicSummary=T,
-                                             includeCalibrationSummary =T, 
-                                             includePredictionDistribution=T,
-                                             includeCovariateSummary=T)
+        plpResult <- PatientLevelPrediction::transportPlp(plpResult,
+                                                          dataName = cdmDatabaseName,
+                                                          n=minCellCount,
+                                                          includeEvaluationStatistics=T,
+                                                          includeThresholdSummary=T, 
+                                                          includeDemographicSummary=T,
+                                                          includeCalibrationSummary =T, 
+                                                          includePredictionDistribution=T,
+                                                          includeCovariateSummary=T, 
+                                                          save = F)
       } else {
-        PatientLevelPrediction::transportPlp(plpResult,outputFolder=file.path(exportFolder,folder, 'plpResult'), 
-                                             n=NULL,
-                                             includeEvaluationStatistics=T,
-                                             includeThresholdSummary=T, 
-                                             includeDemographicSummary=T,
-                                             includeCalibrationSummary =T, 
-                                             includePredictionDistribution=T,
-                                             includeCovariateSummary=T)
+        plpResult <- PatientLevelPrediction::transportPlp(plpResult, 
+                                                          n=NULL,
+                                                          includeEvaluationStatistics=T,
+                                                          includeThresholdSummary=T, 
+                                                          includeDemographicSummary=T,
+                                                          includeCalibrationSummary =T, 
+                                                          includePredictionDistribution=T,
+                                                          includeCovariateSummary=T, 
+                                                          save = F)
       }
+      
+      plpResult$inputSetting$dataExtrractionSettings$covariateSettings <- cvst
+      
+      # save as csv
+      PatientLevelPrediction::savePlpToCsv(plpResult, file.path(exportFolder,folder))
+      
     }
   }
   

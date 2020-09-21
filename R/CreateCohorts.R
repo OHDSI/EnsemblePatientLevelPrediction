@@ -56,7 +56,7 @@
     # if custom cohort covaraites set:
     cohortVarsToCreate <- utils::read.csv(pathToCustom)
     
-    if(sum(colnames(cohortVarsToCreate)%in%c('atlasId', 'cohortName', 'startDay', 'endDay'))!=4){
+    if(sum(colnames(cohortVarsToCreate)%in%c('atlasId', 'cohortName'))!=2){
       stop('Issue with cohortVariableSetting - make sure it is NULL or a setting')  
     }
     

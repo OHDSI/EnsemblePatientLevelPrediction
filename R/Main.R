@@ -113,7 +113,6 @@ execute <- function(connectionDetails,
                     requireTimeAtRisk = F,
                     minTimeAtRisk = 1,
                     includeAllOutcomes = T,
-                    standardCovariates,
                     outputFolder,
                     createCohorts = F,
                     runAnalyses = F,
@@ -127,6 +126,8 @@ execute <- function(connectionDetails,
   
   ParallelLogger::addDefaultFileLogger(file.path(outputFolder,cdmDatabaseName, "log.txt"))
   
+  ## add existing model protocol code?
+  
   if (createCohorts) {
     ParallelLogger::logInfo("Creating cohorts")
     createCohorts(connectionDetails = connectionDetails,
@@ -138,87 +139,100 @@ execute <- function(connectionDetails,
   }
   
   if(runAnalyses){
+    # add standardCovariates if included 
+    standardCovariates <- NULL
+    analysisSettings <- getAnalyses(outputFolder,cdmDatabaseName)
     
-    #getData
-    ParallelLogger::logInfo("Extracting data")
-    plpData <- getData(connectionDetails = connectionDetails,
-                          cdmDatabaseSchema = cdmDatabaseSchema,
-                          cdmDatabaseName = cdmDatabaseName,
-                          cohortDatabaseSchema = cohortDatabaseSchema,
-                          cohortTable = cohortTable,
-                          oracleTempSchema = oracleTempSchema,
-                          standardCovariates = standardCovariates,
-                          firstExposureOnly = firstExposureOnly,
-                          sampleSize = sampleSize,
-                          cdmVersion = cdmVersion)
-    
-    #create pop
-    ParallelLogger::logInfo("Creating population")
-    population <- PatientLevelPrediction::createStudyPopulation(plpData = plpData, 
-                                                                outcomeId = 2,
-                                                                riskWindowStart = riskWindowStart,
-                                                                startAnchor = startAnchor,
-                                                                riskWindowEnd = riskWindowEnd,
-                                                                endAnchor = endAnchor,
-                                                                firstExposureOnly = firstExposureOnly,
-                                                                removeSubjectsWithPriorOutcome = removeSubjectsWithPriorOutcome,
-                                                                priorOutcomeLookback = priorOutcomeLookback,
-                                                                requireTimeAtRisk = requireTimeAtRisk,
-                                                                minTimeAtRisk = minTimeAtRisk,
-                                                                includeAllOutcomes = includeAllOutcomes)
-    
-
-    # apply the model:
-    plpModel <- list(model = getModel(),
-                     analysisId = 'ExistingModel',
-                     hyperParamSearch = NULL,
-                     index = NULL,
-                     trainCVAuc = NULL,
-                     modelSettings = list(model = 'score', modelParameters = NULL),
-                     metaData = NULL,
-                     populationSettings = attr(population, "metaData"),
-                     trainingTime = NULL,
-                     varImp = NULL,
-                     dense = T,
-                     cohortId = 1,
-                     outcomeId = 2,
-                     covariateMap = NULL,
-                     predict = predictExisting
-    )
-    class(plpModel) <- 'plpModel'
-    ParallelLogger::logInfo("Applying and evaluating model")
-    result <- PatientLevelPrediction::applyModel(population = population,
-                                                 plpData = plpData,
-                                                 plpModel = plpModel)
-    
-    result$inputSetting$database <- cdmDatabaseName
-    result$executionSummary  <- list()
-    result$model <- plpModel
-    result$analysisRef <- list()
-    result$covariateSummary <- PatientLevelPrediction:::covariateSummary(plpData = plpData, population = population)
-    
-    if(!dir.exists(file.path(outputFolder,cdmDatabaseName))){
-      dir.create(file.path(outputFolder,cdmDatabaseName))
+    for(i in 1:nrow(analysisSettings)){
+      
+      #getData
+      ParallelLogger::logInfo("Extracting data")
+      plpData <- getData(connectionDetails = connectionDetails,
+                         cdmDatabaseSchema = cdmDatabaseSchema,
+                         cdmDatabaseName = cdmDatabaseName,
+                         cohortDatabaseSchema = cohortDatabaseSchema,
+                         cohortTable = cohortTable,
+                         cohortId = analysisSettings$targetId[i],
+                         outcomeId = analysisSettings$outcomeId[i],
+                         oracleTempSchema = oracleTempSchema,
+                         model = analysisSettings$model[i],
+                         standardCovariates = standardCovariates,
+                         firstExposureOnly = firstExposureOnly,
+                         sampleSize = sampleSize,
+                         cdmVersion = cdmVersion)
+      
+      #create pop
+      ParallelLogger::logInfo("Creating population")
+      population <- PatientLevelPrediction::createStudyPopulation(plpData = plpData, 
+                                                                  outcomeId = analysisSettings$outcomeId[i],
+                                                                  riskWindowStart = riskWindowStart,
+                                                                  startAnchor = startAnchor,
+                                                                  riskWindowEnd = riskWindowEnd,
+                                                                  endAnchor = endAnchor,
+                                                                  firstExposureOnly = firstExposureOnly,
+                                                                  removeSubjectsWithPriorOutcome = removeSubjectsWithPriorOutcome,
+                                                                  priorOutcomeLookback = priorOutcomeLookback,
+                                                                  requireTimeAtRisk = requireTimeAtRisk,
+                                                                  minTimeAtRisk = minTimeAtRisk,
+                                                                  includeAllOutcomes = includeAllOutcomes)
+      
+      
+      # apply the model:
+      plpModel <- list(model = getModel(analysisSettings$model[i]),
+                       analysisId = analysisSettings$analysisId[i],
+                       hyperParamSearch = NULL,
+                       index = NULL,
+                       trainCVAuc = NULL,
+                       modelSettings = list(model = analysisSettings$model[i], 
+                                            modelParameters = NULL),
+                       metaData = NULL,
+                       populationSettings = attr(population, "metaData"),
+                       trainingTime = NULL,
+                       varImp = data.frame(covariateId = getModel(analysisSettings$model[i])$covariateId,
+                                           covariateValue = getModel(analysisSettings$model[i])$points),
+                       dense = T,
+                       cohortId = analysisSettings$cohortId[i],
+                       outcomeId = analysisSettings$outcomeId[i],
+                       covariateMap = NULL,
+                       predict = predictExisting(model = analysisSettings$model[i])
+      )
+      attr(plpModel, "type") <- 'existing'
+      class(plpModel) <- 'plpModel'
+      ParallelLogger::logInfo("Applying and evaluating model")
+      result <- PatientLevelPrediction::applyModel(population = population,
+                                                   plpData = plpData,
+                                                   plpModel = plpModel)
+      
+      result$inputSetting$database <- cdmDatabaseName
+      result$inputSetting$modelSettings <- list(model = 'existing model', name = analysisSettings$model[i], param = getModel(analysisSettings$model[i]))
+      result$inputSetting$dataExtrractionSettings$covariateSettings <- plpData$metaData$call$covariateSettings
+      result$inputSetting$populationSettings <- attr(population, "metaData")
+      result$executionSummary  <- list()
+      result$model <- plpModel
+      result$analysisRef <- list()
+      result$covariateSummary <- PatientLevelPrediction:::covariateSummary(plpData = plpData, population = population, model = plpModel)
+      
+      if(!dir.exists(file.path(outputFolder,cdmDatabaseName))){
+        dir.create(file.path(outputFolder,cdmDatabaseName))
+      }
+      ParallelLogger::logInfo("Saving results")
+      PatientLevelPrediction::savePlpResult(result, file.path(outputFolder,cdmDatabaseName,analysisSettings$analysisId[i], 'plpResult'))
+      ParallelLogger::logInfo(paste0("Results saved to:",file.path(outputFolder,cdmDatabaseName,analysisSettings$analysisId[i])))
     }
-    ParallelLogger::logInfo("Saving results")
-    saveRDS(result, file.path(outputFolder,cdmDatabaseName,'validationResults.rds'))
-    ParallelLogger::logInfo(paste0("Results saved to:",file.path(outputFolder,cdmDatabaseName,'validationResults.rds')))
+    
   }
   
   # [TODO] add create shiny app
   viewer <- TRUE
   if(viewShiny) {
-    if(file.exists(file.path(outputFolder,cdmDatabaseName,'validationResults.rds'))){
-      result <- readRDS(file.path(outputFolder,cdmDatabaseName,'validationResults.rds'))
-      viewer <- PatientLevelPrediction::viewPlp(result)
-    } else{
-      warning('No results to view...')
-    }
+    viewer <- tryCatch({
+      PatientLevelPrediction::viewMultiplePlp(file.path(outputFolder,cdmDatabaseName))},
+      error = function(e){'No results to view...'})
   }
   
   if (packageResults) {
     ParallelLogger::logInfo("Packaging results")
-    packageResults(outputFolder = outputFolder,
+    packageResults(outputFolder = file.path(outputFolder,cdmDatabaseName),
                    minCellCount = minCellCount)
   }
    

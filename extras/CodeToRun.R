@@ -1,9 +1,6 @@
 library(SkeletonExistingPredictionModelStudy)
 # USER INPUTS
 #=======================
-# Specify where the temporary files (used by the ff package) will be created:
-options(fftempdir = "location with space to save big data")
-
 # The folder where the study intermediate and result files will be written:
 outputFolder <- "./SkeletonExistingPredictionModelStudyResults"
 
@@ -46,8 +43,6 @@ includeAllOutcomes <- T
 
 #=======================
 
-standardCovariates <- FeatureExtraction::createCovariateSettings(useDemographicsAgeGroup = T, useDemographicsGender = T)
-
 SkeletonExistingPredictionModelStudy::execute(connectionDetails = connectionDetails,
                                     cdmDatabaseSchema = cdmDatabaseSchema,
                                     cdmDatabaseName = cdmDatabaseName,
@@ -64,7 +59,6 @@ SkeletonExistingPredictionModelStudy::execute(connectionDetails = connectionDeta
                                     requireTimeAtRisk = requireTimeAtRisk,
                                     minTimeAtRisk = minTimeAtRisk,
                                     includeAllOutcomes = includeAllOutcomes,
-                                    standardCovariates = standardCovariates,
                                     outputFolder = outputFolder,
                                     createCohorts = T,
                                     runAnalyses = T,
