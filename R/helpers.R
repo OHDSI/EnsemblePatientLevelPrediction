@@ -1,8 +1,9 @@
-getAnalyses <- function(outputFolder,cdmDatabaseName){
-  
+getAnalyses <- function(settings, outputFolder,cdmDatabaseName){
   
   cohorts <- system.file("settings", 'CohortsToCreate.csv', package = "SkeletonExistingPredictionModelStudy")
   cohorts <- read.csv(cohorts)
+  
+  if(is.null(settings)){
   cohortsSettings <- cohorts[cohorts$type == 'target', c('cohortId','name')]
   cohortsSettings$outcomeId <- cohorts$cohortId[cohorts$type == 'outcome']
   cohortsSettings$outcomeName <- cohorts$name[cohorts$type == 'outcome']
@@ -11,8 +12,23 @@ getAnalyses <- function(outputFolder,cdmDatabaseName){
   settingLoc <- system.file("settings", package = "SkeletonExistingPredictionModelStudy")
   modelSettings <- data.frame(model = dir(settingLoc, pattern = '_model.csv'))
   modelSettings$modelSettingsId <- 1:nrow(modelSettings)
-  
   analysesSettings <- merge(cohortsSettings, modelSettings)
+  } else{
+    
+    #use data.frame(tId, oId and model) to create...
+    settings <- settings[, c('tId', 'oId', 'model')]
+    colnames(settings) <- c('targetId','outcomeId','model')
+    
+    settings <- merge(settings, cohorts[,c('cohortId','name')], by.x='targetId', by.y='cohortId')
+    colnames(settings)[colnames(settings) == 'name'] <- 'targetName'
+    settings <- merge(settings, cohorts[,c('cohortId','name')], by.x='outcomeId', by.y='cohortId')
+    colnames(settings)[colnames(settings) == 'name'] <- 'outcomeName'
+    settings <- settings[,c('targetId', 'targetName', 'outcomeId', 'outcomeName','model')]
+    settings$modelSettingsId <- as.double(as.factor(settings$model))
+    analysesSettings <- settings
+    
+  }
+
   analysesSettings$analysisId <- paste0('Analysis_', 1:nrow(analysesSettings))
   
   # adding extras for shiny
@@ -28,6 +44,7 @@ getAnalyses <- function(outputFolder,cdmDatabaseName){
   }
   write.csv(analysesSettings, file.path(outputFolder,cdmDatabaseName, 'settings.csv'))
   return(analysesSettings)
+
 }
 
 getData <- function(connectionDetails,
