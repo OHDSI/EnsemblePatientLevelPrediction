@@ -105,10 +105,14 @@ getMeasurementCovariateData <- function(connection,
   covariates$covariateId <- covariateSettings$covariateId
   
   # impute missing - add age here to be able to input age interaction
-  sql <- "select distinct @row_id_field AS row_id from @cohort_temp_table"
+  sql <- paste("select distinct c.@row_id_field AS row_id ",
+               ", LOG(YEAR(c.cohort_start_date)-p.year_of_birth)  as age",
+               "from @cohort_temp_table c",
+               "inner join @cdm_database_schema.person p on p.person_id=c.subject_id")
   
   sql <- SqlRender::render(sql, cohort_temp_table = cohortTable,
-                           row_id_field = rowIdField )
+                           row_id_field = rowIdField,
+                           cdm_database_schema = cdmDatabaseSchema)
   sql <- SqlRender::translate(sql, targetDialect = attr(connection, "dbms"),
                               oracleTempSchema = oracleTempSchema)
   # Retrieve the covariate:
@@ -116,11 +120,24 @@ getMeasurementCovariateData <- function(connection,
   colnames(ppl) <- SqlRender::snakeCaseToCamelCase(colnames(ppl))
   
   
-  missingPlp <- ppl$rowId[!ppl$rowId%in%covariates$rowId]
-  if(length(missingPlp)>0){
-    extraData <- data.frame(rowId = missingPlp, 
+  missingPlp <- ppl[!ppl$rowId%in%covariates$rowId,]
+  if(length(missingPlp$rowId)>0){
+    
+    if(covariateSettings$lnValue){
+      covariateSettings$imputationValue <- log(covariateSettings$imputationValue)
+    }
+    
+    if(covariateSettings$ageInteraction){
+      covVal <- missingPlp$age*covariateSettings$imputationValue
+    } else if(covariateSettings$lnAgeInteraction){
+      covVal <- log(missingPlp$age)*covariateSettings$imputationValue
+    } else{
+      covVal <- covariateSettings$imputationValue
+    }
+    
+    extraData <- data.frame(rowId = missingPlp$rowId, 
                             covariateId = covariateSettings$covariateId, 
-                            covariateValue = covariateSettings$imputationValue)
+                            covariateValue = covVal)
     covariates <- rbind(covariates, extraData[,colnames(covariates)])
   }
   
