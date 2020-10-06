@@ -46,16 +46,20 @@ getData <- function(connectionDetails,
   
   
   pathToCustom <- system.file("settings", model, package = "SkeletonExistingPredictionModelStudy")
-  cohortVarsToCreate <- utils::read.csv(pathToCustom)
+  varsToCreate <- utils::read.csv(pathToCustom)
   # remove standard covs
-  cohortVarsToCreate <- cohortVarsToCreate[cohortVarsToCreate$atlasId !=0,]
+  cohortVarsToCreate <- varsToCreate[varsToCreate$type == 'cohortCovariate',]
+  measurementVarsToCreate <- varsToCreate[varsToCreate$type == 'measurementCovariate',]
   covSets <- list()
   if(!is.null(standardCovariates)){
     extra <- 1
   } else{
     extra <- 0
+    if(nrow(varsToCreate[varsToCreate$type == 'standardCovariate',])!=0){
+      warning('Standard covariates used but not set')
+    }
   }
-  length(covSets) <- nrow(cohortVarsToCreate)+extra
+  length(covSets) <- nrow(cohortVarsToCreate)+extra + nrow(measurementVarsToCreate)
   
   if(!is.null(standardCovariates)){
     covSets[[1]] <- standardCovariates
@@ -63,14 +67,42 @@ getData <- function(connectionDetails,
   
   for(i in 1:nrow(cohortVarsToCreate)){
     covSets[[extra+i]] <- createCohortCovariateSettings(covariateName = as.character(cohortVarsToCreate$cohortName[i]),
-                                                      covariateId = cohortVarsToCreate$cohortId[i]*1000+456,
+                                                        analysisId = cohortVarsToCreate$analysisId[i],
+                                                        covariateId = cohortVarsToCreate$cohortId[i]*1000+cohortVarsToCreate$analysisId[i],
                                                       cohortDatabaseSchema = cohortDatabaseSchema,
                                                       cohortTable = cohortTable,
                                                       cohortId = cohortVarsToCreate$atlasId[i],
                                                       startDay=cohortVarsToCreate$startDay[i], 
                                                       endDay=cohortVarsToCreate$endDay[i],
                                                       count= ifelse(is.null(cohortVarsToCreate$count), F, cohortVarsToCreate$count[i]), 
-                                                      ageInteraction = ifelse(is.null(cohortVarsToCreate$ageInteraction), F, cohortVarsToCreate$ageInteraction[i]))
+                                                      ageInteraction = ifelse(is.null(cohortVarsToCreate$ageInteraction), F, cohortVarsToCreate$ageInteraction[i]),
+                                                      lnAgeInteraction = ifelse(is.null(cohortVarsToCreate$lnAgeInteraction), F, cohortVarsToCreate$lnAgeInteraction[i])
+                                                      
+                                                      )
+  }
+  
+  # add measurement covariates...
+  for(i in 1:nrow(measurementVarsToCreate)){
+    pathToConcept <- system.file("settings", paste0(measurementVarsToCreate$covariateName[i],'_concepts.csv'), package = "SkeletonExistingPredictionModelStudy")
+    conceptSet <- read.csv(pathToConcept)$x
+    pathToScaleMap <- system.file("settings", paste0(measurementVarsToCreate$covariateName[i],'_scaleMap.rds'), package = "SkeletonExistingPredictionModelStudy")
+    scaleMap <- readRDS(pathToScaleMap)
+    
+    covSets[[extra+nrow(cohortVarsToCreate)+i]] <- createMeasurementCovariateSettings(covariateName = measurementVarsToCreate$covariateName[i], 
+                                                                                      analysisId = measurementVarsToCreate$analysisId[i],
+                                                                                      conceptSet = conceptSet,
+                                                                                      startDay = measurementVarsToCreate$startDay[i], 
+                                                                                      endDay = measurementVarsToCreate$endDay[i], 
+                                                                                      scaleMap = scaleMap, 
+                                                                                      aggregateMethod = measurementVarsToCreate$aggregateMethod[i],
+                                                                                      imputationValue = measurementVarsToCreate$imputationValue[i],
+                                                                                      covariateId = measurementVarsToCreate$covariateId[i],
+                                                                                      ageInteraction = ifelse(is.null(measurementVarsToCreate$ageInteraction), F, measurementVarsToCreate$ageInteraction[i]),
+                                                                                      
+                                                                                      lnAgeInteraction = ifelse(is.null(measurementVarsToCreate$lnAgeInteraction), F, measurementVarsToCreate$lnAgeInteraction[i]),
+                                                                                      lnValue = ifelse(is.null(measurementVarsToCreate$lnValue), F, measurementVarsToCreate$lnValue[i])
+                                                                                      
+                                                                                      )
   }
   
   result <- PatientLevelPrediction::getPlpData(connectionDetails = connectionDetails,
