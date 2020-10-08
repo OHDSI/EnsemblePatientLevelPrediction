@@ -90,7 +90,16 @@ populatePackageModels <- function(modelname = 'SimpleModel',
                                                                       analysisIds = c(457,457)
                                                                       
                                                                       
-                                  )
+                                  ),
+                                  ageCovariateSettings = list(names = c('log(age)'),
+                                                              ageMaps = list(function(x){return(log(x)^2)}),
+                                                              ageIds = 1,
+                                                              analysisIds = c(458),
+                                                              points = c(12.344)
+                                                              
+                                  ),
+                                  
+                                  finalMapping = function(x){return(x)}
 ){
   
   # insert the custom covariate settings
@@ -206,7 +215,45 @@ populatePackageModels <- function(modelname = 'SimpleModel',
     
   }
   
+  
+  # add age map variables
+  if(!is.null(ageCovariateSettings)){
+    
+    amodel <- data.frame(
+      type = 'ageCovariate',
+      analysisId = ageCovariateSettings$analysisIds,
+      covariateName = ageCovariateSettings$names,
+      cohortId = 0,
+      atlasId = 0, 
+      cohortName = 'na',
+      startDay = 0,
+      endDay = 0,
+      count = 0,
+      ageInteraction = F,
+      lnAgeInteraction = F,
+      lnValue = F,
+      aggregateMethod = 'na',
+      imputationValue = 0,
+      covariateId = 1000*ageCovariateSettings$ageIds+ageCovariateSettings$analysisIds,
+      points = ageCovariateSettings$points
+    )
+    amodel <- amodel[,colnames(model)]
+    model <- rbind(model, amodel)
+    
+    for(i in 1:length(ageCovariateSettings$names)){
+      saveRDS(ageCovariateSettings$ageMaps[[i]], 
+              file.path(file.path("./inst/settings",paste0(gsub(' ', '_',gsub(')','_',gsub('(','_',ageCovariateSettings$names[i]))),'_ageMap.rds' ))))
+    }
+    
+  }
+  
   write.csv(model, file.path("./inst/settings",paste0(modelname,'_model.csv' )), row.names = F)
+  
+  # save final mapping function
+  saveRDS(finalMapping, 
+          file.path(file.path("./inst/settings",paste0(modelname,'_finalMap.rds' ))))
+  
+  
   
   return(TRUE)
 }

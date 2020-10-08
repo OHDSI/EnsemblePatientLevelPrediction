@@ -149,7 +149,11 @@ getMeasurementCovariateData <- function(connection,
                                                    'through',
                                                    covariateSettings$endDay,
                                                    'days relative to index:',
-                                                   covariateSettings$covariateName
+                                                   ifelse(covariateSettings$lnValue, 'log(', ''),
+                                                   covariateSettings$covariateName,
+                                                   ifelse(covariateSettings$lnValue, ')', ''),
+                                                   ifelse(covariateSettings$ageInteraction, ' X Age', ''),
+                                                   ifelse(covariateSettings$lnAgeInteraction, ' X ln(Age)', '')
                              ),
                              analysisId = covariateSettings$analysisId,
                              conceptId = 0)

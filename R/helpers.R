@@ -82,6 +82,7 @@ getData <- function(connectionDetails,
     covSets[[1]] <- standardCovariates
   }
   
+  if(nrow(cohortVarsToCreate)>0){
   for(i in 1:nrow(cohortVarsToCreate)){
     covSets[[extra+i]] <- createCohortCovariateSettings(covariateName = as.character(cohortVarsToCreate$cohortName[i]),
                                                         analysisId = cohortVarsToCreate$analysisId[i],
@@ -97,8 +98,10 @@ getData <- function(connectionDetails,
                                                       
                                                       )
   }
+  }
   
   # add measurement covariates...
+  if(nrow(measurementVarsToCreate)>0){
   for(i in 1:nrow(measurementVarsToCreate)){
     pathToConcept <- system.file("settings", paste0(measurementVarsToCreate$covariateName[i],'_concepts.csv'), package = "SkeletonExistingPredictionModelStudy")
     conceptSet <- read.csv(pathToConcept)$x
@@ -120,6 +123,24 @@ getData <- function(connectionDetails,
                                                                                       lnValue = ifelse(is.null(measurementVarsToCreate$lnValue), F, measurementVarsToCreate$lnValue[i])
                                                                                       
                                                                                       )
+  }
+  }
+  
+  # add age covariates...
+  ageVarsToCreate <- varsToCreate[varsToCreate$type == 'ageCovariate',]
+  if(nrow(ageVarsToCreate)>0){
+    for(i in 1:nrow(ageVarsToCreate)){
+      
+      pathToAgeMap <- system.file("settings", paste0(paste0(gsub(' ', '_',gsub('\\)','_',gsub('\\(','_',ageVarsToCreate$covariateName[i])))),'_ageMap.rds'), package = "ASCVDvalidation")
+      ageMap <- readRDS(pathToAgeMap)
+      
+      covSets[[extra+nrow(cohortVarsToCreate) +nrow(measurementVarsToCreate) +i]] <- createAgeCovariateSettings(covariateName = ageVarsToCreate$covariateName[i], 
+                                                                                                                analysisId = ageVarsToCreate$analysisId[i],
+                                                                                                                ageMap = ageMap, 
+                                                                                                                covariateId = ageVarsToCreate$covariateId[i]
+                                                                                                                
+      )
+    }
   }
   
   result <- PatientLevelPrediction::getPlpData(connectionDetails = connectionDetails,
@@ -153,7 +174,7 @@ getModel <- function(model = 'SimpleModel'){
 predictExisting <- function(model){
   
   coefficients <- getModel(model)
-  mapping <- getMap(model)
+  mapping <- getMap(gsub('_model.csv','',model))
   
   predict <- function(plpData, population){
     
@@ -176,6 +197,7 @@ predictExisting <- function(model){
     # make sure every value is less than 1 for the evaluatation
     scaleVal <- max(prediction$value)
     if(scaleVal>1){
+      warning('scaling predictions to less than 1')
       prediction$value <- prediction$value/scaleVal
     }
     
