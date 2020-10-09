@@ -4,15 +4,15 @@ getAnalyses <- function(settings, outputFolder,cdmDatabaseName){
   cohorts <- read.csv(cohorts)
   
   if(is.null(settings)){
-  cohortsSettings <- cohorts[cohorts$type == 'target', c('cohortId','name')]
-  cohortsSettings$outcomeId <- cohorts$cohortId[cohorts$type == 'outcome']
-  cohortsSettings$outcomeName <- cohorts$name[cohorts$type == 'outcome']
-  colnames(cohortsSettings) <- c('targetId', 'targetName', 'outcomeId', 'outcomeName')
-  
-  settingLoc <- system.file("settings", package = "SkeletonExistingPredictionModelStudy")
-  modelSettings <- data.frame(model = dir(settingLoc, pattern = '_model.csv'))
-  modelSettings$modelSettingsId <- 1:nrow(modelSettings)
-  analysesSettings <- merge(cohortsSettings, modelSettings)
+    cohortsSettings <- cohorts[cohorts$type == 'target', c('cohortId','name')]
+    cohortsSettings$outcomeId <- cohorts$cohortId[cohorts$type == 'outcome']
+    cohortsSettings$outcomeName <- cohorts$name[cohorts$type == 'outcome']
+    colnames(cohortsSettings) <- c('targetId', 'targetName', 'outcomeId', 'outcomeName')
+    
+    settingLoc <- system.file("settings", package = "SkeletonExistingPredictionModelStudy")
+    modelSettings <- data.frame(model = dir(settingLoc, pattern = '_model.csv'))
+    modelSettings$modelSettingsId <- 1:nrow(modelSettings)
+    analysesSettings <- merge(cohortsSettings, modelSettings)
   } else{
     
     #use data.frame(tId, oId and model) to create...
@@ -28,7 +28,6 @@ getAnalyses <- function(settings, outputFolder,cdmDatabaseName){
     analysesSettings <- settings
     
   }
-
   analysesSettings$analysisId <- paste0('Analysis_', 1:nrow(analysesSettings))
   
   # adding extras for shiny
@@ -44,7 +43,6 @@ getAnalyses <- function(settings, outputFolder,cdmDatabaseName){
   }
   write.csv(analysesSettings, file.path(outputFolder,cdmDatabaseName, 'settings.csv'))
   return(analysesSettings)
-
 }
 
 getData <- function(connectionDetails,
@@ -64,9 +62,7 @@ getData <- function(connectionDetails,
   
   pathToCustom <- system.file("settings", model, package = "SkeletonExistingPredictionModelStudy")
   varsToCreate <- utils::read.csv(pathToCustom)
-  # remove standard covs
-  cohortVarsToCreate <- varsToCreate[varsToCreate$type == 'cohortCovariate',]
-  measurementVarsToCreate <- varsToCreate[varsToCreate$type == 'measurementCovariate',]
+
   covSets <- list()
   if(!is.null(standardCovariates)){
     extra <- 1
@@ -76,12 +72,13 @@ getData <- function(connectionDetails,
       warning('Standard covariates used but not set')
     }
   }
-  length(covSets) <- nrow(cohortVarsToCreate)+extra + nrow(measurementVarsToCreate)
+  length(covSets) <- nrow(varsToCreate)+extra 
   
   if(!is.null(standardCovariates)){
     covSets[[1]] <- standardCovariates
   }
   
+  cohortVarsToCreate <- varsToCreate[varsToCreate$type == 'cohortCovariate',]
   if(nrow(cohortVarsToCreate)>0){
   for(i in 1:nrow(cohortVarsToCreate)){
     covSets[[extra+i]] <- createCohortCovariateSettings(covariateName = as.character(cohortVarsToCreate$cohortName[i]),
@@ -96,11 +93,12 @@ getData <- function(connectionDetails,
                                                       ageInteraction = ifelse(is.null(cohortVarsToCreate$ageInteraction), F, cohortVarsToCreate$ageInteraction[i]),
                                                       lnAgeInteraction = ifelse(is.null(cohortVarsToCreate$lnAgeInteraction), F, cohortVarsToCreate$lnAgeInteraction[i])
                                                       
-                                                      )
+    )
   }
   }
   
   # add measurement covariates...
+  measurementVarsToCreate <- varsToCreate[varsToCreate$type == 'measurementCovariate',]
   if(nrow(measurementVarsToCreate)>0){
   for(i in 1:nrow(measurementVarsToCreate)){
     pathToConcept <- system.file("settings", paste0(measurementVarsToCreate$covariateName[i],'_concepts.csv'), package = "SkeletonExistingPredictionModelStudy")
@@ -131,17 +129,50 @@ getData <- function(connectionDetails,
   if(nrow(ageVarsToCreate)>0){
     for(i in 1:nrow(ageVarsToCreate)){
       
-      pathToAgeMap <- system.file("settings", paste0(paste0(gsub(' ', '_',gsub('\\)','_',gsub('\\(','_',ageVarsToCreate$covariateName[i])))),'_ageMap.rds'), package = "ASCVDvalidation")
+      pathToAgeMap <- system.file("settings", paste0(paste0(gsub(' ', '_',gsub('\\)','_',gsub('\\(','_',ageVarsToCreate$covariateName[i])))),'_ageMap.rds'), package = "SkeletonExistingPredictionModelStudy")
       ageMap <- readRDS(pathToAgeMap)
       
       covSets[[extra+nrow(cohortVarsToCreate) +nrow(measurementVarsToCreate) +i]] <- createAgeCovariateSettings(covariateName = ageVarsToCreate$covariateName[i], 
-                                                                                                                analysisId = ageVarsToCreate$analysisId[i],
-                                                                                                                ageMap = ageMap, 
-                                                                                                                covariateId = ageVarsToCreate$covariateId[i]
-                                                                                                                
+                                                                                        analysisId = ageVarsToCreate$analysisId[i],
+                                                                                        ageMap = ageMap, 
+                                                                                        covariateId = ageVarsToCreate$covariateId[i]
+                                                                                        
       )
     }
   }
+  
+  
+  # add measurement cohort covariates...
+  measurementCohortVarsToCreate <- varsToCreate[grep('measurementCohortCovariate',varsToCreate$type),]
+  if(nrow(measurementCohortVarsToCreate)>0){
+    for(i in 1:nrow(measurementCohortVarsToCreate)){
+      pathToConcept <- system.file("settings", paste0(measurementCohortVarsToCreate$covariateName[i],'_concepts.csv'), package = "SkeletonExistingPredictionModelStudy")
+      conceptSet <- read.csv(pathToConcept)$x
+      pathToScaleMap <- system.file("settings", paste0(measurementCohortVarsToCreate$covariateName[i],'_scaleMap.rds'), package = "SkeletonExistingPredictionModelStudy")
+      scaleMap <- readRDS(pathToScaleMap)
+      
+      covSets[[extra+nrow(cohortVarsToCreate) + nrow(measurementVarsToCreate) + nrow(ageVarsToCreate) +i]] <- createMeasurementCohortCovariateSettings(covariateName = measurementCohortVarsToCreate$covariateName[i], 
+                                                                                        analysisId = measurementCohortVarsToCreate$analysisId[i],
+                                                                                        cohortDatabaseSchema = cohortDatabaseSchema,
+                                                                                        cohortTable = cohortTable,
+                                                                                        cohortId = measurementCohortVarsToCreate$atlasId[i],
+                                                                                        type = ifelse(length(grep('_in', measurementCohortVarsToCreate$type))>0, 'in', 'out'),
+                                                                                        conceptSet = conceptSet,
+                                                                                        startDay = measurementCohortVarsToCreate$startDay[i], 
+                                                                                        endDay = measurementCohortVarsToCreate$endDay[i], 
+                                                                                        scaleMap = scaleMap, 
+                                                                                        aggregateMethod = measurementCohortVarsToCreate$aggregateMethod[i],
+                                                                                        imputationValue = measurementCohortVarsToCreate$imputationValue[i],
+                                                                                        covariateId = measurementCohortVarsToCreate$covariateId[i],
+                                                                                        ageInteraction = ifelse(is.null(measurementCohortVarsToCreate$ageInteraction), F, measurementCohortVarsToCreate$ageInteraction[i]),
+                                                                                        
+                                                                                        lnAgeInteraction = ifelse(is.null(measurementCohortVarsToCreate$lnAgeInteraction), F, measurementCohortVarsToCreate$lnAgeInteraction[i]),
+                                                                                        lnValue = ifelse(is.null(measurementCohortVarsToCreate$lnValue), F, measurementCohortVarsToCreate$lnValue[i])
+                                                                                        
+      )
+    }
+  }
+  
   
   result <- PatientLevelPrediction::getPlpData(connectionDetails = connectionDetails,
                                      cdmDatabaseSchema = cdmDatabaseSchema,
@@ -197,7 +228,6 @@ predictExisting <- function(model){
     # make sure every value is less than 1 for the evaluatation
     scaleVal <- max(prediction$value)
     if(scaleVal>1){
-      warning('scaling predictions to less than 1')
       prediction$value <- prediction$value/scaleVal
     }
     

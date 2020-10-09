@@ -2,6 +2,9 @@
 
 export(createCohorts)
 export(execute)
+export(getAgeCovariateData)
 export(getCohortCovariateData)
+export(getMeasurementCohortCovariateData)
+export(getMeasurementCovariateData)
 export(packageResults)
 importFrom(magrittr,"%>%")

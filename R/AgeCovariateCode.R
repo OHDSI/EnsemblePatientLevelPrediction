@@ -34,14 +34,14 @@
 #'
 #' @export
 getAgeCovariateData <- function(connection,
-                                oracleTempSchema = NULL,
-                                cdmDatabaseSchema,
-                                cdmVersion = "5",
-                                cohortTable = "#cohort_person",
-                                rowIdField = "row_id",
-                                aggregated,
-                                cohortId,
-                                covariateSettings) {
+                                        oracleTempSchema = NULL,
+                                        cdmDatabaseSchema,
+                                        cdmVersion = "5",
+                                        cohortTable = "#cohort_person",
+                                        rowIdField = "row_id",
+                                        aggregated,
+                                        cohortId,
+                                        covariateSettings) {
   
   # Some SQL to construct the covariate:
   sql <- paste("select distinct c.@row_id_field AS row_id, ",
@@ -54,7 +54,7 @@ getAgeCovariateData <- function(connection,
                            cohort_temp_table = cohortTable,
                            row_id_field = rowIdField,
                            cdm_database_schema = cdmDatabaseSchema
-  )
+                           )
   sql <- SqlRender::translate(sql, targetDialect = attr(connection, "dbms"),
                               oracleTempSchema = oracleTempSchema)
   # Retrieve the covariate:
@@ -70,7 +70,7 @@ getAgeCovariateData <- function(connection,
   covariates$covariateId <- covariateSettings$covariateId
   
   covariates <- covariates[,c('rowId','covariateId', 'covariateValue')]
-  
+
   # Construct covariate reference:
   covariateRef <- data.frame(covariateId = covariateSettings$covariateId,
                              covariateName = paste('Age map:',
@@ -98,9 +98,9 @@ getAgeCovariateData <- function(connection,
 
 
 createAgeCovariateSettings <- function(covariateName = 'Age at index', 
-                                       ageMap = function(x){return(x)},
-                                       covariateId = 1458,
-                                       analysisId = 458
+                                               ageMap = function(x){return(x)},
+                                               covariateId = 1458,
+                                               analysisId = 458
 ) {
   
   covariateSettings <- list(covariateName=covariateName, 

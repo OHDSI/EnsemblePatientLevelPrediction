@@ -50,14 +50,14 @@ getCohortCovariateData <- function(connection,
   sql <- paste(
     "select a.@row_id_field AS row_id, @covariate_id AS covariate_id,",
     "{@lnAgeInteraction}?{LOG(max(YEAR(a.cohort_start_date)-p.year_of_birth))}:{",
-    "{@ageInteraction}?{max(YEAR(a.cohort_start_date)-p.year_of_birth)}:{",
-    "{@countval}?{count(distinct b.cohort_start_date)}:{max(1)}",
-    "}} as covariate_value",
+     "{@ageInteraction}?{max(YEAR(a.cohort_start_date)-p.year_of_birth)}:{",
+     "{@countval}?{count(distinct b.cohort_start_date)}:{max(1)}",
+     "}} as covariate_value",
     "from @cohort_temp_table a inner join @covariate_cohort_schema.@covariate_cohort_table b",
     " on a.subject_id = b.subject_id and ",
-    " b.cohort_start_date <= dateadd(day, @endDay, a.cohort_start_date) and ",
+	" b.cohort_start_date <= dateadd(day, @endDay, a.cohort_start_date) and ",
     " b.cohort_end_date >= dateadd(day, @startDay, a.cohort_start_date) ",
-    "{@ageInteraction | @lnAgeInteraction}?{inner join @cdm_database_schema.person p on p.person_id=a.subject_id}",
+	"{@ageInteraction | @lnAgeInteraction}?{inner join @cdm_database_schema.person p on p.person_id=a.subject_id}",
     "where b.cohort_definition_id = @covariate_cohort_id
     group by a.@row_id_field "
   )
@@ -95,7 +95,7 @@ getCohortCovariateData <- function(connection,
                                              covariateSettings$covariateName,
                                              ifelse(covariateSettings$ageInteraction, ' X Age', ''),
                                              ifelse(covariateSettings$lnAgeInteraction, ' X ln(Age)', '')
-                           ))
+                             ))
   
   sql <- SqlRender::translate(sql, targetDialect = attr(connection, "dbms"),
                               oracleTempSchema = oracleTempSchema)

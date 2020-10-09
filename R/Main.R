@@ -34,7 +34,7 @@
 #'                             study.
 #' @param oracleTempSchema     Should be used in Oracle to specify a schema where the user has write
 #'                             priviliges for storing temporary tables.
-#' @param setting              A data.frame with the tId, oId, model triplets to run - if NULL it runs all possible combinations              
+#' @param setting              A data.frame with the tId, oId, model triplets to run - if NULL it runs all possible combinations                
 #' @param sampleSize           How many patients to sample from the target population                             
 #' @param riskWindowStart      The start of the risk window (in days) relative to the startAnchor.                           
 #' @param startAnchor          The anchor point for the start of the risk window. Can be "cohort start" or "cohort end".
@@ -81,13 +81,10 @@
 #'         cohortTable = "cohort",
 #'         outcomeId = 1,
 #'         oracleTempSchema = NULL,
-#'         setting = NULL,
-#'         sampleSize = NULL,
 #'         riskWindowStart = 1,
 #'         startAnchor = 'cohort start',
 #'         riskWindowEnd = 365,
 #'         endAnchor = 'cohort start',
-#'         standardCovariates = FeatureExtraction::createCovariateSettings(useDemographicsAgeGroup = T, useDemographicsGender = T),
 #'         outputFolder = "c:/temp/study_results", 
 #'         createCohorts = T,
 #'         runAnalyses = T,
@@ -144,10 +141,31 @@ execute <- function(connectionDetails,
   
   if(runAnalyses){
     # add standardCovariates if included 
-    standardCovariates <- NULL
+    
     analysisSettings <- getAnalyses(setting, outputFolder,cdmDatabaseName)
     
     for(i in 1:nrow(analysisSettings)){
+      
+      pathToStandard <- system.file("settings", gsub('_model.csv','_standard_features.csv',analysisSettings$model[i]), package = "SkeletonExistingPredictionModelStudy")
+      if(file.exists(pathToStandard)){
+        standTemp <- read.csv(pathToStandard)$x
+        
+        standSet <- list()
+        length(standSet) <- length(standTemp)
+        names(standSet) <- standTemp
+        for(j in 1:length(standSet)){
+          standSet[[j]] <- T
+        }
+        
+        pathToInclude <- system.file("settings", gsub('_model.csv','_standard_features_include.csv',analysisSettings$model[i]), package = "SkeletonExistingPredictionModelStudy")
+        incS <- read.csv(pathToInclude)$x
+        standSet$includedCovariateIds <- incS
+
+        standardCovariates <- do.call(FeatureExtraction::createCovariateSettings,standSet)
+        
+      } else{
+        standardCovariates <- NULL
+      }
       
       #getData
       ParallelLogger::logInfo("Extracting data")

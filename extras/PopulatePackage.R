@@ -41,92 +41,117 @@ populatePackageCohorts <- function(targetCohortIds,
 
 # Insert models into package -----------------------
 populatePackageModels <- function(modelname = 'SimpleModel',
-                                  standardCovariates = data.frame(covariateId = c(0003, 1003,
-                                                                                  2003, 3003,
-                                                                                  4003, 5003,
-                                                                                  6003, 7003,
-                                                                                  8003, 9003,
-                                                                                  10003, 11003,
-                                                                                  12003, 13003,
-                                                                                  14003, 15003,
-                                                                                  16003, 17003,
-                                                                                  8507001),
-                                                                  covariateName = c('Age 0-4', 'Age 5-9',
-                                                                                    'Age 10-14', 'Age 15-19',
-                                                                                    'Age 20-24', 'Age 25-30',
-                                                                                    'Age 30-34', 'Age 35-40',
-                                                                                    'Age 40-44', 'Age 45-50',
-                                                                                    'Age 50-54', 'Age 55-60',
-                                                                                    'Age 60-64', 'Age 65-70',
-                                                                                    'Age 70-74', 'Age 75-80',
-                                                                                    'Age 80-84', 'Age 85-90',
-                                                                                    'Male'), 
-                                                                  points = c(rep(0,19))),
-                                  cohortCovariateSettings = list(baseUrl = 'https://...',
-                                                                 atlasCovariateIds = c(1,109),
-                                                                 atlasCovariateNames = c('Testing 1', 'Testing 109'),
-                                                                 analysisIds = c(456,456),
-                                                                 startDays = c(-999,-30),
-                                                                 endDays = c(-1,0),
-                                                                 points = c(1,2),
-                                                                 count = rep(F, length(points)),
-                                                                 ageInteraction = rep(F, length(points)),
-                                                                 lnAgeInteraction = rep(F, length(points))
-                                  ),
-                                  
-                                  measurementCovariateSettings = list(names = c('Measurement 1', 'measurement 2'),
-                                                                      conceptSets = list(c(435454,64533), c(34343,124453)),
-                                                                      startDays = c(-90, -30),
-                                                                      endDays = c(0,0),
-                                                                      scaleMaps= list(function(x){return(x)}, 
-                                                                                      function(x){return(0)} ), 
-                                                                      points = c(1.2,0.6),
-                                                                      aggregateMethods = c('recent', 'max'),
-                                                                      imputationValues = c(0,0),
-                                                                      ageInteractions = rep(F, length(points)),
-                                                                      lnAgeInteractions = rep(F, length(points)),
-                                                                      lnValues = rep(F, length(points)),
-                                                                      measurementIds = c(1,2), 
-                                                                      analysisIds = c(457,457)
-                                                                      
-                                                                      
-                                  ),
-                                  ageCovariateSettings = list(names = c('log(age)'),
-                                                              ageMaps = list(function(x){return(log(x)^2)}),
-                                                              ageIds = 1,
-                                                              analysisIds = c(458),
-                                                              points = c(12.344)
-                                                              
-                                  ),
-                                  
-                                  finalMapping = function(x){return(x)}
-){
+                            standardCovariates = data.frame(covariateId = c(0003, 1003,
+                                                                            2003, 3003,
+                                                                            4003, 5003,
+                                                                            6003, 7003,
+                                                                            8003, 9003,
+                                                                            10003, 11003,
+                                                                            12003, 13003,
+                                                                            14003, 15003,
+                                                                            16003, 17003,
+                                                                            8507001),
+                                                            covariateName = c('Age 0-4', 'Age 5-9',
+                                                                              'Age 10-14', 'Age 15-19',
+                                                                              'Age 20-24', 'Age 25-30',
+                                                                              'Age 30-34', 'Age 35-40',
+                                                                              'Age 40-44', 'Age 45-50',
+                                                                              'Age 50-54', 'Age 55-60',
+                                                                              'Age 60-64', 'Age 65-70',
+                                                                              'Age 70-74', 'Age 75-80',
+                                                                              'Age 80-84', 'Age 85-90',
+                                                                              'Male'), 
+                                                            points = c(rep(0,19)),
+                                                            featureExtraction = c(rep('useDemographicsAgeGroup',18),
+                                                                                  'useDemographicsGender')),
+                            cohortCovariateSettings = list(baseUrl = 'https://...',
+                                                            atlasCovariateIds = c(1,109),
+                                                            atlasCovariateNames = c('Testing 1', 'Testing 109'),
+                                                            analysisIds = c(456,456),
+                                                            startDays = c(-999,-30),
+                                                            endDays = c(-1,0),
+                                                            points = c(1,2),
+                                                            count = rep(F, length(points)),
+                                                            ageInteraction = rep(F, length(points)),
+                                                           lnAgeInteraction = rep(F, length(points))
+                                                           ),
+                            
+                            measurementCovariateSettings = list(names = c('Measurement 1', 'measurement 2'),
+                                                                conceptSets = list(c(435454,64533), c(34343,124453)),
+                                                                startDays = c(-90, -30),
+                                                                endDays = c(0,0),
+                                                                scaleMaps= list(function(x){return(x)}, 
+                                                                                function(x){return(0)} ), 
+                                                                points = c(1.2,0.6),
+                                                                aggregateMethods = c('recent', 'max'),
+                                                                imputationValues = c(0,0),
+                                                                ageInteractions = rep(F, length(points)),
+                                                                lnAgeInteractions = rep(F, length(points)),
+                                                                lnValues = rep(F, length(points)),
+                                                                measurementIds = c(1,2), 
+                                                                analysisIds = c(457,457)
+                              
+                              
+                            ),
+                            
+                            measurementCohortCovariateSettings = list(names = c('Measurement 1', 'measurement 2'),
+                                                                      atlasCovariateIds = c(1,109),
+                                                                      types = c('in'),
+                                                                conceptSets = list(c(435454,64533), c(34343,124453)),
+                                                                startDays = c(-90, -30),
+                                                                endDays = c(0,0),
+                                                                scaleMaps= list(function(x){return(x)}, 
+                                                                                function(x){return(0)} ), 
+                                                                points = c(1.2,0.6),
+                                                                aggregateMethods = c('recent', 'max'),
+                                                                imputationValues = c(0,0),
+                                                                ageInteractions = rep(F, length(points)),
+                                                                lnAgeInteractions = rep(F, length(points)),
+                                                                lnValues = rep(F, length(points)),
+                                                                measurementIds = c(1,2), 
+                                                                analysisIds = c(457,457),
+                                                                baseUrl = 'http://'
+                                                                
+                                                                
+                            ),
+                            
+                            ageCovariateSettings = list(names = c('log(age)'),
+                                                        ageMaps = list(function(x){return(log(x)^2)}),
+                                                        ageIds = 1,
+                                                        analysisIds = c(458),
+                                                        points = c(12.344)
+                                                        
+                                                        ),
+                            
+                            finalMapping = function(x){return(x)}
+                            ){
   
   # insert the custom covariate settings
   
-  #l
-  if(file.exists(file.path("./inst/settings",'CustomCovariates.csv' ))){
-    cohortsToCreate <- read.csv(file.path("./inst/settings",'CustomCovariates.csv' ))
-    cohortsToCreate <- rbind(cohortsToCreate, 
-                             data.frame(atlasId = cohortCovariateSettings$atlasCovariateIds, 
-                                        cohortName = cohortCovariateSettings$atlasCovariateNames)
-    )
-  } else{
+  if(!is.null(cohortCovariateSettings)){
+    if(file.exists(file.path("./inst/settings",'CustomCovariates.csv' ))){
+      cohortsToCreate <- read.csv(file.path("./inst/settings",'CustomCovariates.csv' ))
+      cohortsToCreate <- rbind(cohortsToCreate, 
+                               data.frame(atlasId = cohortCovariateSettings$atlasCovariateIds, 
+                                          cohortName = cohortCovariateSettings$atlasCovariateNames)
+      )
+    } else{
+      
+      cohortsToCreate <- data.frame(atlasId = cohortCovariateSettings$atlasCovariateIds, 
+                                    cohortName = cohortCovariateSettings$atlasCovariateNames)
+    }
     
-    cohortsToCreate <- data.frame(atlasId = cohortCovariateSettings$atlasCovariateIds, 
-                                  cohortName = cohortCovariateSettings$atlasCovariateNames)
-  }
-  
-  cohortsToCreate <- unique(cohortsToCreate)
-  
-  write.csv(cohortsToCreate, file.path("./inst/settings",'CustomCovariates.csv' ), row.names = F)
-  
-  for (i in 1:nrow(cohortsToCreate)) {
-    writeLines(paste("Inserting cohort:", cohortsToCreate$cohortName[i]))
-    OhdsiRTools::insertCohortDefinitionInPackage(definitionId = cohortsToCreate$atlasId[i], # atlas or cohort? 
-                                                 name = cohortsToCreate$cohortName[i], 
-                                                 baseUrl = cohortCovariateSettings$baseUrl, 
-                                                 generateStats = F)
+    cohortsToCreate <- unique(cohortsToCreate)
+    
+    write.csv(cohortsToCreate, file.path("./inst/settings",'CustomCovariates.csv' ), row.names = F)
+    
+    for (i in 1:nrow(cohortsToCreate)) {
+      writeLines(paste("Inserting cohort:", cohortsToCreate$cohortName[i]))
+      OhdsiRTools::insertCohortDefinitionInPackage(definitionId = cohortsToCreate$atlasId[i], # atlas or cohort? 
+                                                   name = cohortsToCreate$cohortName[i], 
+                                                   baseUrl = cohortCovariateSettings$baseUrl, 
+                                                   generateStats = F)
+    }
   }
   
   
@@ -159,9 +184,17 @@ populatePackageModels <- function(modelname = 'SimpleModel',
     
     model <- rbind(model, cmodel)
   }
-  
+
   # add atlas cohort covariates 
   if(!is.null(standardCovariates)){
+    
+    # save the standard features settings
+    write.csv(unique(standardCovariates$featureExtraction),
+              file.path(file.path("./inst/settings",paste0(modelname,'_standard_features.csv' ))), row.names = F)
+    write.csv(unique(standardCovariates$covariateId),
+              file.path(file.path("./inst/settings",paste0(modelname,'_standard_features_include.csv' ))), row.names = F)
+    
+    
     standardCovariates$type = 'standardCovariate'
     standardCovariates$analysisId = 0
     standardCovariates$cohortId <- 0
@@ -177,6 +210,7 @@ populatePackageModels <- function(modelname = 'SimpleModel',
     standardCovariates$imputationValue = 0
     standardCovariates <- standardCovariates[,colnames(model)]
     model <- rbind(model, standardCovariates)
+    
   }
   
   # add measurement covariates 
@@ -199,7 +233,7 @@ populatePackageModels <- function(modelname = 'SimpleModel',
       imputationValue = measurementCovariateSettings$imputationValues,
       covariateId = 1000*measurementCovariateSettings$measurementIds+measurementCovariateSettings$analysisIds,
       points = measurementCovariateSettings$points
-    )
+      )
     smodel <- smodel[,colnames(model)]
     model <- rbind(model, smodel)
     
@@ -215,6 +249,68 @@ populatePackageModels <- function(modelname = 'SimpleModel',
     
   }
   
+  if(!is.null(measurementCohortCovariateSettings)){
+    
+    scmodel <- data.frame(
+      type = paste0('measurementCohortCovariate_',measurementCohortCovariateSettings$types),
+      analysisId = measurementCohortCovariateSettings$analysisIds,
+      covariateName = measurementCohortCovariateSettings$names,
+      cohortId = measurementCohortCovariateSettings$atlasCovariateIds,
+      atlasId = measurementCohortCovariateSettings$atlasCovariateIds, 
+      cohortName = 'na',
+      startDay = measurementCohortCovariateSettings$startDays,
+      endDay = measurementCohortCovariateSettings$endDays,
+      count = 0,
+      ageInteraction = measurementCohortCovariateSettings$ageInteractions,
+      lnAgeInteraction = measurementCohortCovariateSettings$lnAgeInteractions,
+      lnValue = measurementCohortCovariateSettings$lnValues,
+      aggregateMethod = measurementCohortCovariateSettings$aggregateMethods,
+      imputationValue = measurementCohortCovariateSettings$imputationValues,
+      covariateId = 1000*measurementCohortCovariateSettings$measurementIds+measurementCohortCovariateSettings$analysisIds,
+      points = measurementCohortCovariateSettings$points
+    )
+    scmodel <- scmodel[,colnames(model)]
+    model <- rbind(model, scmodel)
+    
+    
+    # save concept sets and scale mappers
+    for(i in 1:length(measurementCohortCovariateSettings$names)){
+      write.csv(measurementCohortCovariateSettings$conceptSets[[i]],
+                file.path(file.path("./inst/settings",paste0(measurementCohortCovariateSettings$names[i],'_concepts.csv' ))), row.names = F)
+      
+      saveRDS(measurementCohortCovariateSettings$scaleMaps[[i]], 
+              file.path(file.path("./inst/settings",paste0(measurementCohortCovariateSettings$names[i],'_scaleMap.rds' ))))
+    }
+    
+    # add cohorts
+    newCohortsToCreate <- data.frame(atlasId = measurementCohortCovariateSettings$atlasCovariateIds, 
+                                  cohortName = measurementCohortCovariateSettings$names)
+    
+    newCohortsToCreate <- unique(newCohortsToCreate)
+    
+    if(file.exists(file.path("./inst/settings",'CustomCovariates.csv' ))){
+      cohortsToCreate <- read.csv(file.path("./inst/settings",'CustomCovariates.csv' ))
+      cohortsToCreate <- rbind(cohortsToCreate, 
+                               newCohortsToCreate)
+    } else{
+      
+      cohortsToCreate <- newCohortsToCreate  
+      }
+    
+    cohortsToCreate <- unique(cohortsToCreate)
+    
+    write.csv(cohortsToCreate, file.path("./inst/settings",'CustomCovariates.csv' ), row.names = F)
+    
+    
+    for (i in 1:nrow(newCohortsToCreate)) {
+      writeLines(paste("Inserting cohort:", newCohortsToCreate$cohortName[i]))
+      OhdsiRTools::insertCohortDefinitionInPackage(definitionId = newCohortsToCreate$atlasId[i], # atlas or cohort? 
+                                                   name = newCohortsToCreate$cohortName[i], 
+                                                   baseUrl = measurementCohortCovariateSettings$baseUrl, 
+                                                   generateStats = F)
+    }
+    
+  }
   
   # add age map variables
   if(!is.null(ageCovariateSettings)){
@@ -242,18 +338,17 @@ populatePackageModels <- function(modelname = 'SimpleModel',
     
     for(i in 1:length(ageCovariateSettings$names)){
       saveRDS(ageCovariateSettings$ageMaps[[i]], 
-              file.path(file.path("./inst/settings",paste0(gsub(' ', '_',gsub(')','_',gsub('(','_',ageCovariateSettings$names[i]))),'_ageMap.rds' ))))
+              file.path(file.path("./inst/settings",paste0(gsub(' ', '_',gsub('\\)','_',gsub('\\(','_',ageCovariateSettings$names[i]))),'_ageMap.rds' ))))
     }
     
   }
   
   write.csv(model, file.path("./inst/settings",paste0(modelname,'_model.csv' )), row.names = F)
   
+  
   # save final mapping function
   saveRDS(finalMapping, 
           file.path(file.path("./inst/settings",paste0(modelname,'_finalMap.rds' ))))
-  
-  
   
   return(TRUE)
 }
@@ -272,7 +367,7 @@ replaceName <- function(packageLocation = getwd(),
   for(f in filesToRename){
     ParallelLogger::logInfo(paste0('Renaming ', f))
     fnew <- gsub("SkeletonExistingPredictionModelStudy", packageName, f)
-    file.rename(from = file.path(packageLocation,f), to = file.path(packageLocation,fnew))
+   file.rename(from = file.path(packageLocation,f), to = file.path(packageLocation,fnew))
   }
   
   # edit test in files:

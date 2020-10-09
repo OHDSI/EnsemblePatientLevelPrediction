@@ -14,10 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Extracts covariates based on measurements
+#' Extracts covariates based on measurements and cohort
 #'
 #' @details
-#' This extracts measurement values for a concept set of measurement concept ids
+#' This extracts measurement values for a concept set of measurement concept ids within some cohort
 #'
 #' @param connection  The database connection
 #' @param oracleTempSchema  The temp schema if using oracle
@@ -33,7 +33,7 @@
 #' The models will now be in the package
 #'
 #' @export
-getMeasurementCovariateData <- function(connection,
+getMeasurementCohortCovariateData <- function(connection,
                                    oracleTempSchema = NULL,
                                    cdmDatabaseSchema,
                                    cdmVersion = "5",
@@ -52,12 +52,23 @@ getMeasurementCovariateData <- function(connection,
    and measurement_date >= dateadd(day, @startDay, cohort_start_date) and 
    measurement_date <= dateadd(day, @endDay, cohort_start_date)",
   "{@ageInteraction | @lnAgeInteraction}?{inner join @cdm_database_schema.person p on p.person_id=c.subject_id}",
-  "where m.measurement_concept_id in (@concepts)"
+  " WHERE @type EXISTS (",
+  "SELECT 1 FROM @cohort_database_schema.@cohort_table",
+  "where @cohort_database_schema.@cohort_table.subject_id = c.subject_id",
+  "and @cohort_database_schema.@cohort_table.cohort_definition_id = @cohort_id",
+  "AND @cohort_database_schema.@cohort_table.cohort_start_date <= dateadd(day, @endDay, c.cohort_start_date)",
+  "AND @cohort_database_schema.@cohort_table.cohort_end_date >= dateadd(day, @startDay, c.cohort_start_date)",
+  ")",
+  "AND m.measurement_concept_id in (@concepts)"
   )
   
   sql <- SqlRender::render(sql,
                            cohort_temp_table = cohortTable,
                            row_id_field = rowIdField,
+                           cohort_database_schema = covariateSettings$cohortDatabaseSchema,
+                           cohort_table = covariateSettings$cohortTable,
+                           cohort_id = covariateSettings$cohortId,
+                           type = ifelse(covariateSettings$type == 'in', '', ' NOT '),
                            startDay=covariateSettings$startDay,
                            endDay=covariateSettings$endDay,
                            concepts = paste(covariateSettings$conceptSet, collapse = ','),
@@ -176,8 +187,9 @@ getMeasurementCovariateData <- function(connection,
 }
 
 
-createMeasurementCovariateSettings <- function(covariateName, conceptSet,
+createMeasurementCohortCovariateSettings <- function(covariateName, conceptSet,
                                           cohortDatabaseSchema, cohortTable, cohortId,
+                                          type = 'in', #'out'
                                           startDay=-30, endDay=0, 
                                           scaleMap = NULL, aggregateMethod = 'recent',
                                           imputationValue = 0,
@@ -185,12 +197,15 @@ createMeasurementCovariateSettings <- function(covariateName, conceptSet,
                                           lnAgeInteraction = F,
                                           lnValue = F,
                                           covariateId = 1466,
-                                          #measurementId = 1,
-                                          analysisId = 466
+                                          analysisId = 469
                                           ) {
   
   covariateSettings <- list(covariateName=covariateName, 
                             conceptSet=conceptSet,
+                            cohortDatabaseSchema = cohortDatabaseSchema, 
+                            cohortTable = cohortTable, 
+                            cohortId = cohortId,
+                            type = type,
                             startDay=startDay,
                             endDay=endDay,
                             scaleMap=scaleMap,
@@ -200,11 +215,10 @@ createMeasurementCovariateSettings <- function(covariateName, conceptSet,
                             lnAgeInteraction = lnAgeInteraction,
                             lnValue = lnValue,
                             covariateId = covariateId,
-                            #measurementId = measurementId, 
                             analysisId = analysisId
                             )
   
-  attr(covariateSettings, "fun") <- "getMeasurementCovariateData"
+  attr(covariateSettings, "fun") <- "getMeasurementCohortCovariateData"
   class(covariateSettings) <- "covariateSettings"
   return(covariateSettings)
 }

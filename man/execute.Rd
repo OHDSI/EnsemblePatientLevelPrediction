@@ -11,6 +11,7 @@ execute(
   cohortDatabaseSchema = cdmDatabaseSchema,
   cohortTable = "cohort",
   oracleTempSchema = cohortDatabaseSchema,
+  setting = NULL,
   sampleSize = NULL,
   riskWindowStart = 1,
   startAnchor = "cohort start",
@@ -22,7 +23,6 @@ execute(
   requireTimeAtRisk = F,
   minTimeAtRisk = 1,
   includeAllOutcomes = T,
-  standardCovariates,
   outputFolder,
   createCohorts = F,
   runAnalyses = F,
@@ -55,6 +55,8 @@ study.}
 \item{oracleTempSchema}{Should be used in Oracle to specify a schema where the user has write
 priviliges for storing temporary tables.}
 
+\item{setting}{A data.frame with the tId, oId, model triplets to run - if NULL it runs all possible combinations}
+
 \item{sampleSize}{How many patients to sample from the target population}
 
 \item{riskWindowStart}{The start of the risk window (in days) relative to the startAnchor.}
@@ -76,8 +78,6 @@ priviliges for storing temporary tables.}
 \item{minTimeAtRisk}{The minimum number of days at risk required to be included}
 
 \item{includeAllOutcomes}{(binary) indicating whether to include people with outcomes who are not observed for the whole at risk period}
-
-\item{standardCovariates}{Use this to add standard covariates such as age/gender}
 
 \item{outputFolder}{Name of local folder to place results; make sure to use forward slashes
 (/). Do not use a folder on a network drive since this greatly impacts
@@ -105,6 +105,8 @@ in packaged results.}
 }}
 
 \item{cdmVersion}{The version of the common data model}
+
+\item{standardCovariates}{Use this to add standard covariates such as age/gender}
 }
 \description{
 Execute the Study
@@ -130,7 +132,6 @@ execute(connectionDetails,
         startAnchor = 'cohort start',
         riskWindowEnd = 365,
         endAnchor = 'cohort start',
-        standardCovariates = FeatureExtraction::createCovariateSettings(useDemographicsAgeGroup = T, useDemographicsGender = T),
         outputFolder = "c:/temp/study_results", 
         createCohorts = T,
         runAnalyses = T,
