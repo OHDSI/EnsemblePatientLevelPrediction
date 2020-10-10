@@ -101,7 +101,7 @@ getMeasurementCohortCovariateData <- function(connection,
     covariates <- covariates %>% dplyr::group_by(rowId) %>%
       dplyr::summarize(covariateValue = median(valueAsNumber))
   } else{
-    ast <- covariates %>% dplyr::group_by(rowId) %>%
+    last <- covariates %>% dplyr::group_by(rowId) %>%
       #dplyr::summarize(lastDate = max(measurementDate))
       dplyr::summarize(lastTime = min(indexTime))
     covariates <- merge(covariates,last, 
