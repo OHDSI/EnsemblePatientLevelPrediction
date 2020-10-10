@@ -119,7 +119,7 @@ execute <- function(connectionDetails,
                     runAnalyses = F,
                     viewShiny = F,
                     packageResults = F,
-					          minCellCount = 10,
+                    minCellCount = 10,
                     verbosity = "INFO",
                     cdmVersion = 5) {
   if (!file.exists(file.path(outputFolder,cdmDatabaseName)))
@@ -160,7 +160,7 @@ execute <- function(connectionDetails,
         pathToInclude <- system.file("settings", gsub('_model.csv','_standard_features_include.csv',analysisSettings$model[i]), package = "SkeletonExistingPredictionModelStudy")
         incS <- read.csv(pathToInclude)$x
         standSet$includedCovariateIds <- incS
-
+        
         standardCovariates <- do.call(FeatureExtraction::createCovariateSettings,standSet)
         
       } else{
@@ -169,79 +169,96 @@ execute <- function(connectionDetails,
       
       #getData
       ParallelLogger::logInfo("Extracting data")
-      plpData <- getData(connectionDetails = connectionDetails,
-                         cdmDatabaseSchema = cdmDatabaseSchema,
-                         cdmDatabaseName = cdmDatabaseName,
-                         cohortDatabaseSchema = cohortDatabaseSchema,
-                         cohortTable = cohortTable,
-                         cohortId = analysisSettings$targetId[i],
-                         outcomeId = analysisSettings$outcomeId[i],
-                         oracleTempSchema = oracleTempSchema,
-                         model = analysisSettings$model[i],
-                         standardCovariates = standardCovariates,
-                         firstExposureOnly = firstExposureOnly,
-                         sampleSize = sampleSize,
-                         cdmVersion = cdmVersion)
+      plpData <- tryCatch({getData(connectionDetails = connectionDetails,
+                                   cdmDatabaseSchema = cdmDatabaseSchema,
+                                   cdmDatabaseName = cdmDatabaseName,
+                                   cohortDatabaseSchema = cohortDatabaseSchema,
+                                   cohortTable = cohortTable,
+                                   cohortId = analysisSettings$targetId[i],
+                                   outcomeId = analysisSettings$outcomeId[i],
+                                   oracleTempSchema = oracleTempSchema,
+                                   model = analysisSettings$model[i],
+                                   standardCovariates = standardCovariates,
+                                   firstExposureOnly = firstExposureOnly,
+                                   sampleSize = sampleSize,
+                                   cdmVersion = cdmVersion)},
+                          error = function(e){ParallelLogger::logError(e); return(NULL)})
       
-      #create pop
-      ParallelLogger::logInfo("Creating population")
-      population <- PatientLevelPrediction::createStudyPopulation(plpData = plpData, 
-                                                                  outcomeId = analysisSettings$outcomeId[i],
-                                                                  riskWindowStart = riskWindowStart,
-                                                                  startAnchor = startAnchor,
-                                                                  riskWindowEnd = riskWindowEnd,
-                                                                  endAnchor = endAnchor,
-                                                                  firstExposureOnly = firstExposureOnly,
-                                                                  removeSubjectsWithPriorOutcome = removeSubjectsWithPriorOutcome,
-                                                                  priorOutcomeLookback = priorOutcomeLookback,
-                                                                  requireTimeAtRisk = requireTimeAtRisk,
-                                                                  minTimeAtRisk = minTimeAtRisk,
-                                                                  includeAllOutcomes = includeAllOutcomes)
+      if(!is.null(plpData)){
+        
+        #create pop
+        ParallelLogger::logInfo("Creating population")
+        population <- tryCatch({PatientLevelPrediction::createStudyPopulation(plpData = plpData, 
+                                                                              outcomeId = analysisSettings$outcomeId[i],
+                                                                              riskWindowStart = riskWindowStart,
+                                                                              startAnchor = startAnchor,
+                                                                              riskWindowEnd = riskWindowEnd,
+                                                                              endAnchor = endAnchor,
+                                                                              firstExposureOnly = firstExposureOnly,
+                                                                              removeSubjectsWithPriorOutcome = removeSubjectsWithPriorOutcome,
+                                                                              priorOutcomeLookback = priorOutcomeLookback,
+                                                                              requireTimeAtRisk = requireTimeAtRisk,
+                                                                              minTimeAtRisk = minTimeAtRisk,
+                                                                              includeAllOutcomes = includeAllOutcomes)},
+                               error = function(e){ParallelLogger::logError(e); return(NULL)})
+        
+        
+        if(!is.null(population)){
+          # apply the model:
+          plpModel <- list(model = getModel(analysisSettings$model[i]),
+                           analysisId = analysisSettings$analysisId[i],
+                           hyperParamSearch = NULL,
+                           index = NULL,
+                           trainCVAuc = NULL,
+                           modelSettings = list(model = analysisSettings$model[i], 
+                                                modelParameters = NULL),
+                           metaData = NULL,
+                           populationSettings = attr(population, "metaData"),
+                           trainingTime = NULL,
+                           varImp = data.frame(covariateId = getModel(analysisSettings$model[i])$covariateId,
+                                               covariateValue = getModel(analysisSettings$model[i])$points),
+                           dense = T,
+                           cohortId = analysisSettings$cohortId[i],
+                           outcomeId = analysisSettings$outcomeId[i],
+                           covariateMap = NULL,
+                           predict = predictExisting(model = analysisSettings$model[i])
+          )
+          attr(plpModel, "type") <- 'existing'
+          class(plpModel) <- 'plpModel'
+          
+          
+          
+          ParallelLogger::logInfo("Applying and evaluating model")
+          result <- tryCatch({PatientLevelPrediction::applyModel(population = population,
+                                                                 plpData = plpData,
+                                                                 plpModel = plpModel)},
+                             error = function(e){ParallelLogger::logError(e); return(NULL)})
+          
+          if(!is.null(result)){
+            result$inputSetting$database <- cdmDatabaseName
+            result$inputSetting$modelSettings <- list(model = 'existing model', name = analysisSettings$model[i], param = getModel(analysisSettings$model[i]))
+            result$inputSetting$dataExtrractionSettings$covariateSettings <- plpData$metaData$call$covariateSettings
+            result$inputSetting$populationSettings <- attr(population, "metaData")
+            result$executionSummary  <- list()
+            result$model <- plpModel
+            result$analysisRef <- list()
+            result$covariateSummary <- tryCatch({PatientLevelPrediction:::covariateSummary(plpData = plpData, population = population, model = plpModel)},
+                                                error = function(e){ParallelLogger::logError(e); return(NULL)})
+            
+            if(!dir.exists(file.path(outputFolder,cdmDatabaseName))){
+              dir.create(file.path(outputFolder,cdmDatabaseName))
+            }
+            ParallelLogger::logInfo("Saving results")
+            PatientLevelPrediction::savePlpResult(result, file.path(outputFolder,cdmDatabaseName,analysisSettings$analysisId[i], 'plpResult'))
+            ParallelLogger::logInfo(paste0("Results saved to:",file.path(outputFolder,cdmDatabaseName,analysisSettings$analysisId[i])))
+            
+          } # result not null
+          
+        } # population not null
+        
+      } # plpData not null
       
-      
-      # apply the model:
-      plpModel <- list(model = getModel(analysisSettings$model[i]),
-                       analysisId = analysisSettings$analysisId[i],
-                       hyperParamSearch = NULL,
-                       index = NULL,
-                       trainCVAuc = NULL,
-                       modelSettings = list(model = analysisSettings$model[i], 
-                                            modelParameters = NULL),
-                       metaData = NULL,
-                       populationSettings = attr(population, "metaData"),
-                       trainingTime = NULL,
-                       varImp = data.frame(covariateId = getModel(analysisSettings$model[i])$covariateId,
-                                           covariateValue = getModel(analysisSettings$model[i])$points),
-                       dense = T,
-                       cohortId = analysisSettings$cohortId[i],
-                       outcomeId = analysisSettings$outcomeId[i],
-                       covariateMap = NULL,
-                       predict = predictExisting(model = analysisSettings$model[i])
-      )
-      attr(plpModel, "type") <- 'existing'
-      class(plpModel) <- 'plpModel'
-      ParallelLogger::logInfo("Applying and evaluating model")
-      result <- PatientLevelPrediction::applyModel(population = population,
-                                                   plpData = plpData,
-                                                   plpModel = plpModel)
-      
-      result$inputSetting$database <- cdmDatabaseName
-      result$inputSetting$modelSettings <- list(model = 'existing model', name = analysisSettings$model[i], param = getModel(analysisSettings$model[i]))
-      result$inputSetting$dataExtrractionSettings$covariateSettings <- plpData$metaData$call$covariateSettings
-      result$inputSetting$populationSettings <- attr(population, "metaData")
-      result$executionSummary  <- list()
-      result$model <- plpModel
-      result$analysisRef <- list()
-      result$covariateSummary <- PatientLevelPrediction:::covariateSummary(plpData = plpData, population = population, model = plpModel)
-      
-      if(!dir.exists(file.path(outputFolder,cdmDatabaseName))){
-        dir.create(file.path(outputFolder,cdmDatabaseName))
-      }
-      ParallelLogger::logInfo("Saving results")
-      PatientLevelPrediction::savePlpResult(result, file.path(outputFolder,cdmDatabaseName,analysisSettings$analysisId[i], 'plpResult'))
-      ParallelLogger::logInfo(paste0("Results saved to:",file.path(outputFolder,cdmDatabaseName,analysisSettings$analysisId[i])))
     }
-    
   }
   
   # [TODO] add create shiny app
@@ -257,10 +274,7 @@ execute <- function(connectionDetails,
     packageResults(outputFolder = file.path(outputFolder,cdmDatabaseName),
                    minCellCount = minCellCount)
   }
-   
+  
   return(viewer)
 }
-
-
-
 

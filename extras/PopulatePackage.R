@@ -17,15 +17,16 @@
 # Insert covariate cohort definitions from ATLAS into package -----------------------
 populatePackageCohorts <- function(targetCohortIds,
                                    targetCohortNames,
-                                   outcomeId,
-                                   outcomeName,
+                                   outcomeIds,
+                                   outcomeNames,
                                    baseUrl = 'https://...'){
   
   # insert the target and outcome cohorts:
-  cohortsToCreate <- data.frame(cohortId = c(targetCohortIds, outcomeId),
-                                atlasId = c(targetCohortIds, outcomeId),
-                                name = c(targetCohortNames, outcomeName),
-                                type = c(rep('target', length(targetCohortIds)), 'outcome'))
+  cohortsToCreate <- data.frame(cohortId = c(targetCohortIds, outcomeIds),
+                                atlasId = c(targetCohortIds, outcomeIds),
+                                name = c(targetCohortNames, outcomeNames),
+                                type = c(rep('target', length(targetCohortIds)), rep('outcome',length(outcomeIds)))
+  )
   
   write.csv(cohortsToCreate, file.path("./inst/settings",'CohortsToCreate.csv' ), row.names = F)
   
