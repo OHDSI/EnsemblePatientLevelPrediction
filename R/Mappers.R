@@ -7,3 +7,37 @@ getMap <- function(model = 'SimpleModel'){
   }
   return(map)
 }
+
+
+
+
+reformatePerformance <- function(performance,analysisId){
+  
+  nr1 <- length(unlist(performance$evaluationStatistics[-1]))
+  performance$evaluationStatistics <- cbind(analysisId= rep(analysisId,nr1),
+                                            Eval=rep('validation', nr1),
+                                            Metric = names(unlist(performance$evaluationStatistics[-1])),
+                                            Value = unlist(performance$evaluationStatistics[-1])
+  )
+  nr1 <- nrow(performance$thresholdSummary)
+  performance$thresholdSummary <- cbind(analysisId=rep(analysisId,nr1),
+                                        Eval=rep('validation', nr1),
+                                        performance$thresholdSummary)
+  nr1 <- nrow(performance$demographicSummary)
+  if(!is.null(performance$demographicSummary)){
+    performance$demographicSummary <- cbind(analysisId=rep(analysisId,nr1),
+                                            Eval=rep('validation', nr1),
+                                            performance$demographicSummary)
+  }
+  nr1 <- nrow(performance$calibrationSummary)
+  performance$calibrationSummary <- cbind(analysisId=rep(analysisId,nr1),
+                                          Eval=rep('validation', nr1),
+                                          performance$calibrationSummary)
+  nr1 <- nrow(performance$predictionDistribution)
+  performance$predictionDistribution <- cbind(analysisId=rep(analysisId,nr1),
+                                              Eval=rep('validation', nr1),
+                                              performance$predictionDistribution)
+  
+  return(performance)
+  
+}

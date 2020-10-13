@@ -35,7 +35,8 @@
 #' @param oracleTempSchema     Should be used in Oracle to specify a schema where the user has write
 #'                             priviliges for storing temporary tables.
 #' @param setting              A data.frame with the tId, oId, model triplets to run - if NULL it runs all possible combinations                
-#' @param sampleSize           How many patients to sample from the target population                             
+#' @param sampleSize           How many patients to sample from the target population 
+#' @param recalibrate          Recalibrate for the new population?                            
 #' @param riskWindowStart      The start of the risk window (in days) relative to the startAnchor.                           
 #' @param startAnchor          The anchor point for the start of the risk window. Can be "cohort start" or "cohort end".
 #' @param riskWindowEnd        The end of the risk window (in days) relative to the endAnchor parameter
@@ -104,6 +105,7 @@ execute <- function(connectionDetails,
                     oracleTempSchema = cohortDatabaseSchema,
                     setting = NULL,
                     sampleSize = NULL,
+                    recalibrate = F, 
                     riskWindowStart = 1,
                     startAnchor = 'cohort start',
                     riskWindowEnd = 365,
@@ -244,6 +246,28 @@ execute <- function(connectionDetails,
             result$analysisRef <- list()
             result$covariateSummary <- tryCatch({PatientLevelPrediction:::covariateSummary(plpData = plpData, population = population, model = plpModel)},
                                                 error = function(e){ParallelLogger::logError(e); return(NULL)})
+            
+            
+            if(recalibrate){
+              # add code here
+              misCal <- PatientLevelPrediction:::calibrationWeak(result$prediction)
+              predictionWeak <- result$prediction
+              predictionWeak$value[predictionWeak$value==0] <- 0.000000000000001
+              predictionWeak$value[predictionWeak$value==1] <- 1-0.000000000000001
+              predictionWeak$value <- log(predictionWeak$value/(1-predictionWeak$value))
+              predictionWeak$value <- 1/(1+exp(-1*(predictionWeak$value*misCal$gradient+misCal$intercept)))
+              
+              result$prediction <- predictionWeak
+              performance <- PatientLevelPrediction::evaluatePlp(result$prediction, plpData)
+              
+              # reformatting the performance 
+              analysisId <-   analysisSettings$analysisId[i]
+              performance <- reformatePerformance(performance,analysisId)
+              
+              result$performanceEvaluation <- performance
+            }
+            
+            
             
             if(!dir.exists(file.path(outputFolder,cdmDatabaseName))){
               dir.create(file.path(outputFolder,cdmDatabaseName))

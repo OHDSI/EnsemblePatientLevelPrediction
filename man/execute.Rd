@@ -13,6 +13,7 @@ execute(
   oracleTempSchema = cohortDatabaseSchema,
   setting = NULL,
   sampleSize = NULL,
+  recalibrate = F,
   riskWindowStart = 1,
   startAnchor = "cohort start",
   riskWindowEnd = 365,
@@ -58,6 +59,8 @@ priviliges for storing temporary tables.}
 \item{setting}{A data.frame with the tId, oId, model triplets to run - if NULL it runs all possible combinations}
 
 \item{sampleSize}{How many patients to sample from the target population}
+
+\item{recalibrate}{Recalibrate for the new population?}
 
 \item{riskWindowStart}{The start of the risk window (in days) relative to the startAnchor.}
 
