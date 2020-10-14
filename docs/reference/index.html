@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SkeletonExistingPredictionModelStudy</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -84,7 +84,7 @@
   </a>
 </li>
 <li>
-  <a href="../articles/UsingSkeletonPackage.html">Get started</a>
+  <a href="../articles/PopulatingSkeletonPackage.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -104,6 +104,18 @@
   <ul class="dropdown-menu" role="menu">
     <li>
       <a href="../articles/PopulatingSkeletonPackage.html">Populating the study package</a>
+    </li>
+    <li>
+      <a href="../articles/UsingAgeCovariates.html">Using the age covariate code</a>
+    </li>
+    <li>
+      <a href="../articles/UsingCohortCovariates.html">Using the cohort covariate code</a>
+    </li>
+    <li>
+      <a href="../articles/UsingMeasurementCohortCovariates.html">Using the measurement cohort covariate code</a>
+    </li>
+    <li>
+      <a href="../articles/UsingMeasurementCovariates.html">Using the measurement covariate code</a>
     </li>
     <li>
       <a href="../articles/UsingSkeletonPackage.html">Using the package skeleton for validating existing model studies</a>
@@ -161,6 +173,68 @@
         </td>
         <td><p>Execute the Study</p></td>
       </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-helpers" class="hasAnchor"><a href="#section-helpers" class="anchor"></a>Helpers</h2>
+          <p class="section-desc"><p>Functions used when running the study</p></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="createCohorts.html">createCohorts()</a></code> </p>
+        </td>
+        <td><p>Create the exposure and outcome cohorts</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="packageResults.html">packageResults()</a></code> </p>
+        </td>
+        <td><p>Package the results for sharing with OHDSI researchers</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-covariates" class="hasAnchor"><a href="#section-covariates" class="anchor"></a>Covariates</h2>
+          <p class="section-desc"><p>Functions used to create covariates</p></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="getAgeCovariateData.html">getAgeCovariateData()</a></code> </p>
+        </td>
+        <td><p>Extracts age covariates</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="getCohortCovariateData.html">getCohortCovariateData()</a></code> </p>
+        </td>
+        <td><p>Extracts covariates based on cohorts</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="getMeasurementCovariateData.html">getMeasurementCovariateData()</a></code> </p>
+        </td>
+        <td><p>Extracts covariates based on measurements</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="getMeasurementCohortCovariateData.html">getMeasurementCohortCovariateData()</a></code> </p>
+        </td>
+        <td><p>Extracts covariates based on measurements and cohort</p></td>
+      </tr>
     </tbody>
     </table>
   </div>
@@ -179,7 +253,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

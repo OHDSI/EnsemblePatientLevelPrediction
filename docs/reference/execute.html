@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SkeletonExistingPredictionModelStudy</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -85,7 +85,7 @@
   </a>
 </li>
 <li>
-  <a href="../articles/UsingSkeletonPackage.html">Get started</a>
+  <a href="../articles/PopulatingSkeletonPackage.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -105,6 +105,18 @@
   <ul class="dropdown-menu" role="menu">
     <li>
       <a href="../articles/PopulatingSkeletonPackage.html">Populating the study package</a>
+    </li>
+    <li>
+      <a href="../articles/UsingAgeCovariates.html">Using the age covariate code</a>
+    </li>
+    <li>
+      <a href="../articles/UsingCohortCovariates.html">Using the cohort covariate code</a>
+    </li>
+    <li>
+      <a href="../articles/UsingMeasurementCohortCovariates.html">Using the measurement cohort covariate code</a>
+    </li>
+    <li>
+      <a href="../articles/UsingMeasurementCovariates.html">Using the measurement covariate code</a>
     </li>
     <li>
       <a href="../articles/UsingSkeletonPackage.html">Using the package skeleton for validating existing model studies</a>
@@ -148,7 +160,9 @@
   <span class='kw'>cohortDatabaseSchema</span> <span class='kw'>=</span> <span class='no'>cdmDatabaseSchema</span>,
   <span class='kw'>cohortTable</span> <span class='kw'>=</span> <span class='st'>"cohort"</span>,
   <span class='kw'>oracleTempSchema</span> <span class='kw'>=</span> <span class='no'>cohortDatabaseSchema</span>,
+  <span class='kw'>setting</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>sampleSize</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>recalibrate</span> <span class='kw'>=</span> <span class='no'>F</span>,
   <span class='kw'>riskWindowStart</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>startAnchor</span> <span class='kw'>=</span> <span class='st'>"cohort start"</span>,
   <span class='kw'>riskWindowEnd</span> <span class='kw'>=</span> <span class='fl'>365</span>,
@@ -159,7 +173,6 @@
   <span class='kw'>requireTimeAtRisk</span> <span class='kw'>=</span> <span class='no'>F</span>,
   <span class='kw'>minTimeAtRisk</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>includeAllOutcomes</span> <span class='kw'>=</span> <span class='no'>T</span>,
-  <span class='no'>standardCovariates</span>,
   <span class='no'>outputFolder</span>,
   <span class='kw'>createCohorts</span> <span class='kw'>=</span> <span class='no'>F</span>,
   <span class='kw'>runAnalyses</span> <span class='kw'>=</span> <span class='no'>F</span>,
@@ -207,8 +220,16 @@ study.</p></td>
 priviliges for storing temporary tables.</p></td>
     </tr>
     <tr>
+      <th>setting</th>
+      <td><p>A data.frame with the tId, oId, model triplets to run - if NULL it runs all possible combinations</p></td>
+    </tr>
+    <tr>
       <th>sampleSize</th>
       <td><p>How many patients to sample from the target population</p></td>
+    </tr>
+    <tr>
+      <th>recalibrate</th>
+      <td><p>Recalibrate for the new population?</p></td>
     </tr>
     <tr>
       <th>riskWindowStart</th>
@@ -249,10 +270,6 @@ priviliges for storing temporary tables.</p></td>
     <tr>
       <th>includeAllOutcomes</th>
       <td><p>(binary) indicating whether to include people with outcomes who are not observed for the whole at risk period</p></td>
-    </tr>
-    <tr>
-      <th>standardCovariates</th>
-      <td><p>Use this to add standard covariates such as age/gender</p></td>
     </tr>
     <tr>
       <th>outputFolder</th>
@@ -296,6 +313,10 @@ in packaged results.</p></td>
       <th>cdmVersion</th>
       <td><p>The version of the common data model</p></td>
     </tr>
+    <tr>
+      <th>standardCovariates</th>
+      <td><p>Use this to add standard covariates such as age/gender</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
@@ -319,7 +340,7 @@ in packaged results.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

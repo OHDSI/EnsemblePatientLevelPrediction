@@ -25,7 +25,7 @@ navbar:
       href: reference/index.html
     intro:
       text: Get started
-      href: articles/UsingSkeletonPackage.html
+      href: articles/PopulatingSkeletonPackage.html
     news:
       text: Changelog
       href: news/index.html
@@ -42,3 +42,18 @@ reference:
       Function to run the study
     contents:
       - execute
+  - title: "Helpers"
+    desc: >
+      Functions used when running the study
+    contents:
+      - createCohorts
+      - packageResults
+  - title: "Covariates"
+    desc: >
+      Functions used to create covariates
+    contents:
+      - getAgeCovariateData
+      - getCohortCovariateData
+      - getMeasurementCovariateData
+      - getMeasurementCohortCovariateData
+      

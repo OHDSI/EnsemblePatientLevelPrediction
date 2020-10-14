@@ -82,6 +82,15 @@
 \newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
 \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
 \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs}
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
 \usepackage{graphicx,grffile}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -102,7 +111,7 @@
 
 \title{Populating the study package}
 \author{Jenna M. Reps}
-\date{2020-03-27}
+\date{2020-10-14}
 
 \begin{document}
 \maketitle
@@ -115,35 +124,46 @@
 \section{Introduction}\label{introduction}}
 
 This vignette describes how one can populate the
-SkeletonExistingModelStudy pacakge with the target cohort, outcome
+SkeletonExistingModelStudy package with the target cohort, outcome
 cohorts and model settings.
 
-First make sure to open the Skeleton R project in R studio, this can be
-done by finding the SkeletonExistingModelStudy.Rproj file in the folder.
-Once the package project is opened in R studio there are 3 steps that
-must be followed:
+The first step is to make a copy of the `SkeletonExistingModelStudy' R
+package template. You can do this by cloning the github package and then
+copy and paste the directory to a location in your computer.
+
+Open the Skeleton R project in R studio, this can be done by finding and
+double clicking on the SkeletonExistingModelStudy.Rproj file in the
+folder that you just copy and pasted. Once the package project is opened
+in R studio there are 5 steps that must be followed:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  Run the function: populatePackage (found in extras/populatePackage.R
-  on line 51) to add all cohorts and settings into the study package
+  Source extras/populatePackage.Rto add functions needed to populate the
+  package
+\item
+  Rename the package using: replaceName()
+\item
+  Add the target and outcome cohort using: populatePackageCohorts()
+\item
+  Specify the model using: populatePackageModels() - this can be run
+  multiple times to add multiple models
 \item
   Build the study package
-\item
-  Run the study package execute function
 \end{enumerate}
 
-\hypertarget{step-1-populate-skeleton-settings}{%
-\subsection{Step 1: Populate skeleton
-settings}\label{step-1-populate-skeleton-settings}}
+The package is now ready to run or share on GitHub.
 
-All the settings can be added to the study package by using the function
-`populatePackage()' that is found in extras/populatePackage.R.
+\hypertarget{step-1-source-.extraspopulatepackage.r}{%
+\subsection{Step 1: Source
+`./extras/populatePackage.R'}\label{step-1-source-.extraspopulatepackage.r}}
 
-To add the function to your environment, make sure the package R project
-is open in R studio and run:
+The R script extras/populatePackage.R contains multiple functions that
+can be used to populate the skeleton package.
+
+To add the functions to your environment, make sure the package R
+project is open in R studio and run:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -151,220 +171,498 @@ is open in R studio and run:
 \end{Highlighting}
 \end{Shaded}
 
-This will make the function 'populatePackage()'available to use within
-your R session.
+This will make the functions `replaceName()', `populatePackageCohorts()'
+and `populatePackageModels()' available to use within your R session.
 
-The `populatePackage()' function requires users to specify:
+\hypertarget{step-2-renaming-the-package}{%
+\subsection{Step 2: Renaming the
+package}\label{step-2-renaming-the-package}}
 
-\begin{itemize}
-\tightlist
-\item
-  targetCohortId - The ATLAS id for the target cohort
-\item
-  targetCohortName - A string with a sharable name for the target cohort
-\item
-  outcomeId - The ATLAS id for the outcome cohort
-\item
-  outcomeName - A string with a sharable name for the outcome cohort
-\item
-  standardCovariates - A data.frame with the columns: covariateId (for
-  standard fetures using FeatureExtraction), covariateName and points to
-  assign points for standard covariates
-\item
-  baseUrl - The url for the ATLAS webapi (this will be used to extract
-  the ATLAS cohorts)
-\item
-  atlasIds - an integer or vector of integers specifying the atlas
-  cohort Ids that are used by the custom cohort covariates
-\item
-  atlasNames - a string or vector of strings specifying the names of the
-  atlas ids (must be the same length as atlasIds)
-\item
-  startDays - a negative integer or vector of negative integers
-  specifying the days relative to index to start looking for the patient
-  being in the covariate cohort
-\item
-  endDays - a negative integer (or zero) or vector of negative integers
-  (or zero) specifying the days relative to index to stop looking for
-  the patient being in the covariate cohort
-\item
-  points - a double or vector of doubles specifying the points
-  corresponding to each variable
-\end{itemize}
-
-For example, to create two custom cohort covariates into the package I
-can run:
+The package is still currently called
+`SkeletonExistingPredictionModelStudy' but you need to rename all the
+files with the name of your study. To make this easy I created a
+function `replaceName()' that will automatically replace
+`SkeletonExistingPredictionModelStudy' with your new study name. Simply
+run:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{populatePackage}\NormalTok{(}\DataTypeTok{targetCohortId =} \DecValTok{10845}\NormalTok{,}
-                \DataTypeTok{targetCohortName =} \StringTok{'neg mamo'}\NormalTok{,}
-                \DataTypeTok{outcomeId =} \DecValTok{10082}\NormalTok{,}
-                \DataTypeTok{outcomeName =} \StringTok{'breast cancer'}\NormalTok{,}
-                \DataTypeTok{standardCovariates =} \KeywordTok{data.frame}\NormalTok{(}\DataTypeTok{covariateId =} \KeywordTok{c}\NormalTok{(}\DecValTok{0003}\NormalTok{, }\DecValTok{1003}\NormalTok{,}
-                                                                \DecValTok{2003}\NormalTok{, }\DecValTok{3003}\NormalTok{,}
-                                                                \DecValTok{4003}\NormalTok{, }\DecValTok{5003}\NormalTok{,}
-                                                                \DecValTok{6003}\NormalTok{, }\DecValTok{7003}\NormalTok{,}
-                                                                \DecValTok{8003}\NormalTok{, }\DecValTok{9003}\NormalTok{,}
-                                                                \DecValTok{10003}\NormalTok{, }\DecValTok{11003}\NormalTok{,}
-                                                                \DecValTok{12003}\NormalTok{, }\DecValTok{13003}\NormalTok{,}
-                                                                \DecValTok{14003}\NormalTok{, }\DecValTok{15003}\NormalTok{,}
-                                                                \DecValTok{16003}\NormalTok{, }\DecValTok{17003}\NormalTok{,}
-                                                                \DecValTok{8507001}\NormalTok{),}
-                                                \DataTypeTok{covariateName =} \KeywordTok{c}\NormalTok{(}\StringTok{'Age 0-4'}\NormalTok{, }\StringTok{'Age 5-9'}\NormalTok{,}
-                                                                  \StringTok{'Age 10-14'}\NormalTok{, }\StringTok{'Age 15-19'}\NormalTok{,}
-                                                                  \StringTok{'Age 20-24'}\NormalTok{, }\StringTok{'Age 25-30'}\NormalTok{,}
-                                                                  \StringTok{'Age 30-34'}\NormalTok{, }\StringTok{'Age 35-40'}\NormalTok{,}
-                                                                  \StringTok{'Age 40-44'}\NormalTok{, }\StringTok{'Age 45-50'}\NormalTok{,}
-                                                                  \StringTok{'Age 50-54'}\NormalTok{, }\StringTok{'Age 55-60'}\NormalTok{,}
-                                                                  \StringTok{'Age 60-64'}\NormalTok{, }\StringTok{'Age 65-70'}\NormalTok{,}
-                                                                  \StringTok{'Age 70-74'}\NormalTok{, }\StringTok{'Age 75-80'}\NormalTok{,}
-                                                                  \StringTok{'Age 80-84'}\NormalTok{, }\StringTok{'Age 85-90'}\NormalTok{,}
-                                                                  \StringTok{'Male'}\NormalTok{), }
-                                                \DataTypeTok{points =} \KeywordTok{c}\NormalTok{(}\KeywordTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{19}\NormalTok{))),}
-                \DataTypeTok{baseUrl =} \StringTok{'https://yourWebAPI'}\NormalTok{,}
-                \DataTypeTok{atlasCovariateIds =} \KeywordTok{c}\NormalTok{(}\DecValTok{14709}\NormalTok{,}\DecValTok{14709}\NormalTok{, }\DecValTok{14710}\NormalTok{),}
-                \DataTypeTok{atlasCovariateNames =} \KeywordTok{c}\NormalTok{(}\StringTok{'smoking anytime'}\NormalTok{, }\StringTok{'smoking recent'}\NormalTok{, }\StringTok{'traumatic brain injury'}\NormalTok{),}
-                \DataTypeTok{startDays =} \KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{999}\NormalTok{,}\OperatorTok{-}\DecValTok{30}\NormalTok{,}\OperatorTok{-}\DecValTok{999}\NormalTok{),}
-                \DataTypeTok{endDays =}  \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{),}
-                \DataTypeTok{points =} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{))}
+\KeywordTok{replaceName}\NormalTok{(}\DataTypeTok{packageLocation =} \KeywordTok{getwd}\NormalTok{(), }
+          \DataTypeTok{packageName =} \StringTok{'PooledCohortvalidation'}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
-The code above extracts the target and outcome cohorts and two ATLAS
-cohort (14709, 14710) to create three covariates:
+When you open the r project it will set your working directory to the
+package directory - so `packageLocation = getwd()' should work. If this
+has not occurred, you may need to manually specify the location where
+`SkeletonExistingModelStudy.Rproj' exists in the skeleton copy you made.
+Set `packageName' to be the name you want to call your study. The
+example above will replace `SkeletonExistingModelStudy' with
+`PooledCohortvalidation' throughout the skeleton package.
+
+It is a good practice to close the R project and reopen it once renamed.
+The R project will now be renamed, in the example about it would be
+called `PooledCohortvalidation.Rproj'.
+
+\hypertarget{step-3-adding-the-target-and-outcome-cohorts}{%
+\subsection{Step 3: Adding the Target and Outcome
+cohorts}\label{step-3-adding-the-target-and-outcome-cohorts}}
+
+The `populatePackageCohorts()' function requires users to specify:
 
 \begin{itemize}
 \tightlist
 \item
-  covariate 1: The ATLAS cohort with the id of 14709 named `smoking
-  anytime' looks for patients who have a smoking anytime
-  cohort\_start\_date between (index date-999 days) and (index date).
-  E.g., If a patient is in the smoking anytime cohort 50 days before the
-  index date then they will have a value of 1 for the custom covariate.
-  If they are not in the smoking anytime cohort between 999 days before
-  index and the day of index then they will have a value of 0 for the
-  custom covariate.
+  targetCohortIds - The ATLAS id/s for the target cohort/s
 \item
-  covariate 2: The ATLAS cohort with the id of 14709 named `smoking
-  recent' looks for patients who have a smoking recent
-  cohort\_start\_date between (index date-30 days) and (index date).
-  E.g., If a patient is in the smoking recent cohort 20 days before the
-  index date then they will have a value of 1 for the custom covariate.
-  If they are not in the smoking recent cohort between 30 days before
-  index and the day of index then they will have a value of 0 for the
-  custom covariate.
+  targetCohortNames - A string or vector of string with sharable name/s
+  for the target cohort/s
 \item
-  covariate 3: The ATLAS cohort with the id of 14710 named `traumatic
-  brain injury' looks for patients who have a traumatic brain injury
-  cohort\_start\_date between (index date-999 days) and (index date).
-  E.g., If a patient is in the traumatic brain injury cohort 200 days
-  before the index date then they will have a value of 1 for the custom
-  covariate. If they are not in the traumatic brain injury cohort before
-  index then they will have a value of 0 for the custom covariate.
+  outcomeIds - The ATLAS id/s for the outcome cohort/s
+\item
+  outcomeNames - A string or vector of string with sharable name/s for
+  the outcome cohort/s
+\item
+  baseUrl - The url for the ATLAS webapi (this will be used to extract
+  the ATLAS cohorts)
 \end{itemize}
 
-It also creates three csv files in the inst/settings directory named:
+For example, to insert the target cohort:
 
 \begin{itemize}
 \tightlist
 \item
-  CohortsToCreate.csv - specifying the target and outcome cohorts
+  `Pooled cohort equation target - non-black male' - that has the atlas
+  ID 18941
 \item
-  CustomCovariates.csv - specifying the custom covariates
+  `Pooled cohort equation target - non-black female' - that has the
+  atlas ID 18942
 \item
-  SimpleModel.csv - settings specifying the simple prediction model
+  `Pooled cohort equation target - black female' - that has the atlas ID
+  18943
+\item
+  `Pooled cohort equation target - black male' - that has the atlas ID
+  18944
 \end{itemize}
 
-\hypertarget{step-2-build-the-study-package}{%
-\subsection{Step 2: Build the study
-package}\label{step-2-build-the-study-package}}
+and the outcome cohorts:
+
+\begin{itemize}
+\tightlist
+\item
+  `Earliest of AMI ischemic stroke or cardiovascular death' - that has
+  the atlas ID 18945
+\item
+  `Acute myocardial infarction events' - that has the atlas ID 18935
+\item
+  `Ischemic stroke events' - that has the atlas ID 18936
+\end{itemize}
+
+from the webapi at `\url{https://yourWebAPI}' run:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{populatePackageCohorts}\NormalTok{(}\DataTypeTok{targetCohortIds =} \KeywordTok{c}\NormalTok{(}\DecValTok{18941}\NormalTok{, }\DecValTok{18942}\NormalTok{, }\DecValTok{18943}\NormalTok{, }\DecValTok{18944}\NormalTok{),}
+                       \DataTypeTok{targetCohortNames =} \KeywordTok{c}\NormalTok{(}\StringTok{'Pooled cohort equation target - non-black male'}\NormalTok{,}
+                                             \StringTok{'Pooled cohort equation target - non-black female'}\NormalTok{,}
+                                             \StringTok{'Pooled cohort equation target - black female'}\NormalTok{,}
+                                             \StringTok{'Pooled cohort equation target - black male'}\NormalTok{),}
+                       \DataTypeTok{outcomeIds =} \KeywordTok{c}\NormalTok{(}\DecValTok{18945}\NormalTok{, }\DecValTok{18935}\NormalTok{, }\DecValTok{18936}\NormalTok{),}
+                       \DataTypeTok{outcomeNames =} \KeywordTok{c}\NormalTok{(}\StringTok{'Earliest of AMI ischemic stroke or cardiovascular death'}\NormalTok{,}
+                                       \StringTok{'Acute myocardial infarction events'}\NormalTok{,}
+                                       \StringTok{'Ischemic stroke events'}\NormalTok{),}
+                       \DataTypeTok{baseUrl =} \StringTok{'https://yourWebAPI'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+This then inserts each cohort into `inst/cohorts' as a json with the
+file name targetCohortNames or outcomeNames `.json' and inserts in
+`inst/sql/sql\_server' as a sql with the file name targetCohortNames or
+outcomeNames `.sql'.
+
+It also creates a csv file in `inst/settings' named `CohortToCreate.csv'
+that specifies all the target and outcome cohorts to generate when the
+study is executed.
+
+\hypertarget{step-4-specify-the-model}{%
+\subsection{Step 4: Specify the model}\label{step-4-specify-the-model}}
+
+The next step is to insert the model settings into the package. This can
+be done by running the function `populatePackageModels()' per model to
+incorporate.
+
+There are 6 main inputs into this function:
+
+\begin{longtable}[]{@{}ll@{}}
+\caption{The inputs into the populatePackageModels
+function}\tabularnewline
+\toprule
+Input & Description\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Input & Description\tabularnewline
+\midrule
+\endhead
+modelname & The name of the model you are specifying\tabularnewline
+standardCovariates & A list of settings for predictors that are
+standardCovariates\tabularnewline
+cohortCovariateSettings & A list of settings for predictors that are
+cohort covariates\tabularnewline
+measurementCovariateSettings & A list of settings for predictors that
+are measurment covariates\tabularnewline
+measurementCohortCovariateSettings & A list of settings for predictors
+that are measurement cohort covariates\tabularnewline
+finalMapping & The mapping from total score to predicted
+risk\tabularnewline
+\bottomrule
+\end{longtable}
+
+This 6 inputs specifiy the model name, the predictors and the final
+model mapping.
+
+\hypertarget{modelname}{%
+\subsubsection{modelname}\label{modelname}}
+
+The `modelname' input is use when saving the model settings. The main
+model settings are saved in inst/settings as modelname\_model.csv. Each
+row in modelname\_model.csv specifies a covariate and the corresponding
+number of points (i.e., coefficient value) and settings required to
+create the covariate using standardCovariates, createCohortCovariate,
+createMeasurementCovariate, createMeasurementCohortCovariate or
+createAgeCovariate.
+
+\hypertarget{standardcovariates}{%
+\subsubsection{standardCovariates}\label{standardcovariates}}
+
+The `standardCovariates' input is used when you want to include standard
+FeatureExtraction covariates. The input is a list of settings that
+specify what standard covariates to use (when you execute the study
+these will be used to configure
+FeatureExtraction::createCovariateSettings() ) and the corresponding
+points.
+
+\begin{longtable}[]{@{}lll@{}}
+\caption{The inputs into the standardCovariates function}\tabularnewline
+\toprule
+Input & Description & Example\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Input & Description & Example\tabularnewline
+\midrule
+\endhead
+covariateId & A vector of the standard covariateIds to include &
+c(12003, 13003, 8507001)\tabularnewline
+covariateName & A vector of the corresponding names & c(``Age 60-64'',
+``Age 65-70'', ``Male'')\tabularnewline
+points & A vector of the corresponding points &
+c(10,10,15)\tabularnewline
+featureExtraction & A vector of the inputs needed in
+FeatureExtraction::createCovariateSettings &
+c(``useDemographicsAgeGroup'',``useDemographicsAgeGroup'',
+``useDemographicsGender'')\tabularnewline
+\bottomrule
+\end{longtable}
+
+The `covariateId' values must match the standard ids created by
+`FeatureExtraction::createCovariateSettings'. These are often the
+conceptId*1000+analysisId, where the analysisId can be found in
+\url{https://github.com/OHDSI/FeatureExtraction/blob/master/inst/csv/PrespecAnalyses.csv}
+. When the `populatePackageModels' function is executed with
+`standardCovariates' set then the model settings
+`inst/settings/modelname\_model.csv' is created or appended to with the
+standard covariate settings. If your model does not require standard
+covariates, then set `standardCovariates' to NULL.
+
+\hypertarget{cohortcovariatesettings}{%
+\subsubsection{cohortCovariateSettings}\label{cohortcovariatesettings}}
+
+The `cohortCovariateSettings' is used when you want to include
+covariates using cohort definitions. This can be useful for more complex
+features such as a diabetes definition that requires a diabetes
+condition record and a treatment record within 60 days. The
+`cohortCovariateSettings' input is a list containing the following
+entries:
+
+\begin{longtable}[]{@{}lll@{}}
+\caption{The inputs into the cohortCovariateSettings
+function}\tabularnewline
+\toprule
+Input & Description & Example\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Input & Description & Example\tabularnewline
+\midrule
+\endhead
+baseUrl & A baseUrl for the ATLAS webapi that contains the cohorts &
+\url{https://yourWebAPI}\tabularnewline
+atlasCovariateIds & A vector of the atlas cohort ids &
+c(191324,184343)\tabularnewline
+atlasCovariateNames & A vector of the atlas cohort names &
+c(``Diabetes'',``Hypertension'')\tabularnewline
+analysisIds & A vector of analysis ids for the cohort covariates &
+c(456,456)\tabularnewline
+startDays & Find cohort entries where the cohort\_start\_date occurs
+after the the startDays relative to index &
+c(-9999,-9999)\tabularnewline
+endDays & Find cohort entries where the cohort\_start\_date occurs
+before the the endsDays relative to index & c(-1,-1)\tabularnewline
+points & A vector of the points & c(5,10)\tabularnewline
+count & A vector specifying whether to use binary indicators or count
+the number of cohort\_start\_dates per patients between index +
+startDays and index + endsDays & c(F,F)\tabularnewline
+ageInteraction & A vector specifying whether to use the age interaction
+& c(F,F)\tabularnewline
+lnAgeInteraction & A vector specifying whether to use the natural
+logarithm log(age) interaction & c(F,F)\tabularnewline
+\bottomrule
+\end{longtable}
+
+The `cohortCovariateSettings' saves settings required by
+`createCohortCovariateSettings'. When the `populatePackageModels'
+function is executed with `cohortCovariateSettings' set then the
+specified ATLAS cohorts are downloaded into the package using the webapi
+and the model settings `inst/settings/modelname\_model.csv' is created
+or appended to with the cohort covariate settings. If you do not want to
+include cohort covariates set `cohortCovariateSettings' to NULL.
+
+\hypertarget{measurementcovariatesettings}{%
+\subsubsection{measurementCovariateSettings}\label{measurementcovariatesettings}}
+
+The `measurementCovariateSettings' is used when you want to include
+measurement covariates. This can be useful for more complex features
+such as total cholesterol. The `measurementCovariateSettings' input is a
+list containing the following entries:
+
+\begin{longtable}[]{@{}lll@{}}
+\caption{The inputs into the measurementCovariateSettings
+function}\tabularnewline
+\toprule
+Input & Description & Example\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Input & Description & Example\tabularnewline
+\midrule
+\endhead
+names & A vector of the measurement covariate names & c(``HDL-C\_mgdL'',
+``HDL-C\_mgdL'')\tabularnewline
+conceptSets & A list containing vectors of the measurement concept sets
+& list(c(2212449, 3003767, 3007070, 3007676, 3011884, 3013473, 3015204,
+3016945, 3022449, 3023602), c(2212449, 3003767, 3007070, 3007676,
+3011884, 3013473, 3015204, 3016945, 3022449, 3023602))\tabularnewline
+startDays & Find measurement entries where the measurement\_date occurs
+after the the startDays relative to index & c(-365, -365)\tabularnewline
+endDays & Find measurement entries where the measurement\_date occurs
+before the the endsDays relative to index & c(60,60)\tabularnewline
+scaleMaps & A list of functions specifying how to standardise the
+measurements & list(function(x)\{return(x)\}, function(x)\{return(x)\}
+)\tabularnewline
+points & A vector of the points & c(5,10)\tabularnewline
+aggregateMethods & A vector specifying how to pick a single measurement
+value per patient. Choose from recent (closest to index), min, max or
+mean & c(``recent'',``recent'')\tabularnewline
+imputationValues & A vector of values used to impute when a measurement
+is missing for a patient & c(50,50)\tabularnewline
+ageInteractions & A vector specifying whether to use the age interaction
+& c(F,F)\tabularnewline
+lnAgeInteractions & A vector specifying whether to use the natural
+logarithm log(age) interaction & c(F,F)\tabularnewline
+lnValues & A vector specifying whether to use the log measurement value
+& c(F,F)\tabularnewline
+measurementIds & A vector specifying the measurement ids &
+c(1,2)\tabularnewline
+analysisIds & A vector specifying the analysis ids &
+c(458,458)\tabularnewline
+\bottomrule
+\end{longtable}
+
+The `measurementCovariateSettings' saves settings required by
+`createMeasurementCovariateSettings'. When the `populatePackageModels'
+function is executed with `measurementCovariateSettings' set then the
+model settings `inst/settings/modelname\_model.csv' is created or
+appended to with the neasurement covariate settings. The mapping
+functions for each measurement covariate are saved as rds files into the
+`inst/settings' directory. If you do not want to include measurement
+covariates set `measurementCovariateSettings' to NULL.
+
+\hypertarget{measurementcohortcovariatesettings}{%
+\subsubsection{measurementCohortCovariateSettings}\label{measurementcohortcovariatesettings}}
+
+The `measurementCohortCovariateSettings' is used when you want to
+include measurement covariates where patients are also in or not in some
+specified cohort. This can be useful for more complex features such as
+treated systolic blood pressure or untreated systolic blood pressure.
+The `measurementCohortCovariateSettings' input is a list containing the
+following entries:
+
+\begin{longtable}[]{@{}lll@{}}
+\caption{The inputs into the measurementCohortCovariateSettings
+function}\tabularnewline
+\toprule
+Input & Description & Example\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Input & Description & Example\tabularnewline
+\midrule
+\endhead
+names & A vector of the measurement covariate names & c(``HDL-C\_mgdL'',
+``HDL-C\_mgdL'')\tabularnewline
+atlasCovariateIds & A vector of the cohort ids &
+c(18946,18946)\tabularnewline
+types & A vector of ``in'' or ``out'' indicating whether to require
+being in, or not in, the cohort. & c(``in'',``out'')\tabularnewline
+conceptSets & A list containing vectors of the measurement concept sets
+& list(c(2212449, 3003767, 3007070, 3007676, 3011884, 3013473, 3015204,
+3016945, 3022449, 3023602), c(2212449, 3003767, 3007070, 3007676,
+3011884, 3013473, 3015204, 3016945, 3022449, 3023602))\tabularnewline
+startDays & Find measurement entries where the measurement\_date occurs
+after the the startDays relative to index & c(-365, -365)\tabularnewline
+endDays & Find measurement entries where the measurement\_date occurs
+before the the endsDays relative to index & c(60,60)\tabularnewline
+scaleMaps & A list of functions specifying how to standardise the
+measurements & list(function(x)\{return(x)\}, function(x)\{return(x)\}
+)\tabularnewline
+points & A vector of the points & c(5,10)\tabularnewline
+aggregateMethods & A vector specifying how to pick a single measurement
+value per patient. Choose from recent (closest to index), min, max or
+mean & c(``recent'',``recent'')\tabularnewline
+ageInteractions & A vector specifying whether to use the age interaction
+& c(F,F)\tabularnewline
+lnAgeInteractions & A vector specifying whether to use the natural
+logarithm log(age) interaction & c(F,F)\tabularnewline
+lnValues & A vector specifying whether to use the log measurement value
+& c(F,F)\tabularnewline
+measurementIds & A vector specifying the measurement ids &
+c(1,2)\tabularnewline
+analysisIds & A vector specifying the analysis ids &
+c(458,458)\tabularnewline
+baseUrl & ATLAS webapi address & \url{https://yourWebAPI}\tabularnewline
+\bottomrule
+\end{longtable}
+
+The `measurementCohortCovariateSettings' saves settings required by
+`createMeasurementCohortCovariateSettings'. When the
+`populatePackageModels' function is executed with
+`measurementCohortCovariateSettings' set then the model settings
+`inst/settings/modelname\_model.csv' is created or appended to with the
+neasurement covariate settings and all specified ATLAS cohort are
+downloaded using the webapi into `inst/cohorts' and
+`inst/sql/sql\_server'. The mapping functions for each measurement
+covariate are saved as rds files into the `inst/settings' directory. If
+you do not want to include measurement based on being in/not in a cohort
+covariates set `measurementCohortCovariateSettings' to NULL.
+
+\hypertarget{finalmapping}{%
+\subsubsection{finalMapping}\label{finalmapping}}
+
+The `finalMapping' input is a function that maps from the sum of the
+points to a predicted risk. For example, if the model is a logistic
+regression, the following mapping would be used:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ControlFlowTok{function}\NormalTok{(x)\{}\KeywordTok{return}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{+}\KeywordTok{exp}\NormalTok{(}\OperatorTok{-}\NormalTok{x)))\}}
+\end{Highlighting}
+\end{Shaded}
+
+This gets saved as an rds file in the `inst/setting' directory.
+
+\hypertarget{example}{%
+\subsubsection{Example}\label{example}}
+
+A complete example code for inserting the pooled cohort question
+non-black model into the skeleton package:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{populatePackageModels}\NormalTok{(}\DataTypeTok{modelname =} \StringTok{'pooled_male_non_black'}\NormalTok{,}
+                      \DataTypeTok{standardCovariates =} \OtherTok{NULL}\NormalTok{,}
+                      \DataTypeTok{cohortCovariateSettings =} \KeywordTok{list}\NormalTok{(}\DataTypeTok{baseUrl =} \StringTok{'https://yourWebAPI'}\NormalTok{,}
+                                                     \DataTypeTok{atlasCovariateIds =} \KeywordTok{c}\NormalTok{(}\DecValTok{17720}\NormalTok{,}\DecValTok{18957}\NormalTok{,}\DecValTok{18957}\NormalTok{),}
+                                                     \DataTypeTok{atlasCovariateNames =} \KeywordTok{c}\NormalTok{(}\StringTok{'diabetes'}\NormalTok{, }\StringTok{'smoking'}\NormalTok{,}\StringTok{'smoking'}\NormalTok{),}
+                                                     \DataTypeTok{analysisIds =} \KeywordTok{c}\NormalTok{(}\DecValTok{456}\NormalTok{,}\DecValTok{456}\NormalTok{,}\DecValTok{455}\NormalTok{),}
+                                                     \DataTypeTok{startDays =} \KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{9999}\NormalTok{,}\OperatorTok{-}\DecValTok{730}\NormalTok{,}\OperatorTok{-}\DecValTok{730}\NormalTok{),}
+                                                     \DataTypeTok{endDays =} \KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\NormalTok{,}\DecValTok{60}\NormalTok{,}\DecValTok{60}\NormalTok{),}
+                                                     \DataTypeTok{points =} \KeywordTok{c}\NormalTok{(}\FloatTok{0.658}\NormalTok{,}\FloatTok{7.837}\NormalTok{,}\OperatorTok{-}\FloatTok{1.795}\NormalTok{),}
+                                                     \DataTypeTok{count =} \KeywordTok{rep}\NormalTok{(F, }\DecValTok{3}\NormalTok{),}
+                                                     \DataTypeTok{ageInteraction =} \KeywordTok{c}\NormalTok{(F,F,F), }
+                                                     \DataTypeTok{lnAgeInteraction =} \KeywordTok{c}\NormalTok{(F,F,T)) ,}
+                      
+                      \DataTypeTok{measurementCovariateSettings =} \KeywordTok{list}\NormalTok{(}\DataTypeTok{names =} \KeywordTok{c}\NormalTok{(}\StringTok{'Total_Cholesterol_mgdL'}\NormalTok{, }\StringTok{'Total_Cholesterol_mgdL'}\NormalTok{,}
+                                                                    \StringTok{'HDL-C_mgdL'}\NormalTok{, }\StringTok{'HDL-C_mgdL'}
+\NormalTok{                                                                    ),}
+                                                          \DataTypeTok{conceptSets =} \KeywordTok{list}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\DecValTok{2212267}\NormalTok{,}\DecValTok{3015232}\NormalTok{,}\DecValTok{3019900}\NormalTok{,}\DecValTok{3027114}\NormalTok{,}\DecValTok{4008265}\NormalTok{,}\DecValTok{4190897}\NormalTok{,}\DecValTok{4198448}\NormalTok{,}\DecValTok{4260765}\NormalTok{,}\DecValTok{37393449}\NormalTok{,}\DecValTok{37397989}\NormalTok{,}\DecValTok{40484105}\NormalTok{,}\DecValTok{44791053}\NormalTok{,}\DecValTok{44809580}\NormalTok{),}
+                                                                             \KeywordTok{c}\NormalTok{(}\DecValTok{2212267}\NormalTok{,}\DecValTok{3015232}\NormalTok{,}\DecValTok{3019900}\NormalTok{,}\DecValTok{3027114}\NormalTok{,}\DecValTok{4008265}\NormalTok{,}\DecValTok{4190897}\NormalTok{,}\DecValTok{4198448}\NormalTok{,}\DecValTok{4260765}\NormalTok{,}\DecValTok{37393449}\NormalTok{,}\DecValTok{37397989}\NormalTok{,}\DecValTok{40484105}\NormalTok{,}\DecValTok{44791053}\NormalTok{,}\DecValTok{44809580}\NormalTok{),}
+                                                                             \KeywordTok{c}\NormalTok{(}\DecValTok{2212449}\NormalTok{,}\DecValTok{3003767}\NormalTok{,}\DecValTok{3007070}\NormalTok{,}\DecValTok{3007676}\NormalTok{,}\DecValTok{3011884}\NormalTok{,}\DecValTok{3013473}\NormalTok{,}\DecValTok{3015204}\NormalTok{,}\DecValTok{3016945}\NormalTok{,}\DecValTok{3022449}\NormalTok{,}\DecValTok{3023602}\NormalTok{,}\DecValTok{3023752}\NormalTok{,}\DecValTok{3024401}\NormalTok{,}\DecValTok{3030792}\NormalTok{,}\DecValTok{3032771}\NormalTok{,}\DecValTok{3033638}\NormalTok{,}\DecValTok{3034482}\NormalTok{,}\DecValTok{3040815}\NormalTok{,}\DecValTok{3053286}\NormalTok{,}\DecValTok{4005504}\NormalTok{,}\DecValTok{4008127}\NormalTok{,}\DecValTok{4011133}\NormalTok{,}\DecValTok{4019543}\NormalTok{,}\DecValTok{4041557}\NormalTok{,}\DecValTok{4041720}\NormalTok{,}\DecValTok{4042059}\NormalTok{,}\DecValTok{4042081}\NormalTok{,}\DecValTok{4055665}\NormalTok{,}\DecValTok{4076704}\NormalTok{,}\DecValTok{4101713}\NormalTok{,}\DecValTok{4195503}\NormalTok{,}\DecValTok{4198116}\NormalTok{,}\DecValTok{37208659}\NormalTok{,}\DecValTok{37208661}\NormalTok{,}\DecValTok{37392562}\NormalTok{,}\DecValTok{37392938}\NormalTok{,}\DecValTok{37394092}\NormalTok{,}\DecValTok{37394229}\NormalTok{,}\DecValTok{37394230}\NormalTok{,}\DecValTok{37398699}\NormalTok{,}\DecValTok{40757503}\NormalTok{,}\DecValTok{40765014}\NormalTok{,}\DecValTok{44789188}\NormalTok{,}\DecValTok{45768617}\NormalTok{,}\DecValTok{45768651}\NormalTok{,}\DecValTok{45768652}\NormalTok{,}\DecValTok{45768653}\NormalTok{,}\DecValTok{45768654}\NormalTok{,}\DecValTok{45771001}\NormalTok{,}\DecValTok{45772902}\NormalTok{),}
+                                                                             \KeywordTok{c}\NormalTok{(}\DecValTok{2212449}\NormalTok{,}\DecValTok{3003767}\NormalTok{,}\DecValTok{3007070}\NormalTok{,}\DecValTok{3007676}\NormalTok{,}\DecValTok{3011884}\NormalTok{,}\DecValTok{3013473}\NormalTok{,}\DecValTok{3015204}\NormalTok{,}\DecValTok{3016945}\NormalTok{,}\DecValTok{3022449}\NormalTok{,}\DecValTok{3023602}\NormalTok{,}\DecValTok{3023752}\NormalTok{,}\DecValTok{3024401}\NormalTok{,}\DecValTok{3030792}\NormalTok{,}\DecValTok{3032771}\NormalTok{,}\DecValTok{3033638}\NormalTok{,}\DecValTok{3034482}\NormalTok{,}\DecValTok{3040815}\NormalTok{,}\DecValTok{3053286}\NormalTok{,}\DecValTok{4005504}\NormalTok{,}\DecValTok{4008127}\NormalTok{,}\DecValTok{4011133}\NormalTok{,}\DecValTok{4019543}\NormalTok{,}\DecValTok{4041557}\NormalTok{,}\DecValTok{4041720}\NormalTok{,}\DecValTok{4042059}\NormalTok{,}\DecValTok{4042081}\NormalTok{,}\DecValTok{4055665}\NormalTok{,}\DecValTok{4076704}\NormalTok{,}\DecValTok{4101713}\NormalTok{,}\DecValTok{4195503}\NormalTok{,}\DecValTok{4198116}\NormalTok{,}\DecValTok{37208659}\NormalTok{,}\DecValTok{37208661}\NormalTok{,}\DecValTok{37392562}\NormalTok{,}\DecValTok{37392938}\NormalTok{,}\DecValTok{37394092}\NormalTok{,}\DecValTok{37394229}\NormalTok{,}\DecValTok{37394230}\NormalTok{,}\DecValTok{37398699}\NormalTok{,}\DecValTok{40757503}\NormalTok{,}\DecValTok{40765014}\NormalTok{,}\DecValTok{44789188}\NormalTok{,}\DecValTok{45768617}\NormalTok{,}\DecValTok{45768651}\NormalTok{,}\DecValTok{45768652}\NormalTok{,}\DecValTok{45768653}\NormalTok{,}\DecValTok{45768654}\NormalTok{,}\DecValTok{45771001}\NormalTok{,}\DecValTok{45772902}\NormalTok{)}
+\NormalTok{                                                          ),}
+                                                          \DataTypeTok{startDays =} \KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{365}\NormalTok{, }\DecValTok{-365}\NormalTok{,}\OperatorTok{-}\DecValTok{365}\NormalTok{, }\DecValTok{-365}\NormalTok{),}
+                                                          \DataTypeTok{endDays =} \KeywordTok{c}\NormalTok{(}\DecValTok{60}\NormalTok{,}\DecValTok{60}\NormalTok{,}\DecValTok{60}\NormalTok{,}\DecValTok{60}\NormalTok{),}
+                                                          \DataTypeTok{scaleMaps=} \KeywordTok{list}\NormalTok{(}\ControlFlowTok{function}\NormalTok{(x)\{ x =}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(x, }\DataTypeTok{rawValue =}\NormalTok{ dplyr}\OperatorTok{::}\KeywordTok{case_when}\NormalTok{(unitConceptId }\OperatorTok{==}\StringTok{ }\DecValTok{8753} \OperatorTok{~}\StringTok{ }\NormalTok{rawValue}\OperatorTok{*}\FloatTok{38.6}\NormalTok{, unitConceptId }\OperatorTok{%in%}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{8840}\NormalTok{,}\DecValTok{8954}\NormalTok{,}\DecValTok{9028}\NormalTok{ ) }\OperatorTok{~}\StringTok{ }\NormalTok{rawValue, }\OtherTok{TRUE} \OperatorTok{~}\StringTok{ }\DecValTok{0}\NormalTok{)); x=}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(x, rawValue }\OperatorTok{>=}\StringTok{ }\DecValTok{80} \OperatorTok{&}\StringTok{ }\NormalTok{rawValue }\OperatorTok{<=}\StringTok{ }\DecValTok{500}\NormalTok{ ); x =}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(x,}\DataTypeTok{valueAsNumber =} \KeywordTok{log}\NormalTok{(rawValue)); }\KeywordTok{return}\NormalTok{(x)\},}
+                                                                          \ControlFlowTok{function}\NormalTok{(x)\{ x =}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(x, }\DataTypeTok{rawValue =}\NormalTok{ dplyr}\OperatorTok{::}\KeywordTok{case_when}\NormalTok{(unitConceptId }\OperatorTok{==}\StringTok{ }\DecValTok{8753} \OperatorTok{~}\StringTok{ }\NormalTok{rawValue}\OperatorTok{*}\FloatTok{38.6}\NormalTok{, unitConceptId }\OperatorTok{%in%}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{8840}\NormalTok{,}\DecValTok{8954}\NormalTok{,}\DecValTok{9028}\NormalTok{ ) }\OperatorTok{~}\StringTok{ }\NormalTok{rawValue, }\OtherTok{TRUE} \OperatorTok{~}\StringTok{ }\DecValTok{0}\NormalTok{)); x=}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(x, rawValue }\OperatorTok{>=}\StringTok{ }\DecValTok{80} \OperatorTok{&}\StringTok{ }\NormalTok{rawValue }\OperatorTok{<=}\StringTok{ }\DecValTok{500}\NormalTok{ ); x =}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(x,}\DataTypeTok{valueAsNumber =} \KeywordTok{log}\NormalTok{(rawValue)}\OperatorTok{*}\KeywordTok{log}\NormalTok{(age)); }\KeywordTok{return}\NormalTok{(x)\},}
+                                                                          \ControlFlowTok{function}\NormalTok{(x)\{ x =}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(x, }\DataTypeTok{rawValue =}\NormalTok{ dplyr}\OperatorTok{::}\KeywordTok{case_when}\NormalTok{(unitConceptId }\OperatorTok{==}\StringTok{ }\DecValTok{8753} \OperatorTok{~}\StringTok{ }\NormalTok{rawValue}\OperatorTok{*}\FloatTok{38.6}\NormalTok{, unitConceptId }\OperatorTok{%in%}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{8840}\NormalTok{,}\DecValTok{8954}\NormalTok{,}\DecValTok{9028}\NormalTok{ ) }\OperatorTok{~}\StringTok{ }\NormalTok{rawValue, }\OtherTok{TRUE} \OperatorTok{~}\StringTok{ }\DecValTok{0}\NormalTok{)); x=}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(x, rawValue }\OperatorTok{>=}\StringTok{ }\DecValTok{10} \OperatorTok{&}\StringTok{ }\NormalTok{rawValue }\OperatorTok{<=}\StringTok{ }\DecValTok{130}\NormalTok{ ); x =}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(x,}\DataTypeTok{valueAsNumber =} \KeywordTok{log}\NormalTok{(rawValue)); }\KeywordTok{return}\NormalTok{(x)\},}
+                                                                          \ControlFlowTok{function}\NormalTok{(x)\{ x =}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(x, }\DataTypeTok{rawValue =}\NormalTok{ dplyr}\OperatorTok{::}\KeywordTok{case_when}\NormalTok{(unitConceptId }\OperatorTok{==}\StringTok{ }\DecValTok{8753} \OperatorTok{~}\StringTok{ }\NormalTok{rawValue}\OperatorTok{*}\FloatTok{38.6}\NormalTok{, unitConceptId }\OperatorTok{%in%}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{8840}\NormalTok{,}\DecValTok{8954}\NormalTok{,}\DecValTok{9028}\NormalTok{ ) }\OperatorTok{~}\StringTok{ }\NormalTok{rawValue, }\OtherTok{TRUE} \OperatorTok{~}\StringTok{ }\DecValTok{0}\NormalTok{)); x=}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(x, rawValue }\OperatorTok{>=}\StringTok{ }\DecValTok{10} \OperatorTok{&}\StringTok{ }\NormalTok{rawValue }\OperatorTok{<=}\StringTok{ }\DecValTok{130}\NormalTok{ ); x =}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(x,}\DataTypeTok{valueAsNumber =} \KeywordTok{log}\NormalTok{(rawValue)}\OperatorTok{*}\KeywordTok{log}\NormalTok{(age)); }\KeywordTok{return}\NormalTok{(x)\}), }
+                                                          \DataTypeTok{points =} \KeywordTok{c}\NormalTok{(}\FloatTok{11.853}\NormalTok{,}\OperatorTok{-}\FloatTok{2.664}\NormalTok{,}\OperatorTok{-}\FloatTok{7.990}\NormalTok{,}\FloatTok{1.769}\NormalTok{),}
+                                                          \DataTypeTok{aggregateMethods =} \KeywordTok{c}\NormalTok{(}\StringTok{'recent'}\NormalTok{,}\StringTok{'recent'}\NormalTok{,}\StringTok{'recent'}\NormalTok{, }\StringTok{'recent'}\NormalTok{),}
+                                                          \DataTypeTok{imputationValues =} \KeywordTok{c}\NormalTok{(}\DecValTok{150}\NormalTok{,}\DecValTok{150}\NormalTok{,}\DecValTok{50}\NormalTok{,}\DecValTok{50}\NormalTok{),}
+                                                          \DataTypeTok{ageInteractions =} \KeywordTok{c}\NormalTok{(F,F,F,F),}
+                                                          \DataTypeTok{lnAgeInteractions =} \KeywordTok{c}\NormalTok{(F,T,F,T),}
+                                                          \DataTypeTok{lnValues =} \KeywordTok{c}\NormalTok{(T,T,T,T),}
+                                                          \DataTypeTok{measurementIds =} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{3}\NormalTok{,}\DecValTok{4}\NormalTok{), }
+                                                          \DataTypeTok{analysisIds =} \KeywordTok{c}\NormalTok{(}\DecValTok{457}\NormalTok{,}\DecValTok{457}\NormalTok{,}\DecValTok{457}\NormalTok{,}\DecValTok{457}\NormalTok{)}
+                                                          
+                                                          
+\NormalTok{                      ),}
+                      
+                      \DataTypeTok{ageCovariateSettings =} \KeywordTok{list}\NormalTok{(}\DataTypeTok{names =} \KeywordTok{c}\NormalTok{(}\StringTok{'log(age)'}\NormalTok{),}
+                                                  \DataTypeTok{ageMaps =} \KeywordTok{list}\NormalTok{(}\ControlFlowTok{function}\NormalTok{(x)\{}\KeywordTok{return}\NormalTok{(}\KeywordTok{log}\NormalTok{(x))\}),}
+                                                  \DataTypeTok{ageIds =} \DecValTok{1}\NormalTok{,}
+                                                  \DataTypeTok{analysisIds =} \KeywordTok{c}\NormalTok{(}\DecValTok{458}\NormalTok{),}
+                                                  \DataTypeTok{points =} \KeywordTok{c}\NormalTok{(}\FloatTok{12.344}\NormalTok{)}
+                                                  
+\NormalTok{                      ),}
+                      
+                      \DataTypeTok{measurementCohortCovariateSettings =} \KeywordTok{list}\NormalTok{(}\DataTypeTok{names =} \KeywordTok{c}\NormalTok{(}\StringTok{'treated_Systolic_BP_mm_Hg'}\NormalTok{,}\StringTok{'untreated_Systolic_BP_mm_Hg'}\NormalTok{),}
+                                                                \DataTypeTok{atlasCovariateIds =} \KeywordTok{c}\NormalTok{(}\StringTok{'18946'}\NormalTok{,}\StringTok{'18946'}\NormalTok{),}
+                                                                \DataTypeTok{types =} \KeywordTok{c}\NormalTok{(}\StringTok{'in'}\NormalTok{, }\StringTok{'out'}\NormalTok{),}
+                                                                \DataTypeTok{conceptSets =} \KeywordTok{list}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\DecValTok{3004249}\NormalTok{,}\DecValTok{3009395}\NormalTok{,}\DecValTok{3018586}\NormalTok{,}\DecValTok{3028737}\NormalTok{,}\DecValTok{3035856}\NormalTok{,}\DecValTok{4152194}\NormalTok{,}\DecValTok{4153323}\NormalTok{,}\DecValTok{4161413}\NormalTok{,}\DecValTok{4197167}\NormalTok{,}\DecValTok{4217013}\NormalTok{,}\DecValTok{4232915}\NormalTok{,}\DecValTok{4248525}\NormalTok{,}\DecValTok{4292062}\NormalTok{,}\DecValTok{21492239}\NormalTok{,}\DecValTok{37396683}\NormalTok{,}\DecValTok{44789315}\NormalTok{,}\DecValTok{44806887}\NormalTok{,}\DecValTok{45769778}\NormalTok{),}
+                                                                                   \KeywordTok{c}\NormalTok{(}\DecValTok{3004249}\NormalTok{,}\DecValTok{3009395}\NormalTok{,}\DecValTok{3018586}\NormalTok{,}\DecValTok{3028737}\NormalTok{,}\DecValTok{3035856}\NormalTok{,}\DecValTok{4152194}\NormalTok{,}\DecValTok{4153323}\NormalTok{,}\DecValTok{4161413}\NormalTok{,}\DecValTok{4197167}\NormalTok{,}\DecValTok{4217013}\NormalTok{,}\DecValTok{4232915}\NormalTok{,}\DecValTok{4248525}\NormalTok{,}\DecValTok{4292062}\NormalTok{,}\DecValTok{21492239}\NormalTok{,}\DecValTok{37396683}\NormalTok{,}\DecValTok{44789315}\NormalTok{,}\DecValTok{44806887}\NormalTok{,}\DecValTok{45769778}\NormalTok{)}
+                                                                                   
+\NormalTok{                                                                ),}
+                                                                \DataTypeTok{startDays =} \KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{365}\NormalTok{,}\OperatorTok{-}\DecValTok{365}\NormalTok{),}
+                                                                \DataTypeTok{endDays =} \KeywordTok{c}\NormalTok{(}\DecValTok{60}\NormalTok{,}\DecValTok{60}\NormalTok{),}
+                                                                \DataTypeTok{scaleMaps=} \KeywordTok{list}\NormalTok{(}\ControlFlowTok{function}\NormalTok{(x)\{ x =}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(x, rawValue }\OperatorTok{>=}\StringTok{ }\DecValTok{50} \OperatorTok{&}\StringTok{ }\NormalTok{rawValue }\OperatorTok{<=}\StringTok{ }\DecValTok{250}\NormalTok{ ); }\KeywordTok{return}\NormalTok{(x)\},}
+                                                                                \ControlFlowTok{function}\NormalTok{(x)\{ x =}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(x, rawValue }\OperatorTok{>=}\StringTok{ }\DecValTok{50} \OperatorTok{&}\StringTok{ }\NormalTok{rawValue }\OperatorTok{<=}\StringTok{ }\DecValTok{250}\NormalTok{ ); }\KeywordTok{return}\NormalTok{(x)\}}
+\NormalTok{                                                                ),}
+                                                                \DataTypeTok{points =} \KeywordTok{c}\NormalTok{(}\FloatTok{1.797}\NormalTok{,}\FloatTok{1.764}\NormalTok{),}
+                                                                \DataTypeTok{aggregateMethods =} \KeywordTok{c}\NormalTok{(}\StringTok{'recent'}\NormalTok{,}\StringTok{'recent'}\NormalTok{),}
+                                                                \DataTypeTok{imputationValues =} \KeywordTok{c}\NormalTok{(}\DecValTok{120}\NormalTok{,}\DecValTok{120}\NormalTok{),}
+                                                                \DataTypeTok{ageInteractions =} \KeywordTok{c}\NormalTok{(F,F),}
+                                                                \DataTypeTok{lnAgeInteractions =} \KeywordTok{c}\NormalTok{(F,F),}
+                                                                \DataTypeTok{lnValues =} \KeywordTok{c}\NormalTok{(T,T),}
+                                                                \DataTypeTok{measurementIds =} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{), }
+                                                                \DataTypeTok{analysisIds =} \KeywordTok{c}\NormalTok{(}\DecValTok{459}\NormalTok{,}\DecValTok{459}\NormalTok{),}
+                                                                \DataTypeTok{baseUrl =} \StringTok{'https://yourWebAPI'}
+                                                                
+                                                                
+\NormalTok{                      ),}
+                      
+                      \DataTypeTok{finalMapping =} \ControlFlowTok{function}\NormalTok{(x)\{ }\DecValTok{1}\OperatorTok{-}\StringTok{ }\FloatTok{0.9144}\OperatorTok{^}\KeywordTok{exp}\NormalTok{(x}\FloatTok{-61.18}\NormalTok{)\}}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{step-5-build-the-study-package}{%
+\subsection{Step 5: Build the study
+package}\label{step-5-build-the-study-package}}
 
 Aftering adding the settings into the package, you now need to build the
 package. Use the standard process (in R studio press the `Build' tab in
 the top right corner and then select the `Install and Restart' button)
 to build the study package so an R library is created.
-
-\hypertarget{step-3-execute-the-study-to-validate-an-existing-model}{%
-\subsection{Step 3: Execute the study to validate an existing
-model}\label{step-3-execute-the-study-to-validate-an-existing-model}}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-  \KeywordTok{library}\NormalTok{(SkeletonExistingPredictionModelStudy)}
-  \KeywordTok{options}\NormalTok{(}\DataTypeTok{fftempdir =} \StringTok{"location with space to save big data"}\NormalTok{)}
-  
-  \CommentTok{# The folder where the study intermediate and result files will be written:}
-\NormalTok{  outputFolder <-}\StringTok{ "./SkeletonExistingPredictionModelStudyResults"}
-  
-  \CommentTok{# Details for connecting to the server:}
-\NormalTok{  dbms <-}\StringTok{ "you dbms"}
-\NormalTok{  user <-}\StringTok{ 'your username'}
-\NormalTok{  pw <-}\StringTok{ 'your password'}
-\NormalTok{  server <-}\StringTok{ 'your server'}
-\NormalTok{  port <-}\StringTok{ 'your port'}
-  
-\NormalTok{  connectionDetails <-}\StringTok{ }\NormalTok{DatabaseConnector}\OperatorTok{::}\KeywordTok{createConnectionDetails}\NormalTok{(}\DataTypeTok{dbms =}\NormalTok{ dbms,}
-                                                                  \DataTypeTok{server =}\NormalTok{ server,}
-                                                                  \DataTypeTok{user =}\NormalTok{ user,}
-                                                                  \DataTypeTok{password =}\NormalTok{ pw,}
-                                                                  \DataTypeTok{port =}\NormalTok{ port)}
-  
-  \CommentTok{# Add the database containing the OMOP CDM data}
-\NormalTok{  cdmDatabaseSchema <-}\StringTok{ 'cdm database schema'}
-  \CommentTok{# Add a database with read/write access as this is where the cohorts will be generated}
-\NormalTok{  cohortDatabaseSchema <-}\StringTok{ 'work database schema'}
-  
-\NormalTok{  oracleTempSchema <-}\StringTok{ }\OtherTok{NULL}
-  
-  \CommentTok{# table name where the cohorts will be generated}
-\NormalTok{  cohortTable <-}\StringTok{ 'SkeletonExistingPredictionModelStudyCohort'}
-  
-  \CommentTok{# TAR settings}
-\NormalTok{  sampleSize <-}\StringTok{ }\OtherTok{NULL}
-\NormalTok{  riskWindowStart <-}\StringTok{ }\DecValTok{1}
-\NormalTok{  startAnchor <-}\StringTok{ 'cohort start'}
-\NormalTok{  riskWindowEnd <-}\StringTok{ }\DecValTok{365}
-\NormalTok{  endAnchor <-}\StringTok{ 'cohort start'}
-\NormalTok{  firstExposureOnly <-}\StringTok{ }\NormalTok{F}
-\NormalTok{  removeSubjectsWithPriorOutcome <-}\StringTok{ }\NormalTok{F}
-\NormalTok{  priorOutcomeLookback <-}\StringTok{ }\DecValTok{99999}
-\NormalTok{  requireTimeAtRisk <-}\StringTok{ }\NormalTok{F}
-\NormalTok{  minTimeAtRisk <-}\StringTok{ }\DecValTok{1}
-\NormalTok{  includeAllOutcomes <-}\StringTok{ }\NormalTok{T}
-  
-  
-  \CommentTok{#=======================}
-  
-\NormalTok{  standardCovariates <-}\StringTok{ }\NormalTok{FeatureExtraction}\OperatorTok{::}\KeywordTok{createCovariateSettings}\NormalTok{(}\DataTypeTok{useDemographicsAgeGroup =}\NormalTok{ T, }\DataTypeTok{useDemographicsGender =}\NormalTok{ T)}
-  
-\NormalTok{  SkeletonExistingPredictionModelStudy}\OperatorTok{::}\KeywordTok{execute}\NormalTok{(}\DataTypeTok{connectionDetails =}\NormalTok{ connectionDetails,}
-                                      \DataTypeTok{cdmDatabaseSchema =}\NormalTok{ cdmDatabaseSchema,}
-                                      \DataTypeTok{cdmDatabaseName =}\NormalTok{ cdmDatabaseName,}
-                                      \DataTypeTok{cohortDatabaseSchema =}\NormalTok{ cohortDatabaseSchema,}
-                                      \DataTypeTok{cohortTable =}\NormalTok{ cohortTable,}
-                                      \DataTypeTok{sampleSize =}\NormalTok{ sampleSize,}
-                                      \DataTypeTok{riskWindowStart =}\NormalTok{ riskWindowStart,}
-                                      \DataTypeTok{startAnchor =}\NormalTok{ startAnchor,}
-                                      \DataTypeTok{riskWindowEnd =}\NormalTok{ riskWindowEnd,}
-                                      \DataTypeTok{endAnchor =}\NormalTok{ endAnchor,}
-                                      \DataTypeTok{firstExposureOnly =}\NormalTok{ firstExposureOnly,}
-                                      \DataTypeTok{removeSubjectsWithPriorOutcome =}\NormalTok{ removeSubjectsWithPriorOutcome,}
-                                      \DataTypeTok{priorOutcomeLookback =}\NormalTok{ priorOutcomeLookback,}
-                                      \DataTypeTok{requireTimeAtRisk =}\NormalTok{ requireTimeAtRisk,}
-                                      \DataTypeTok{minTimeAtRisk =}\NormalTok{ minTimeAtRisk,}
-                                      \DataTypeTok{includeAllOutcomes =}\NormalTok{ includeAllOutcomes,}
-                                      \DataTypeTok{standardCovariates =}\NormalTok{ standardCovariates,}
-                                      \DataTypeTok{outputFolder =}\NormalTok{ outputFolder,}
-                                      \DataTypeTok{createCohorts =}\NormalTok{ T,}
-                                      \DataTypeTok{runAnalyses =}\NormalTok{ T,}
-                                      \DataTypeTok{viewShiny =}\NormalTok{ T,}
-                                      \DataTypeTok{packageResults =}\NormalTok{ F,}
-                                      \DataTypeTok{minCellCount=} \DecValTok{5}\NormalTok{,}
-                                      \DataTypeTok{verbosity =} \StringTok{"INFO"}\NormalTok{,}
-                                      \DataTypeTok{cdmVersion =} \DecValTok{5}\NormalTok{)}
-\ErrorTok{)}
-\end{Highlighting}
-\end{Shaded}
 
 \end{document}

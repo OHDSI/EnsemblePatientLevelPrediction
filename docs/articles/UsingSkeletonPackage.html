@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SkeletonExistingPredictionModelStudy</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   </a>
 </li>
 <li>
-  <a href="../articles/UsingSkeletonPackage.html">Get started</a>
+  <a href="../articles/PopulatingSkeletonPackage.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -64,6 +64,18 @@
   <ul class="dropdown-menu" role="menu">
 <li>
       <a href="../articles/PopulatingSkeletonPackage.html">Populating the study package</a>
+    </li>
+    <li>
+      <a href="../articles/UsingAgeCovariates.html">Using the age covariate code</a>
+    </li>
+    <li>
+      <a href="../articles/UsingCohortCovariates.html">Using the cohort covariate code</a>
+    </li>
+    <li>
+      <a href="../articles/UsingMeasurementCohortCovariates.html">Using the measurement cohort covariate code</a>
+    </li>
+    <li>
+      <a href="../articles/UsingMeasurementCovariates.html">Using the measurement covariate code</a>
     </li>
     <li>
       <a href="../articles/UsingSkeletonPackage.html">Using the package skeleton for validating existing model studies</a>
@@ -94,7 +106,7 @@
       <h1 data-toc-skip>Using the package skeleton for validating existing model studies</h1>
                         <h4 class="author">Jenna M. Reps</h4>
             
-            <h4 class="date">2020-03-30</h4>
+            <h4 class="date">2020-10-14</h4>
       
       
       <div class="hidden name"><code>UsingSkeletonPackage.rmd</code></div>
@@ -106,40 +118,114 @@
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
-<p>This vignette describes how one can use the package skeleton for validating existing prediction model studies to create one’s own study package. This skeleton is aimed at patient-level prediction studies using the <code>PatientLevelPrediction</code> package. The resulting package can be used to execute the study at any site that has access to an observational database in the Common Data Model. It will perform the following steps:</p>
+<p>This vignette describes how one can use the package skeleton for validating existing prediction model studies on any data in the OMOP CDM. The package can be used to execute the study at any site that has access to an observational database in the Common Data Model. It will perform the following steps:</p>
 <ol style="list-style-type: decimal">
 <li>Instantiate all cohorts needed for the study in a study-specific cohort table.</li>
 <li>The main analysis will be executed using the <code>PatientLevelPrediction</code> package, which involves applying and validating existing prediction models.</li>
 <li>The results can be modified to remove sensitive data ready for sharing.</li>
 </ol>
-<p>The package skeleton currently implements an examplar study, validating CHADS2. If desired (as a test), one can run the package as is.</p>
-<div id="open-the-project-in-rstudio" class="section level2">
+<div id="option-1-recommended-installing-package-via-github" class="section level2">
 <h2 class="hasAnchor">
-<a href="#open-the-project-in-rstudio" class="anchor"></a>Open the project in Rstudio</h2>
-<p>Make sure to have RStudio installed. Then open the R project downloaded from ATLAS by decompressing the downloaded folder and clicking on the <skeletonexistingmodelstudy>.Rproj file (where <skeletonexistingmodelstudy> is replaced by the study name you specified in ATLAS). This should open an RStudio session.</skeletonexistingmodelstudy></skeletonexistingmodelstudy></p>
+<a href="#option-1-recommended-installing-package-via-github" class="anchor"></a>Option 1 (recommended): Installing package via GitHub</h2>
+<p>The easiest way to install a study package is to run the code but replace ‘<studyname>’ with the name of the study you are downloading from GitHub:</studyname></p>
+<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">'devtools'</span>)
+<span class="kw pkg">devtools</span><span class="kw ns">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">'ohdsi-studies/&lt;studyName&gt;'</span>)</pre></body></html></div>
+<p>This will then start to install the package. It may require installing dependancies. If the install is successfull it will end with ‘done(<studyname>)’. If you have a error during install it will not install and you need to determine the error, fix it and then try again. If you run into issues please contact us using the OHDSI forum or in the GitHub issues tab.</studyname></p>
 </div>
-<div id="installing-all-package-dependencies" class="section level2">
+<div id="optim-2-installing-package-by-building-it-locally" class="section level2">
 <h2 class="hasAnchor">
-<a href="#installing-all-package-dependencies" class="anchor"></a>Installing all package dependencies</h2>
-<p>Before you can build the package you downloaded from ATLAS you need to make sure you have all the dependencies:</p>
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/source.html">source</a></span>(<span class="st">'./extras/packageDeps.R'</span>)</pre></body></html></div>
+<a href="#optim-2-installing-package-by-building-it-locally" class="anchor"></a>Optim 2: Installing package by building it locally</h2>
+<p>To install a package locally you can populate the skeleton package or download a GitHub study package and then build it by:</p>
+<div id="open-the-project-in-rstudio" class="section level3">
+<h3 class="hasAnchor">
+<a href="#open-the-project-in-rstudio" class="anchor"></a>Open the project in Rstudio</h3>
+<p>Make sure to have RStudio installed. Then open the R project downloaded from ATLAS by decompressing the downloaded folder and clicking on the <skeletonexistingmodelstudy>.Rproj file (where <skeletonexistingmodelstudy> is replaced by the study name you specified). This should open an RStudio session.</skeletonexistingmodelstudy></skeletonexistingmodelstudy></p>
 </div>
-<div id="building-the-package" class="section level2">
-<h2 class="hasAnchor">
-<a href="#building-the-package" class="anchor"></a>Building the package</h2>
+<div id="installing-all-package-dependencies" class="section level3">
+<h3 class="hasAnchor">
+<a href="#installing-all-package-dependencies" class="anchor"></a>Installing all package dependencies</h3>
+<p>Before you can build the package you downloaded you need to make sure you have all the dependencies:</p>
+<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/source.html">source</a></span>(<span class="st">'./extras/packageDeps.R'</span>)</pre></body></html></div>
+</div>
+<div id="building-the-package" class="section level3">
+<h3 class="hasAnchor">
+<a href="#building-the-package" class="anchor"></a>Building the package</h3>
 <p>Once you have the dependencies installed you can now build the R package. This creates a library you can load to run the validation study. To build the package click ‘Build’ on the top right hand side tab menu (there are tabs: ‘Environment’, ‘History’, ‘Connections’, ‘Build’, ‘Git’). Once in ‘Build’ click the ‘Install and Restart’ button. This will now build your package and create the R library. If it succeeds you will see ‘* DONE (<skeletonexistingmodelstudy>)’, if it fails you will see red output and the library may not be created. Please report an issue to: <a href="https://github.com/OHDSI/PatientLevelPrediction/issues" class="uri">https://github.com/OHDSI/PatientLevelPrediction/issues</a> if your library does not get created.</skeletonexistingmodelstudy></p>
+</div>
 </div>
 <div id="running-the-package" class="section level2">
 <h2 class="hasAnchor">
 <a href="#running-the-package" class="anchor"></a>Running the package</h2>
 <p>To run the study, open the extras/CodeToRun.R R script (the file called <code>CodeToRun.R</code> in the <code>extras</code> folder). This folder specifies the R variables you need to define (e.g., outputFolder and database connection settings). See the R help system for details:</p>
-<div class="sourceCode" id="cb2"><html><body><pre class="r">library(SkeletonExistingPredictionModelStudy)
+<div class="sourceCode" id="cb3"><html><body><pre class="r">library(&lt;studyName&gt;)
 ?execute</pre></body></html></div>
 <p>By default all the options are set to F for the execute fuction:</p>
-<div class="sourceCode" id="cb3"><html><body><pre class="r">options(fftempdir = "location with space to save big data")
+<div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="co"># The folder where the study intermediate and result files will be written:</span>
+<span class="no">outputFolder</span> <span class="kw">&lt;-</span> <span class="st">"./&lt;studyName&gt;"</span>
 
-# The folder where the study intermediate and result files will be written:
-outputFolder </pre></body></html></div>
+<span class="co"># Details for connecting to the server:</span>
+<span class="no">dbms</span> <span class="kw">&lt;-</span> <span class="st">"you dbms"</span>
+<span class="no">user</span> <span class="kw">&lt;-</span> <span class="st">'your username'</span>
+<span class="no">pw</span> <span class="kw">&lt;-</span> <span class="st">'your password'</span>
+<span class="no">server</span> <span class="kw">&lt;-</span> <span class="st">'your server'</span>
+<span class="no">port</span> <span class="kw">&lt;-</span> <span class="st">'your port'</span>
+
+<span class="no">connectionDetails</span> <span class="kw">&lt;-</span> <span class="kw pkg">DatabaseConnector</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/DatabaseConnector/man/createConnectionDetails.html">createConnectionDetails</a></span>(<span class="kw">dbms</span> <span class="kw">=</span> <span class="no">dbms</span>,
+                                                                <span class="kw">server</span> <span class="kw">=</span> <span class="no">server</span>,
+                                                                <span class="kw">user</span> <span class="kw">=</span> <span class="no">user</span>,
+                                                                <span class="kw">password</span> <span class="kw">=</span> <span class="no">pw</span>,
+                                                                <span class="kw">port</span> <span class="kw">=</span> <span class="no">port</span>)
+
+<span class="co"># Add the database containing the OMOP CDM data</span>
+<span class="no">cdmDatabaseSchema</span> <span class="kw">&lt;-</span> <span class="st">'cdm database schema'</span>
+<span class="co"># Add a database with read/write access as this is where the cohorts will be generated</span>
+<span class="no">cohortDatabaseSchema</span> <span class="kw">&lt;-</span> <span class="st">'work database schema'</span>
+
+<span class="no">oracleTempSchema</span> <span class="kw">&lt;-</span> <span class="kw">NULL</span>
+
+<span class="co"># table name where the cohorts will be generated</span>
+<span class="no">cohortTable</span> <span class="kw">&lt;-</span> <span class="st">'&lt;studyName&gt;Cohort'</span>
+
+<span class="co"># TAR settings</span>
+<span class="no">sampleSize</span> <span class="kw">&lt;-</span> <span class="kw">NULL</span>
+<span class="no">riskWindowStart</span> <span class="kw">&lt;-</span> <span class="fl">1</span>
+<span class="no">startAnchor</span> <span class="kw">&lt;-</span> <span class="st">'cohort start'</span>
+<span class="no">riskWindowEnd</span> <span class="kw">&lt;-</span> <span class="fl">365</span>
+<span class="no">endAnchor</span> <span class="kw">&lt;-</span> <span class="st">'cohort start'</span>
+<span class="no">firstExposureOnly</span> <span class="kw">&lt;-</span> <span class="no">F</span>
+<span class="no">removeSubjectsWithPriorOutcome</span> <span class="kw">&lt;-</span> <span class="no">F</span>
+<span class="no">priorOutcomeLookback</span> <span class="kw">&lt;-</span> <span class="fl">99999</span>
+<span class="no">requireTimeAtRisk</span> <span class="kw">&lt;-</span> <span class="no">F</span>
+<span class="no">minTimeAtRisk</span> <span class="kw">&lt;-</span> <span class="fl">1</span>
+<span class="no">includeAllOutcomes</span> <span class="kw">&lt;-</span> <span class="no">T</span>
+
+
+<span class="co">#=======================</span>
+
+<span class="fu"><a href="../reference/execute.html">execute</a></span>(<span class="kw">connectionDetails</span> <span class="kw">=</span> <span class="no">connectionDetails</span>,
+                                    <span class="kw">cdmDatabaseSchema</span> <span class="kw">=</span> <span class="no">cdmDatabaseSchema</span>,
+                                    <span class="kw">cdmDatabaseName</span> <span class="kw">=</span> <span class="no">cdmDatabaseName</span>,
+                                    <span class="kw">cohortDatabaseSchema</span> <span class="kw">=</span> <span class="no">cohortDatabaseSchema</span>,
+                                    <span class="kw">cohortTable</span> <span class="kw">=</span> <span class="no">cohortTable</span>,
+                                    <span class="kw">sampleSize</span> <span class="kw">=</span> <span class="no">sampleSize</span>,
+                                    <span class="kw">riskWindowStart</span> <span class="kw">=</span> <span class="no">riskWindowStart</span>,
+                                    <span class="kw">startAnchor</span> <span class="kw">=</span> <span class="no">startAnchor</span>,
+                                    <span class="kw">riskWindowEnd</span> <span class="kw">=</span> <span class="no">riskWindowEnd</span>,
+                                    <span class="kw">endAnchor</span> <span class="kw">=</span> <span class="no">endAnchor</span>,
+                                    <span class="kw">firstExposureOnly</span> <span class="kw">=</span> <span class="no">firstExposureOnly</span>,
+                                    <span class="kw">removeSubjectsWithPriorOutcome</span> <span class="kw">=</span> <span class="no">removeSubjectsWithPriorOutcome</span>,
+                                    <span class="kw">priorOutcomeLookback</span> <span class="kw">=</span> <span class="no">priorOutcomeLookback</span>,
+                                    <span class="kw">requireTimeAtRisk</span> <span class="kw">=</span> <span class="no">requireTimeAtRisk</span>,
+                                    <span class="kw">minTimeAtRisk</span> <span class="kw">=</span> <span class="no">minTimeAtRisk</span>,
+                                    <span class="kw">includeAllOutcomes</span> <span class="kw">=</span> <span class="no">includeAllOutcomes</span>,
+                                    <span class="kw">outputFolder</span> <span class="kw">=</span> <span class="no">outputFolder</span>,
+                                    <span class="kw">createCohorts</span> <span class="kw">=</span> <span class="no">T</span>,
+                                    <span class="kw">runAnalyses</span> <span class="kw">=</span> <span class="no">T</span>,
+                                    <span class="kw">viewShiny</span> <span class="kw">=</span> <span class="no">T</span>,
+                                    <span class="kw">packageResults</span> <span class="kw">=</span> <span class="no">F</span>,
+                                    <span class="kw">minCellCount</span><span class="kw">=</span> <span class="fl">5</span>,
+                                    <span class="kw">verbosity</span> <span class="kw">=</span> <span class="st">"INFO"</span>,
+                                    <span class="kw">cdmVersion</span> <span class="kw">=</span> <span class="fl">5</span>)</pre></body></html></div>
 <p>If you run the above nothing will happen as each option is false. See the table below for information about each of the inputs.</p>
 <table class="table">
 <colgroup>
@@ -229,36 +315,31 @@ outputFolder </pre></body></html></div>
 <td>F</td>
 </tr>
 <tr class="even">
-<td>standardCovariates</td>
-<td>Standard covariate settings</td>
-<td>FeatureExtraction:: createCovariateSettings()</td>
-</tr>
-<tr class="odd">
 <td>outputFolder</td>
 <td>The location where the results of the study will be saved</td>
 <td>‘C:/amazingResults’</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>createCohorts</td>
 <td>TRUE or FALSE indicating whether to create the target population and outcome cohorts for the study</td>
 <td>TRUE</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>runAnalyses</td>
 <td>TRUE or FALSE indicating whether to run the study analysis - developing and internally validating the models</td>
 <td>TRUE</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>packageResults</td>
 <td>TRUE or FALSE indicating whether to remove sensitive counts (determined by the minCellCount input) or sensitive information from the results and creates a zipped file with results that are safe to share (saved to the outputFolder location). Note: This requires running the study successfully first.</td>
 <td>TRUE</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>minCellCount</td>
 <td>integer that determines the minimum result count required when sharing the results. Any result table cells with counts &lt; minCellCount are replaced with -1 to prevent identification issues with rare diseases</td>
 <td>10</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>viewShiny</td>
 <td>TRUE or FALSE indicating whether to view a shiny app with the results from the study, Note: This requires running the study successfully first.</td>
 <td>TRUE</td>
@@ -266,13 +347,13 @@ outputFolder </pre></body></html></div>
 </tbody>
 </table>
 <p>To create the target and outcome cohorts (cohorts are created into cohortDatabaseSchema.cohortTable)</p>
-<div class="sourceCode" id="cb4"><html><body><pre class="r">    <span class="no">createCohorts</span> <span class="kw">=</span> <span class="no">T</span></pre></body></html></div>
+<div class="sourceCode" id="cb5"><html><body><pre class="r">    <span class="no">createCohorts</span> <span class="kw">=</span> <span class="no">T</span></pre></body></html></div>
 <p>To validate the models in the study run the code:</p>
-<div class="sourceCode" id="cb5"><html><body><pre class="r">    <span class="no">runAnalyses</span> <span class="kw">=</span> <span class="no">T</span></pre></body></html></div>
+<div class="sourceCode" id="cb6"><html><body><pre class="r">    <span class="no">runAnalyses</span> <span class="kw">=</span> <span class="no">T</span></pre></body></html></div>
 <p>If the study runs and you get results, you can then interactively explore the results by running:</p>
-<div class="sourceCode" id="cb6"><html><body><pre class="r">    <span class="no">viewShiny</span><span class="kw">=</span> <span class="no">T</span></pre></body></html></div>
+<div class="sourceCode" id="cb7"><html><body><pre class="r">    <span class="no">viewShiny</span><span class="kw">=</span> <span class="no">T</span></pre></body></html></div>
 <p>To package the results ready for sharing with others you can set:</p>
-<div class="sourceCode" id="cb7"><html><body><pre class="r">    <span class="no">packageResults</span> <span class="kw">=</span> <span class="no">T</span></pre></body></html></div>
+<div class="sourceCode" id="cb8"><html><body><pre class="r">    <span class="no">packageResults</span> <span class="kw">=</span> <span class="no">T</span></pre></body></html></div>
 </div>
 <div id="results" class="section level2">
 <h2 class="hasAnchor">
@@ -367,7 +448,7 @@ outputFolder </pre></body></html></div>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

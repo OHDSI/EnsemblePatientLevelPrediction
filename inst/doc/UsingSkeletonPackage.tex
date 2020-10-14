@@ -111,7 +111,7 @@
 
 \title{Using the package skeleton for validating existing model studies}
 \author{Jenna M. Reps}
-\date{2020-03-27}
+\date{2020-10-14}
 
 \begin{document}
 \maketitle
@@ -124,12 +124,10 @@
 \section{Introduction}\label{introduction}}
 
 This vignette describes how one can use the package skeleton for
-validating existing prediction model studies to create one's own study
-package. This skeleton is aimed at patient-level prediction studies
-using the \texttt{PatientLevelPrediction} package. The resulting package
-can be used to execute the study at any site that has access to an
-observational database in the Common Data Model. It will perform the
-following steps:
+validating existing prediction model studies on any data in the OMOP
+CDM. The package can be used to execute the study at any site that has
+access to an observational database in the Common Data Model. It will
+perform the following steps:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -146,24 +144,48 @@ following steps:
   sharing.
 \end{enumerate}
 
-The package skeleton currently implements an examplar study, validating
-CHADS2. If desired (as a test), one can run the package as is.
+\hypertarget{option-1-recommended-installing-package-via-github}{%
+\subsection{Option 1 (recommended): Installing package via
+GitHub}\label{option-1-recommended-installing-package-via-github}}
+
+The easiest way to install a study package is to run the code but
+replace `' with the name of the study you are downloading from GitHub:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{install.packages}\NormalTok{(}\StringTok{'devtools'}\NormalTok{)}
+\NormalTok{devtools}\OperatorTok{::}\KeywordTok{install_github}\NormalTok{(}\StringTok{'ohdsi-studies/<studyName>'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+This will then start to install the package. It may require installing
+dependancies. If the install is successfull it will end with `done()'.
+If you have a error during install it will not install and you need to
+determine the error, fix it and then try again. If you run into issues
+please contact us using the OHDSI forum or in the GitHub issues tab.
+
+\hypertarget{optim-2-installing-package-by-building-it-locally}{%
+\subsection{Optim 2: Installing package by building it
+locally}\label{optim-2-installing-package-by-building-it-locally}}
+
+To install a package locally you can populate the skeleton package or
+download a GitHub study package and then build it by:
 
 \hypertarget{open-the-project-in-rstudio}{%
-\subsection{Open the project in
+\subsubsection{Open the project in
 Rstudio}\label{open-the-project-in-rstudio}}
 
 Make sure to have RStudio installed. Then open the R project downloaded
 from ATLAS by decompressing the downloaded folder and clicking on the
-.Rproj file (where is replaced by the study name you specified in
-ATLAS). This should open an RStudio session.
+.Rproj file (where is replaced by the study name you specified). This
+should open an RStudio session.
 
 \hypertarget{installing-all-package-dependencies}{%
-\subsection{Installing all package
+\subsubsection{Installing all package
 dependencies}\label{installing-all-package-dependencies}}
 
-Before you can build the package you downloaded from ATLAS you need to
-make sure you have all the dependencies:
+Before you can build the package you downloaded you need to make sure
+you have all the dependencies:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -172,7 +194,7 @@ make sure you have all the dependencies:
 \end{Shaded}
 
 \hypertarget{building-the-package}{%
-\subsection{Building the package}\label{building-the-package}}
+\subsubsection{Building the package}\label{building-the-package}}
 
 Once you have the dependencies installed you can now build the R
 package. This creates a library you can load to run the validation
@@ -195,7 +217,7 @@ database connection settings). See the R help system for details:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{library}\NormalTok{(SkeletonExistingPredictionModelStudy)}
+\KeywordTok{library}\NormalTok{(}\OperatorTok{<}\NormalTok{studyName}\OperatorTok{>}\NormalTok{)}
 \NormalTok{?execute}
 \end{Highlighting}
 \end{Shaded}
@@ -204,10 +226,8 @@ By default all the options are set to F for the execute fuction:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{options}\NormalTok{(}\DataTypeTok{fftempdir =} \StringTok{"location with space to save big data"}\NormalTok{)}
-
 \CommentTok{# The folder where the study intermediate and result files will be written:}
-\NormalTok{outputFolder <-}\StringTok{ "./SkeletonExistingPredictionModelStudyResults"}
+\NormalTok{outputFolder <-}\StringTok{ "./<studyName>"}
 
 \CommentTok{# Details for connecting to the server:}
 \NormalTok{dbms <-}\StringTok{ "you dbms"}
@@ -230,7 +250,7 @@ By default all the options are set to F for the execute fuction:
 \NormalTok{oracleTempSchema <-}\StringTok{ }\OtherTok{NULL}
 
 \CommentTok{# table name where the cohorts will be generated}
-\NormalTok{cohortTable <-}\StringTok{ 'SkeletonExistingPredictionModelStudyCohort'}
+\NormalTok{cohortTable <-}\StringTok{ '<studyName>Cohort'}
 
 \CommentTok{# TAR settings}
 \NormalTok{sampleSize <-}\StringTok{ }\OtherTok{NULL}
@@ -248,9 +268,7 @@ By default all the options are set to F for the execute fuction:
 
 \CommentTok{#=======================}
 
-\NormalTok{standardCovariates <-}\StringTok{ }\NormalTok{FeatureExtraction}\OperatorTok{::}\KeywordTok{createCovariateSettings}\NormalTok{(}\DataTypeTok{useDemographicsAgeGroup =}\NormalTok{ T, }\DataTypeTok{useDemographicsGender =}\NormalTok{ T)}
-
-\NormalTok{SkeletonExistingPredictionModelStudy}\OperatorTok{::}\KeywordTok{execute}\NormalTok{(}\DataTypeTok{connectionDetails =}\NormalTok{ connectionDetails,}
+\KeywordTok{execute}\NormalTok{(}\DataTypeTok{connectionDetails =}\NormalTok{ connectionDetails,}
                                     \DataTypeTok{cdmDatabaseSchema =}\NormalTok{ cdmDatabaseSchema,}
                                     \DataTypeTok{cdmDatabaseName =}\NormalTok{ cdmDatabaseName,}
                                     \DataTypeTok{cohortDatabaseSchema =}\NormalTok{ cohortDatabaseSchema,}
@@ -266,7 +284,6 @@ By default all the options are set to F for the execute fuction:
                                     \DataTypeTok{requireTimeAtRisk =}\NormalTok{ requireTimeAtRisk,}
                                     \DataTypeTok{minTimeAtRisk =}\NormalTok{ minTimeAtRisk,}
                                     \DataTypeTok{includeAllOutcomes =}\NormalTok{ includeAllOutcomes,}
-                                    \DataTypeTok{standardCovariates =}\NormalTok{ standardCovariates,}
                                     \DataTypeTok{outputFolder =}\NormalTok{ outputFolder,}
                                     \DataTypeTok{createCohorts =}\NormalTok{ T,}
                                     \DataTypeTok{runAnalyses =}\NormalTok{ T,}
@@ -404,13 +421,6 @@ Whether to keep people with the outcome during TAR even if they dont
 have complete follow-up\strut
 \end{minipage} & \begin{minipage}[t]{0.24\columnwidth}\raggedright
 F\strut
-\end{minipage}\tabularnewline
-\begin{minipage}[t]{0.21\columnwidth}\raggedright
-standardCovariates\strut
-\end{minipage} & \begin{minipage}[t]{0.46\columnwidth}\raggedright
-Standard covariate settings\strut
-\end{minipage} & \begin{minipage}[t]{0.24\columnwidth}\raggedright
-FeatureExtraction:: createCovariateSettings()\strut
 \end{minipage}\tabularnewline
 \begin{minipage}[t]{0.21\columnwidth}\raggedright
 outputFolder\strut

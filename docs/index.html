@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">SkeletonExistingPredictionModelStudy</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   </a>
 </li>
 <li>
-  <a href="articles/UsingSkeletonPackage.html">Get started</a>
+  <a href="articles/PopulatingSkeletonPackage.html">Get started</a>
 </li>
 <li>
   <a href="reference/index.html">Reference</a>
@@ -64,6 +64,18 @@
   <ul class="dropdown-menu" role="menu">
 <li>
       <a href="articles/PopulatingSkeletonPackage.html">Populating the study package</a>
+    </li>
+    <li>
+      <a href="articles/UsingAgeCovariates.html">Using the age covariate code</a>
+    </li>
+    <li>
+      <a href="articles/UsingCohortCovariates.html">Using the cohort covariate code</a>
+    </li>
+    <li>
+      <a href="articles/UsingMeasurementCohortCovariates.html">Using the measurement cohort covariate code</a>
+    </li>
+    <li>
+      <a href="articles/UsingMeasurementCovariates.html">Using the measurement covariate code</a>
     </li>
     <li>
       <a href="articles/UsingSkeletonPackage.html">Using the package skeleton for validating existing model studies</a>
@@ -108,28 +120,94 @@
 <ul>
 <li>Make sure you have PatientLevelPrediction installed:</li>
 </ul>
-<div class="sourceCode" id="cb1"><pre class="r">  # get the latest PatientLevelPrediction
-  install.packages("devtools")
-  devtools::install_github("OHDSI/PatientLevelPrediction")
-  # check the package
-  PatientLevelPrediction::checkPlpInstallation()</pre></div>
+<div class="sourceCode" id="cb1"><pre class="r">  <span class="co"># get the latest PatientLevelPrediction</span>
+  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"devtools"</span>)
+  <span class="kw pkg">devtools</span><span class="kw ns">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"OHDSI/PatientLevelPrediction"</span>)
+  <span class="co"># check the package</span>
+  <span class="kw pkg">PatientLevelPrediction</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/PatientLevelPrediction/man/checkPlpInstallation.html">checkPlpInstallation</a></span>()</pre></div>
 <ul>
 <li>Then install the study package:</li>
 </ul>
-<div class="sourceCode" id="cb2"><pre class="r">  <span class="co"># install the network package
-</span>
-  <span class="kw pkg">devtools</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/devtools/man/remote-reexports.html">install_github</a></span>(<span class="st">"OHDSI/SkeletonExistingPredictionModelStudy"</span>)</pre></div>
+<div class="sourceCode" id="cb2"><pre class="r">  <span class="co"># install the network package</span>
+  <span class="kw pkg">devtools</span><span class="kw ns">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"OHDSI/SkeletonExistingPredictionModelStudy"</span>)</pre></div>
 <ul>
 <li>Execute the study by running the code in (extras/CodeToRun.R) but make sure to edit the settings:</li>
 </ul>
-<div class="sourceCode" id="cb3"><pre class="r">library(SkeletonExistingPredictionModelStudy)
-# USER INPUTS
-#=======================
-# Specify where the temporary files (used by the ff package) will be created:
-options(fftempdir = "location with space to save big data")
+<div class="sourceCode" id="cb3"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">SkeletonExistingPredictionModelStudy</span>)
+<span class="co"># USER INPUTS</span>
+<span class="co">#=======================</span>
+<span class="co"># Specify where the temporary files (used by the ff package) will be created:</span>
+<span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span>(<span class="kw">fftempdir</span> <span class="kw">=</span> <span class="st">"location with space to save big data"</span>)
 
-# The folder where the study intermediate and result files will be written:
-outputFolder </pre></div>
+<span class="co"># The folder where the study intermediate and result files will be written:</span>
+<span class="no">outputFolder</span> <span class="kw">&lt;-</span> <span class="st">"./SkeletonExistingPredictionModelStudyResults"</span>
+
+<span class="co"># Details for connecting to the server:</span>
+<span class="no">dbms</span> <span class="kw">&lt;-</span> <span class="st">"you dbms"</span>
+<span class="no">user</span> <span class="kw">&lt;-</span> <span class="st">'your username'</span>
+<span class="no">pw</span> <span class="kw">&lt;-</span> <span class="st">'your password'</span>
+<span class="no">server</span> <span class="kw">&lt;-</span> <span class="st">'your server'</span>
+<span class="no">port</span> <span class="kw">&lt;-</span> <span class="st">'your port'</span>
+
+<span class="no">connectionDetails</span> <span class="kw">&lt;-</span> <span class="kw pkg">DatabaseConnector</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/DatabaseConnector/man/createConnectionDetails.html">createConnectionDetails</a></span>(<span class="kw">dbms</span> <span class="kw">=</span> <span class="no">dbms</span>,
+                                                                <span class="kw">server</span> <span class="kw">=</span> <span class="no">server</span>,
+                                                                <span class="kw">user</span> <span class="kw">=</span> <span class="no">user</span>,
+                                                                <span class="kw">password</span> <span class="kw">=</span> <span class="no">pw</span>,
+                                                                <span class="kw">port</span> <span class="kw">=</span> <span class="no">port</span>)
+
+<span class="co"># Add the database containing the OMOP CDM data</span>
+<span class="no">cdmDatabaseSchema</span> <span class="kw">&lt;-</span> <span class="st">'cdm database schema'</span>
+<span class="co"># Add a database with read/write access as this is where the cohorts will be generated</span>
+<span class="no">cohortDatabaseSchema</span> <span class="kw">&lt;-</span> <span class="st">'work database schema'</span>
+
+<span class="no">oracleTempSchema</span> <span class="kw">&lt;-</span> <span class="kw">NULL</span>
+
+<span class="co"># table name where the cohorts will be generated</span>
+<span class="no">cohortTable</span> <span class="kw">&lt;-</span> <span class="st">'SkeletonExistingPredictionModelStudyCohort'</span>
+
+<span class="co"># TAR settings</span>
+<span class="no">sampleSize</span> <span class="kw">&lt;-</span> <span class="kw">NULL</span>
+<span class="no">riskWindowStart</span> <span class="kw">&lt;-</span> <span class="fl">1</span>
+<span class="no">startAnchor</span> <span class="kw">&lt;-</span> <span class="st">'cohort start'</span>
+<span class="no">riskWindowEnd</span> <span class="kw">&lt;-</span> <span class="fl">365</span>
+<span class="no">endAnchor</span> <span class="kw">&lt;-</span> <span class="st">'cohort start'</span>
+<span class="no">firstExposureOnly</span> <span class="kw">&lt;-</span> <span class="no">F</span>
+<span class="no">removeSubjectsWithPriorOutcome</span> <span class="kw">&lt;-</span> <span class="no">F</span>
+<span class="no">priorOutcomeLookback</span> <span class="kw">&lt;-</span> <span class="fl">99999</span>
+<span class="no">requireTimeAtRisk</span> <span class="kw">&lt;-</span> <span class="no">F</span>
+<span class="no">minTimeAtRisk</span> <span class="kw">&lt;-</span> <span class="fl">1</span>
+<span class="no">includeAllOutcomes</span> <span class="kw">&lt;-</span> <span class="no">T</span>
+
+
+<span class="co">#=======================</span>
+
+<span class="no">standardCovariates</span> <span class="kw">&lt;-</span> <span class="kw pkg">FeatureExtraction</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/FeatureExtraction/man/createCovariateSettings.html">createCovariateSettings</a></span>(<span class="kw">useDemographicsAgeGroup</span> <span class="kw">=</span> <span class="no">T</span>, <span class="kw">useDemographicsGender</span> <span class="kw">=</span> <span class="no">T</span>)
+
+<span class="kw pkg">SkeletonExistingPredictionModelStudy</span><span class="kw ns">::</span><span class="fu"><a href="reference/execute.html">execute</a></span>(<span class="kw">connectionDetails</span> <span class="kw">=</span> <span class="no">connectionDetails</span>,
+                                    <span class="kw">cdmDatabaseSchema</span> <span class="kw">=</span> <span class="no">cdmDatabaseSchema</span>,
+                                    <span class="kw">cdmDatabaseName</span> <span class="kw">=</span> <span class="no">cdmDatabaseName</span>,
+                                    <span class="kw">cohortDatabaseSchema</span> <span class="kw">=</span> <span class="no">cohortDatabaseSchema</span>,
+                                    <span class="kw">cohortTable</span> <span class="kw">=</span> <span class="no">cohortTable</span>,
+                                    <span class="kw">sampleSize</span> <span class="kw">=</span> <span class="no">sampleSize</span>,
+                                    <span class="kw">riskWindowStart</span> <span class="kw">=</span> <span class="no">riskWindowStart</span>,
+                                    <span class="kw">startAnchor</span> <span class="kw">=</span> <span class="no">startAnchor</span>,
+                                    <span class="kw">riskWindowEnd</span> <span class="kw">=</span> <span class="no">riskWindowEnd</span>,
+                                    <span class="kw">endAnchor</span> <span class="kw">=</span> <span class="no">endAnchor</span>,
+                                    <span class="kw">firstExposureOnly</span> <span class="kw">=</span> <span class="no">firstExposureOnly</span>,
+                                    <span class="kw">removeSubjectsWithPriorOutcome</span> <span class="kw">=</span> <span class="no">removeSubjectsWithPriorOutcome</span>,
+                                    <span class="kw">priorOutcomeLookback</span> <span class="kw">=</span> <span class="no">priorOutcomeLookback</span>,
+                                    <span class="kw">requireTimeAtRisk</span> <span class="kw">=</span> <span class="no">requireTimeAtRisk</span>,
+                                    <span class="kw">minTimeAtRisk</span> <span class="kw">=</span> <span class="no">minTimeAtRisk</span>,
+                                    <span class="kw">includeAllOutcomes</span> <span class="kw">=</span> <span class="no">includeAllOutcomes</span>,
+                                    <span class="kw">standardCovariates</span> <span class="kw">=</span> <span class="no">standardCovariates</span>,
+                                    <span class="kw">outputFolder</span> <span class="kw">=</span> <span class="no">outputFolder</span>,
+                                    <span class="kw">createCohorts</span> <span class="kw">=</span> <span class="no">T</span>,
+                                    <span class="kw">runAnalyses</span> <span class="kw">=</span> <span class="no">T</span>,
+                                    <span class="kw">viewShiny</span> <span class="kw">=</span> <span class="no">T</span>,
+                                    <span class="kw">packageResults</span> <span class="kw">=</span> <span class="no">F</span>,
+                                    <span class="kw">minCellCount</span><span class="kw">=</span> <span class="fl">5</span>,
+                                    <span class="kw">verbosity</span> <span class="kw">=</span> <span class="st">"INFO"</span>,
+                                    <span class="kw">cdmVersion</span> <span class="kw">=</span> <span class="fl">5</span>)</pre></div>
 </div>
 <div id="development-status" class="section level1">
 <h1 class="hasAnchor">
@@ -169,7 +247,7 @@ outputFolder </pre></div>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

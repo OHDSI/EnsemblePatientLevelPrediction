@@ -25,26 +25,37 @@ knitr::opts_chunk$set(
 ```
 # Introduction
 
-This vignette describes how one can use the package skeleton for validating existing prediction model studies to create one's own study package. This skeleton is aimed at patient-level prediction studies using the `PatientLevelPrediction` package. The resulting package can be used to execute the study at any site that has access to an observational database in the Common Data Model. It will perform the following steps:
+This vignette describes how one can use the package skeleton for validating existing prediction model studies on any data in the OMOP CDM. The package can be used to execute the study at any site that has access to an observational database in the Common Data Model. It will perform the following steps:
 
 1. Instantiate all cohorts needed for the study in a study-specific cohort table. 
 2. The main analysis will be executed using the `PatientLevelPrediction` package, which involves applying and validating existing prediction models.
 3. The results can be modified to remove sensitive data ready for sharing.
 
-The package skeleton currently implements an examplar study, validating CHADS2. If desired (as a test), one can run the package as is. 
+## Option 1 (recommended): Installing package via GitHub
+The easiest way to install a study package is to run the code but replace '<studyName>' with the name of the study you are downloading from GitHub:
 
-## Open the project in Rstudio
-Make sure to have RStudio installed.  Then open the R project downloaded from ATLAS by decompressing the downloaded folder and clicking on the <SkeletonExistingModelStudy>.Rproj file (where <SkeletonExistingModelStudy> is replaced by the study name you specified in ATLAS).  This should open an RStudio session.
+```{r eval=FALSE}
+install.packages('devtools')
+devtools::install_github('ohdsi-studies/<studyName>')
+```
+
+This will then start to install the package.  It may require installing dependancies.  If the install is successfull it will end with 'done(<studyName>)'.  If you have a error during install it will not install and you need to determine the error, fix it and then try again.  If you run into issues please contact us using the OHDSI forum or in the GitHub issues tab.  
 
 
-## Installing all package dependencies 
-Before you can build the package you downloaded from ATLAS you need to make sure you have all the dependencies:
+## Optim 2: Installing package by building it locally
+To install a package locally you can populate the skeleton package or download a GitHub study package and then build it by:
+
+### Open the project in Rstudio
+Make sure to have RStudio installed.  Then open the R project downloaded from ATLAS by decompressing the downloaded folder and clicking on the <SkeletonExistingModelStudy>.Rproj file (where <SkeletonExistingModelStudy> is replaced by the study name you specified).  This should open an RStudio session.
+
+### Installing all package dependencies 
+Before you can build the package you downloaded you need to make sure you have all the dependencies:
 
 ```{r eval=FALSE}
 source('./extras/packageDeps.R')
 ```
 
-## Building the package
+### Building the package
 Once you have the dependencies installed you can now build the R package.  This creates a library you can load to run the validation study.  To build the package click 'Build' on the top right hand side tab menu (there are tabs: 'Environment', 'History', 'Connections', 'Build', 'Git').  Once in 'Build' click the 'Install and Restart' button.  This will now build your package and create the R library.  If it succeeds you will see '* DONE (<SkeletonExistingModelStudy>)', if it fails you will see red output and the library may not be created.  Please report an issue to: https://github.com/OHDSI/PatientLevelPrediction/issues if your library does not get created.
 
 ## Running the package
@@ -52,16 +63,15 @@ Once you have the dependencies installed you can now build the R package.  This 
 To run the study, open the extras/CodeToRun.R R script (the file called `CodeToRun.R` in the `extras` folder).  This folder specifies the R variables you need to define (e.g., outputFolder and database connection settings). See the R help system for details:
 
 ```{r eval=FALSE}
-library(SkeletonExistingPredictionModelStudy)
+library(<studyName>)
 ?execute
 ```
 
 By default all the options are set to F for the execute fuction:
 ```{r eval=FALSE}
-options(fftempdir = "location with space to save big data")
 
 # The folder where the study intermediate and result files will be written:
-outputFolder <- "./SkeletonExistingPredictionModelStudyResults"
+outputFolder <- "./<studyName>"
 
 # Details for connecting to the server:
 dbms <- "you dbms"
@@ -84,7 +94,7 @@ cohortDatabaseSchema <- 'work database schema'
 oracleTempSchema <- NULL
 
 # table name where the cohorts will be generated
-cohortTable <- 'SkeletonExistingPredictionModelStudyCohort'
+cohortTable <- '<studyName>Cohort'
 
 # TAR settings
 sampleSize <- NULL
@@ -102,9 +112,7 @@ includeAllOutcomes <- T
 
 #=======================
 
-standardCovariates <- FeatureExtraction::createCovariateSettings(useDemographicsAgeGroup = T, useDemographicsGender = T)
-
-SkeletonExistingPredictionModelStudy::execute(connectionDetails = connectionDetails,
+execute(connectionDetails = connectionDetails,
                                     cdmDatabaseSchema = cdmDatabaseSchema,
                                     cdmDatabaseName = cdmDatabaseName,
                                     cohortDatabaseSchema = cohortDatabaseSchema,
@@ -120,7 +128,6 @@ SkeletonExistingPredictionModelStudy::execute(connectionDetails = connectionDeta
                                     requireTimeAtRisk = requireTimeAtRisk,
                                     minTimeAtRisk = minTimeAtRisk,
                                     includeAllOutcomes = includeAllOutcomes,
-                                    standardCovariates = standardCovariates,
                                     outputFolder = outputFolder,
                                     createCohorts = T,
                                     runAnalyses = T,
@@ -153,7 +160,6 @@ tabl <- "
   | priorOutcomeLookback | Time to look back from index if removeSubjectsWithPriorOutcome = T  | 9999 |          | requireTimeAtRisk  | Require that a patient must satisfy a minimum time at risk to be in the target population  | F |
   | minTimeAtRisk  | Minimum time at risk a patient must satisfy to be in the target population (used when requireTimeAtRisk = T) | 1 |
   | includeAllOutcomes | Whether to keep people with the outcome during TAR even if they dont have complete follow-up| F |
-  | standardCovariates | Standard covariate settings| FeatureExtraction:: createCovariateSettings() |
   | outputFolder | The location where the results of the study will be saved | 'C:/amazingResults'|
   | createCohorts | TRUE or FALSE indicating whether to create the target population and outcome cohorts for the study | TRUE |
   | runAnalyses | TRUE or FALSE indicating whether to run the study analysis - developing and internally validating the models | TRUE |

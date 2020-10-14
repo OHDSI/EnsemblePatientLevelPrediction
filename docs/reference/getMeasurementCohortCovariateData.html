@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>SkeletonExistingPredictionModelStudy — SkeletonExistingPredictionModelStudy • SkeletonExistingPredictionModelStudy</title>
+<title>Extracts covariates based on measurements and cohort — getMeasurementCohortCovariateData • SkeletonExistingPredictionModelStudy</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,8 @@
 
 
 
-<meta property="og:title" content="SkeletonExistingPredictionModelStudy — SkeletonExistingPredictionModelStudy" />
+<meta property="og:title" content="Extracts covariates based on measurements and cohort — getMeasurementCohortCovariateData" />
+<meta property="og:description" content="Extracts covariates based on measurements and cohort" />
 
 
 
@@ -143,16 +144,74 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>SkeletonExistingPredictionModelStudy</h1>
+    <h1>Extracts covariates based on measurements and cohort</h1>
     
-    <div class="hidden name"><code>SkeletonExistingPredictionModelStudy.Rd</code></div>
+    <div class="hidden name"><code>getMeasurementCohortCovariateData.Rd</code></div>
     </div>
 
     <div class="ref-description">
+    <p>Extracts covariates based on measurements and cohort</p>
     </div>
 
+    <pre class="usage"><span class='fu'>getMeasurementCohortCovariateData</span>(
+  <span class='no'>connection</span>,
+  <span class='kw'>oracleTempSchema</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='no'>cdmDatabaseSchema</span>,
+  <span class='kw'>cdmVersion</span> <span class='kw'>=</span> <span class='st'>"5"</span>,
+  <span class='kw'>cohortTable</span> <span class='kw'>=</span> <span class='st'>"#cohort_person"</span>,
+  <span class='kw'>rowIdField</span> <span class='kw'>=</span> <span class='st'>"row_id"</span>,
+  <span class='no'>aggregated</span>,
+  <span class='no'>cohortId</span>,
+  <span class='no'>covariateSettings</span>
+)</pre>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>connection</th>
+      <td><p>The database connection</p></td>
+    </tr>
+    <tr>
+      <th>oracleTempSchema</th>
+      <td><p>The temp schema if using oracle</p></td>
+    </tr>
+    <tr>
+      <th>cdmDatabaseSchema</th>
+      <td><p>The schema of the OMOP CDM data</p></td>
+    </tr>
+    <tr>
+      <th>cdmVersion</th>
+      <td><p>version of the OMOP CDM data</p></td>
+    </tr>
+    <tr>
+      <th>cohortTable</th>
+      <td><p>the table name that contains the target population cohort</p></td>
+    </tr>
+    <tr>
+      <th>rowIdField</th>
+      <td><p>string representing the unique identifier in the target population cohort</p></td>
+    </tr>
+    <tr>
+      <th>aggregated</th>
+      <td><p>whether the covariate should be aggregated</p></td>
+    </tr>
+    <tr>
+      <th>cohortId</th>
+      <td><p>cohort id for the target population cohort</p></td>
+    </tr>
+    <tr>
+      <th>covariateSettings</th>
+      <td><p>settings for the covariate cohorts and time periods</p></td>
+    </tr>
+    </table>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>The models will now be in the package</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>This extracts measurement values for a concept set of measurement concept ids within some cohort</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

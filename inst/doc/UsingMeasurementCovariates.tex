@@ -1,0 +1,296 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Using the measurement covariate code},
+  pdfauthor={Jenna M. Reps},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs}
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+
+\title{Using the measurement covariate code}
+\author{Jenna M. Reps}
+\date{2020-10-13}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+This vignette describes how one can use the function
+`createMeasurementCovariateSettings' to define measurement covariates
+using the OMOP CDM. You will need:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  A concept set for the measurements (a vector of
+  measurement\_concept\_ids)
+\item
+  A function to standardise the measurements (e.g., filters out unlikely
+  values or converts units)
+\item
+  A value to use for imputation
+\item
+  How to aggregate multiple measurement values (e.g., use most recent to
+  index, max value, min value or mean value)
+\end{enumerate}
+
+\hypertarget{createmeasurementcovariatesettings}{%
+\subsection{createMeasurementCovariateSettings}\label{createmeasurementcovariatesettings}}
+
+This function contains the settings required to define the covariate.
+For a measurement covariate, the code will check the measurement table
+in the OMOP CDM to find all rows where the measurement\_concept\_id is
+in the specified measurement concept set. It will then check whether the
+measurement\_date column calls between the index date plus the
+`startDay' and the index date plus the `endDay'. The `scaleMap' will map
+the measurement values to a uniform scale - this standardises the
+values. If there are multiple measurements within the time period then
+the `aggregateMethod' method with specify how to get a single value. The
+`imputationValue' input specifies what value to assign to people without
+a measurement recorded during the time period. The settings
+`ageInteraction' and `lnAgeInteraction' enable the user to create
+age/ln(age) interaction terms. The `lnValue' enables the user to use the
+natural logarithm of the measurment value. Finally, the `analysisId' is
+used to create the cohort covariateId as 1000*`measurementId' +
+`analysisId'.
+
+\begin{longtable}[]{@{}ll@{}}
+\caption{The inputs into the create function}\tabularnewline
+\toprule
+Input & Description\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Input & Description\tabularnewline
+\midrule
+\endhead
+covariateName & The name of the covariate\tabularnewline
+covariateId & The id of the covariate - generally
+measurementId*1000+analysisId\tabularnewline
+conseptSet & A vector of concept\_ids corresponding to the
+measurement\tabularnewline
+startDay & How many days prior to index to see whether the measurement
+occurs after\tabularnewline
+endDay & How many days relative to index to see whether the mesurement
+occurs before\tabularnewline
+scaleMap & A function that takes the covariate Amdromeda table as input
+and processes it - can include filtering invalid values or mapping based
+on unit\_concept\_id values\tabularnewline
+aggregateMethod & How to pick a measurement value when there are more
+than 1 during the start and end dates - can be min/max/recent (closest
+to index)/mean\tabularnewline
+imputationValue & A value to use if a person has no measurement during
+the start and end dates\tabularnewline
+ageInteraction & Include interaction with age\tabularnewline
+lnAgeInteraction & Include interaction with ln(age)\tabularnewline
+lnValue & Whether to us the natural log of the measurement
+value\tabularnewline
+analysisId & The analysis id for the covariate\tabularnewline
+\bottomrule
+\end{longtable}
+
+\hypertarget{example}{%
+\subsection{Example}\label{example}}
+
+Assuming the concept set c(2212267, 3015232, 3019900, 3027114, 4008265,
+4190897, 4198448, 4260765, 37393449, 37397989, 40484105, 44791053,
+44809580) corresponds to `Total Cholesterol'.
+
+We create a function to map the covariate object (this contains the
+measurementConceptId, unitConceptId, rawValue and valueAsNumber columns)
+to standardise the measurement values. The unitConceptIds 8840,8954,9028
+are all in mg per dL but unitConceptId 8753 corresponds to a different
+scale and needs to be multipled by 38.6 to covert to mg per dL. We
+remove any values less than 80 and greater than 500 and then return the
+scaled value.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ControlFlowTok{function}\NormalTok{(x)\{ x =}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(x, }\DataTypeTok{rawValue =}\NormalTok{ dplyr}\OperatorTok{::}\KeywordTok{case_when}\NormalTok{(unitConceptId }\OperatorTok{==}\StringTok{ }\DecValTok{8753} \OperatorTok{~}\StringTok{ }\NormalTok{rawValue}\OperatorTok{*}\FloatTok{38.6}\NormalTok{, unitConceptId }\OperatorTok{%in%}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{8840}\NormalTok{,}\DecValTok{8954}\NormalTok{,}\DecValTok{9028}\NormalTok{ ) }\OperatorTok{~}\StringTok{ }\NormalTok{rawValue, }\OtherTok{TRUE} \OperatorTok{~}\StringTok{ }\DecValTok{0}\NormalTok{)); x=}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(x, rawValue }\OperatorTok{>=}\StringTok{ }\DecValTok{80} \OperatorTok{&}\StringTok{ }\NormalTok{rawValue }\OperatorTok{<=}\StringTok{ }\DecValTok{500}\NormalTok{ ); x =}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(x,}\DataTypeTok{valueAsNumber =}\NormalTok{ rawValue); }\KeywordTok{return}\NormalTok{(x)\}}
+\end{Highlighting}
+\end{Shaded}
+
+We decide to impute missing values with 150. We include all measurement
+values with occured within 1 year prior to index and up to 60 days
+after, but use the value that occurred closest to index.
+
+To create a Total Cholesterol in mg per dL covariate using a measurement
+covariate run:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cohortCov1 <-}\StringTok{ }\KeywordTok{createCohortCovariateSettings}\NormalTok{(}\DataTypeTok{covariateName =} \StringTok{'Total Cholesterol in mg per dL'}\NormalTok{,}
+                                            \DataTypeTok{analysisId =} \DecValTok{457}\NormalTok{,}
+                                            \DataTypeTok{covariateId =} \DecValTok{1}\OperatorTok{*}\DecValTok{1000}\OperatorTok{+}\DecValTok{457}\NormalTok{,}
+                                            \DataTypeTok{conseptSet =} \KeywordTok{c}\NormalTok{(}\DecValTok{2212267}\NormalTok{, }\DecValTok{3015232}\NormalTok{, }\DecValTok{3019900}\NormalTok{, }\DecValTok{3027114}\NormalTok{, }\DecValTok{4008265}\NormalTok{, }\DecValTok{4190897}\NormalTok{, }\DecValTok{4198448}\NormalTok{, }\DecValTok{4260765}\NormalTok{, }\DecValTok{37393449}\NormalTok{, }\DecValTok{37397989}\NormalTok{, }\DecValTok{40484105}\NormalTok{, }\DecValTok{44791053}\NormalTok{, }\DecValTok{44809580}\NormalTok{)}
+                                            \DataTypeTok{startDay=} \DecValTok{-365}\NormalTok{, }
+                                            \DataTypeTok{endDay=}\DecValTok{60}\NormalTok{,}
+                                            \DataTypeTok{scaleMap =} \ControlFlowTok{function}\NormalTok{(x)\{ x =}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(x, }\DataTypeTok{rawValue =}\NormalTok{ dplyr}\OperatorTok{::}\KeywordTok{case_when}\NormalTok{(unitConceptId }\OperatorTok{==}\StringTok{ }\DecValTok{8753} \OperatorTok{~}\StringTok{ }\NormalTok{rawValue}\OperatorTok{*}\FloatTok{38.6}\NormalTok{, unitConceptId }\OperatorTok{%in%}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{8840}\NormalTok{,}\DecValTok{8954}\NormalTok{,}\DecValTok{9028}\NormalTok{ ) }\OperatorTok{~}\StringTok{ }\NormalTok{rawValue, }\OtherTok{TRUE} \OperatorTok{~}\StringTok{ }\DecValTok{0}\NormalTok{)); x=}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(x, rawValue }\OperatorTok{>=}\StringTok{ }\DecValTok{80} \OperatorTok{&}\StringTok{ }\NormalTok{rawValue }\OperatorTok{<=}\StringTok{ }\DecValTok{500}\NormalTok{ ); x =}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(x,}\DataTypeTok{valueAsNumber =}\NormalTok{ rawValue); }\KeywordTok{return}\NormalTok{(x)\},}
+                                            \DataTypeTok{aggregateMethod=} \StringTok{'recent'}\NormalTok{, }
+                                            \DataTypeTok{imputationValue =} \DecValTok{150}\NormalTok{,}
+                                            \DataTypeTok{ageInteraction =} \OtherTok{FALSE}\NormalTok{,}
+                                            \DataTypeTok{lnAgeInteraction =} \OtherTok{FALSE}\NormalTok{,}
+                                            \DataTypeTok{lnValue =} \OtherTok{FALSE}\NormalTok{,}
+                                            \DataTypeTok{analysisId =} \DecValTok{457}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+If we wanted to use the natureal logarithm of the most recent
+measurement value then we can use:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cohortCov2 <-}\StringTok{ }\KeywordTok{createCohortCovariateSettings}\NormalTok{(}\DataTypeTok{covariateName =} \StringTok{'Log Total Cholesterol in mg per dL'}\NormalTok{,}
+                                            \DataTypeTok{analysisId =} \DecValTok{457}\NormalTok{,}
+                                            \DataTypeTok{covariateId =} \DecValTok{2}\OperatorTok{*}\DecValTok{1000}\OperatorTok{+}\DecValTok{457}\NormalTok{,}
+                                            \DataTypeTok{conseptSet =} \KeywordTok{c}\NormalTok{(}\DecValTok{2212267}\NormalTok{, }\DecValTok{3015232}\NormalTok{, }\DecValTok{3019900}\NormalTok{, }\DecValTok{3027114}\NormalTok{, }\DecValTok{4008265}\NormalTok{, }\DecValTok{4190897}\NormalTok{, }\DecValTok{4198448}\NormalTok{, }\DecValTok{4260765}\NormalTok{, }\DecValTok{37393449}\NormalTok{, }\DecValTok{37397989}\NormalTok{, }\DecValTok{40484105}\NormalTok{, }\DecValTok{44791053}\NormalTok{, }\DecValTok{44809580}\NormalTok{)}
+                                            \DataTypeTok{startDay=} \DecValTok{-365}\NormalTok{, }
+                                            \DataTypeTok{endDay=}\DecValTok{60}\NormalTok{,}
+                                            \DataTypeTok{scaleMap =} \ControlFlowTok{function}\NormalTok{(x)\{ x =}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(x, }\DataTypeTok{rawValue =}\NormalTok{ dplyr}\OperatorTok{::}\KeywordTok{case_when}\NormalTok{(unitConceptId }\OperatorTok{==}\StringTok{ }\DecValTok{8753} \OperatorTok{~}\StringTok{ }\NormalTok{rawValue}\OperatorTok{*}\FloatTok{38.6}\NormalTok{, unitConceptId }\OperatorTok{%in%}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{8840}\NormalTok{,}\DecValTok{8954}\NormalTok{,}\DecValTok{9028}\NormalTok{ ) }\OperatorTok{~}\StringTok{ }\NormalTok{rawValue, }\OtherTok{TRUE} \OperatorTok{~}\StringTok{ }\DecValTok{0}\NormalTok{)); x=}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(x, rawValue }\OperatorTok{>=}\StringTok{ }\DecValTok{80} \OperatorTok{&}\StringTok{ }\NormalTok{rawValue }\OperatorTok{<=}\StringTok{ }\DecValTok{500}\NormalTok{ ); x =}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(x,}\DataTypeTok{valueAsNumber =} \KeywordTok{log}\NormalTok{(rawValue)); }\KeywordTok{return}\NormalTok{(x)\},}
+                                            \DataTypeTok{aggregateMethod=} \StringTok{'recent'}\NormalTok{, }
+                                            \DataTypeTok{imputationValue =} \DecValTok{150}\NormalTok{,}
+                                            \DataTypeTok{ageInteraction =} \OtherTok{FALSE}\NormalTok{,}
+                                            \DataTypeTok{lnAgeInteraction =} \OtherTok{FALSE}\NormalTok{,}
+                                            \DataTypeTok{lnValue =} \OtherTok{TRUE}\NormalTok{,}
+                                            \DataTypeTok{analysisId =} \DecValTok{457}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+To include age interactions:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cohortCov3 <-}\StringTok{ }\KeywordTok{createCohortCovariateSettings}\NormalTok{(}\DataTypeTok{covariateName =} \StringTok{'Total Cholesterol in mg per dL interaction with age'}\NormalTok{,}
+                                            \DataTypeTok{analysisId =} \DecValTok{457}\NormalTok{,}
+                                            \DataTypeTok{covariateId =} \DecValTok{3}\OperatorTok{*}\DecValTok{1000}\OperatorTok{+}\DecValTok{457}\NormalTok{,}
+                                            \DataTypeTok{conseptSet =} \KeywordTok{c}\NormalTok{(}\DecValTok{2212267}\NormalTok{, }\DecValTok{3015232}\NormalTok{, }\DecValTok{3019900}\NormalTok{, }\DecValTok{3027114}\NormalTok{, }\DecValTok{4008265}\NormalTok{, }\DecValTok{4190897}\NormalTok{, }\DecValTok{4198448}\NormalTok{, }\DecValTok{4260765}\NormalTok{, }\DecValTok{37393449}\NormalTok{, }\DecValTok{37397989}\NormalTok{, }\DecValTok{40484105}\NormalTok{, }\DecValTok{44791053}\NormalTok{, }\DecValTok{44809580}\NormalTok{)}
+                                            \DataTypeTok{startDay=} \DecValTok{-365}\NormalTok{, }
+                                            \DataTypeTok{endDay=}\DecValTok{60}\NormalTok{,}
+                                            \DataTypeTok{scaleMap =} \ControlFlowTok{function}\NormalTok{(x)\{ x =}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(x, }\DataTypeTok{rawValue =}\NormalTok{ dplyr}\OperatorTok{::}\KeywordTok{case_when}\NormalTok{(unitConceptId }\OperatorTok{==}\StringTok{ }\DecValTok{8753} \OperatorTok{~}\StringTok{ }\NormalTok{rawValue}\OperatorTok{*}\FloatTok{38.6}\NormalTok{, unitConceptId }\OperatorTok{%in%}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{8840}\NormalTok{,}\DecValTok{8954}\NormalTok{,}\DecValTok{9028}\NormalTok{ ) }\OperatorTok{~}\StringTok{ }\NormalTok{rawValue, }\OtherTok{TRUE} \OperatorTok{~}\StringTok{ }\DecValTok{0}\NormalTok{)); x=}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(x, rawValue }\OperatorTok{>=}\StringTok{ }\DecValTok{80} \OperatorTok{&}\StringTok{ }\NormalTok{rawValue }\OperatorTok{<=}\StringTok{ }\DecValTok{500}\NormalTok{ ); x =}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(x,}\DataTypeTok{valueAsNumber =}\NormalTok{ rawValue); }\KeywordTok{return}\NormalTok{(x)\},}
+                                            \DataTypeTok{aggregateMethod=} \StringTok{'recent'}\NormalTok{, }
+                                            \DataTypeTok{imputationValue =} \DecValTok{150}\NormalTok{,}
+                                            \DataTypeTok{ageInteraction =} \OtherTok{TRUE}\NormalTok{,}
+                                            \DataTypeTok{lnAgeInteraction =} \OtherTok{FALSE}\NormalTok{,}
+                                            \DataTypeTok{lnValue =} \OtherTok{FALSE}\NormalTok{,}
+                                            \DataTypeTok{analysisId =} \DecValTok{457}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+To include all the above as covariates, combine them into a list:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cohortCov <-}\StringTok{ }\KeywordTok{list}\NormalTok{(cohortCov1,cohortCov2,cohortCov3)}
+\end{Highlighting}
+\end{Shaded}
+
+\end{document}

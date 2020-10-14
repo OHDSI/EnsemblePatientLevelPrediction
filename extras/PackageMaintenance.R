@@ -36,6 +36,30 @@ rmarkdown::render("vignettes/PopulatingSkeletonPackage.Rmd",
                                           toc = TRUE,
                                           number_sections = TRUE))
 
+rmarkdown::render("vignettes/UsingCohortCovariates.Rmd",
+                  output_file = "../inst/doc/UsingCohortCovariates.pdf",
+                  rmarkdown::pdf_document(latex_engine = "pdflatex",
+                                          toc = TRUE,
+                                          number_sections = TRUE))
+
+rmarkdown::render("vignettes/UsingMeasurementCovariates.Rmd",
+                  output_file = "../inst/doc/UsingMeasurementCovariates.pdf",
+                  rmarkdown::pdf_document(latex_engine = "pdflatex",
+                                          toc = TRUE,
+                                          number_sections = TRUE))
+
+rmarkdown::render("vignettes/UsingMeasurementCohortCovariates.Rmd",
+                  output_file = "../inst/doc/UsingMeasurementCohortCovariates.pdf",
+                  rmarkdown::pdf_document(latex_engine = "pdflatex",
+                                          toc = TRUE,
+                                          number_sections = TRUE))
+
+rmarkdown::render("vignettes/UsingAgeCovariates.Rmd",
+                  output_file = "../inst/doc/UsingAgeCovariates.pdf",
+                  rmarkdown::pdf_document(latex_engine = "pdflatex",
+                                          toc = TRUE,
+                                          number_sections = TRUE))
+
 # Create analysis details -------------------------------------------------
 # Insert cohort definitions from ATLAS into package -----------------------
 OhdsiRTools::insertCohortDefinitionSetInPackage(fileName = "CohortsToCreate.csv",

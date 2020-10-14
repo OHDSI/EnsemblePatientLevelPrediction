@@ -1,0 +1,300 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Using the measurement cohort covariate code},
+  pdfauthor={Jenna M. Reps},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs}
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+
+\title{Using the measurement cohort covariate code}
+\author{Jenna M. Reps}
+\date{2020-10-13}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+This vignette describes how one can use the function
+`createMeasurementCohortCovariateSettings' to define measurement
+covariates that also require being in or not being in a cohort during
+the time period using the OMOP CDM. You will need:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  A concept set for the measurements (a vector of
+  measurement\_concept\_ids)
+\item
+  A function to standardise the measurements (e.g., filters out unlikely
+  values or converts units)
+\item
+  A cohort database schema, a cohort table and cohort definition id for
+  the cohort of interest
+\item
+  How to aggregate multiple measurement values (e.g., use most recent to
+  index, max value, min value or mean value)
+\end{enumerate}
+
+\hypertarget{createmeasurementcohortcovariatesettings}{%
+\subsection{createMeasurementCohortCovariateSettings}\label{createmeasurementcohortcovariatesettings}}
+
+This function contains the settings required to define the measurement
+cohort covariate. For a measurement cohort covariate, the code will
+check the measurement table in the OMOP CDM to find all rows where the
+measurement\_concept\_id is in the specified measurement concept set and
+will then restrict to patients in (or not in if `type' == out) the
+`cohortDatabaseSchema'.'cohortTable' with the cohort\_definition\_id of
+`cohortId' between the index date plus the `startDay' and the index date
+plus the `endDay'. It will then check whether the measurement\_date
+column calls between the index date plus the `startDay' and the index
+date plus the `endDay'. The `scaleMap' will map the measurement values
+to a uniform scale - this standardises the values. If there are multiple
+measurements within the time period then the `aggregateMethod' method
+with specify how to get a single value. The settings `ageInteraction'
+and `lnAgeInteraction' enable the user to create age/ln(age) interaction
+terms. The `lnValue' enables the user to use the natural logarithm of
+the measurment value. Finally, the `analysisId' is used to create the
+cohort covariateId as 1000*`measurementId' + `analysisId'.
+
+\begin{longtable}[]{@{}ll@{}}
+\caption{The inputs into the create function}\tabularnewline
+\toprule
+Input & Description\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Input & Description\tabularnewline
+\midrule
+\endhead
+covariateName & The name of the covariate\tabularnewline
+covariateId & The id of the covariate - generally
+measurementId*1000+analysisId\tabularnewline
+cohortDatabaseSchema & The database schema with the cohort used to
+create a covariate\tabularnewline
+cohortTable & The table with the cohort used to create a
+covariate\tabularnewline
+cohortId & The cohort definition id for the cohort used to create a
+covariate\tabularnewline
+conseptSet & A vector of concept\_ids corresponding to the
+measurement\tabularnewline
+type & in or out - in means the patients with a measurement must be in
+the cohort of interest during the start and end date and out means the
+patients with a measurement must not be in the cohort of interest during
+the start and end date\tabularnewline
+startDay & How many days prior to index to see whether the measurement
+occurs after\tabularnewline
+endDay & How many days relative to index to see whether the mesurement
+occurs before\tabularnewline
+scaleMap & A function that takes the covariate Amdromeda table as input
+and processes it - can include filtering invalid values or mapping based
+on unit\_concept\_id values\tabularnewline
+aggregateMethod & How to pick a measurement value when there are more
+than 1 during the start and end dates - can be min/max/recent (closest
+to index)/mean\tabularnewline
+imputationValue & A value to use if a person has no measurement during
+the start and end dates\tabularnewline
+ageInteraction & Include interaction with age\tabularnewline
+lnAgeInteraction & Include interaction with ln(age)\tabularnewline
+lnValue & Whether to us the natural log of the measurement
+value\tabularnewline
+analysisId & The analysis id for the covariate\tabularnewline
+\bottomrule
+\end{longtable}
+
+\hypertarget{example}{%
+\subsection{Example}\label{example}}
+
+Assuming the concept set c(3004249, 3009395, 3018586, 3028737, 3035856,
+4152194, 4153323, 4161413, 4197167, 4217013, 4232915, 4248525, 4292062,
+21492239, 37396683, 44789315, 44806887, 45769778) corresponds to
+`Systolic blood pressure'. The cohort in `your database schema'.'cohort'
+with cohort\_definition\_id of 123 corresponds to periods of time where
+a patient is given an anti-hypertensive drug.
+
+We create a function to map the covariate object (this contains the
+measurementConceptId, unitConceptId, rawValue and valueAsNumber columns)
+to standardise the measurement values. As the systolic blood pressure
+measurements often have no unit\_cocept\_id we cannot standarise based
+mapping the units. Instead, We remove unfeasible values such as any
+values less than 50 and greater than 250.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ControlFlowTok{function}\NormalTok{(x)\{ x =}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(x, rawValue }\OperatorTok{>=}\StringTok{ }\DecValTok{50} \OperatorTok{&}\StringTok{ }\NormalTok{rawValue }\OperatorTok{<=}\StringTok{ }\DecValTok{250}\NormalTok{ ); }\KeywordTok{return}\NormalTok{(x)\}}
+\end{Highlighting}
+\end{Shaded}
+
+We include all measurement values with occured within 1 year prior to
+index and up to 60 days after, but use the value that occurred closest
+to index.
+
+To create a treated systolic blood pressure covariate (a blood pressure
+measurement where the patient is in the anti-hypertensive cohort) using
+a measurement cohort covariate run:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cohortCov1 <-}\StringTok{ }\KeywordTok{createCohortCovariateSettings}\NormalTok{(}\DataTypeTok{covariateName =} \StringTok{'Treated systolic blood pressure'}\NormalTok{,}
+                                            \DataTypeTok{covariateId =} \DecValTok{1}\OperatorTok{*}\DecValTok{1000}\OperatorTok{+}\DecValTok{458}\NormalTok{,}
+                                            \DataTypeTok{cohortDatabaseSchema =} \StringTok{'your database schema'}\NormalTok{,}
+                                            \DataTypeTok{cohortTable =} \StringTok{'cohort'}\NormalTok{,}
+                                            \DataTypeTok{cohortId =} \DecValTok{123}\NormalTok{,}
+                                            \DataTypeTok{conseptSet =} \KeywordTok{c}\NormalTok{(}\DecValTok{3004249}\NormalTok{, }\DecValTok{3009395}\NormalTok{, }\DecValTok{3018586}\NormalTok{, }\DecValTok{3028737}\NormalTok{, }\DecValTok{3035856}\NormalTok{, }\DecValTok{4152194}\NormalTok{, }\DecValTok{4153323}\NormalTok{, }\DecValTok{4161413}\NormalTok{, }\DecValTok{4197167}\NormalTok{, }\DecValTok{4217013}\NormalTok{, }\DecValTok{4232915}\NormalTok{, }\DecValTok{4248525}\NormalTok{, }\DecValTok{4292062}\NormalTok{, }\DecValTok{21492239}\NormalTok{, }\DecValTok{37396683}\NormalTok{, }\DecValTok{44789315}\NormalTok{, }\DecValTok{44806887}\NormalTok{, }\DecValTok{45769778}\NormalTok{),}
+                                            \DataTypeTok{type =} \StringTok{'in'}\NormalTok{,}
+                                            \DataTypeTok{startDay=} \DecValTok{-365}\NormalTok{, }
+                                            \DataTypeTok{endDay=}\DecValTok{60}\NormalTok{,}
+                                            \DataTypeTok{scaleMap =} \ControlFlowTok{function}\NormalTok{(x)\{ x =}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(x, rawValue }\OperatorTok{>=}\StringTok{ }\DecValTok{50} \OperatorTok{&}\StringTok{ }\NormalTok{rawValue }\OperatorTok{<=}\StringTok{ }\DecValTok{250}\NormalTok{ ); }\KeywordTok{return}\NormalTok{(x)\},}
+                                            \DataTypeTok{aggregateMethod=} \StringTok{'recent'}\NormalTok{, }
+                                            \DataTypeTok{ageInteraction =} \OtherTok{FALSE}\NormalTok{,}
+                                            \DataTypeTok{lnAgeInteraction =} \OtherTok{FALSE}\NormalTok{,}
+                                            \DataTypeTok{lnValue =} \OtherTok{FALSE}\NormalTok{,}
+                                            \DataTypeTok{analysisId =} \DecValTok{458}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+To create an untreated systolic blood pressure covariate (a blood
+pressure measurement where the patient is not in the anti-hypertensive
+cohort) using a measurement cohort covariate run:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cohortCov1 <-}\StringTok{ }\KeywordTok{createCohortCovariateSettings}\NormalTok{(}\DataTypeTok{covariateName =} \StringTok{'Untreated systolic blood pressure'}\NormalTok{,}
+                                            \DataTypeTok{covariateId =} \DecValTok{2}\OperatorTok{*}\DecValTok{1000}\OperatorTok{+}\DecValTok{458}\NormalTok{,}
+                                            \DataTypeTok{cohortDatabaseSchema =} \StringTok{'your database schema'}\NormalTok{,}
+                                            \DataTypeTok{cohortTable =} \StringTok{'cohort'}\NormalTok{,}
+                                            \DataTypeTok{cohortId =} \DecValTok{123}\NormalTok{,}
+                                            \DataTypeTok{conseptSet =} \KeywordTok{c}\NormalTok{(}\DecValTok{3004249}\NormalTok{, }\DecValTok{3009395}\NormalTok{, }\DecValTok{3018586}\NormalTok{, }\DecValTok{3028737}\NormalTok{, }\DecValTok{3035856}\NormalTok{, }\DecValTok{4152194}\NormalTok{, }\DecValTok{4153323}\NormalTok{, }\DecValTok{4161413}\NormalTok{, }\DecValTok{4197167}\NormalTok{, }\DecValTok{4217013}\NormalTok{, }\DecValTok{4232915}\NormalTok{, }\DecValTok{4248525}\NormalTok{, }\DecValTok{4292062}\NormalTok{, }\DecValTok{21492239}\NormalTok{, }\DecValTok{37396683}\NormalTok{, }\DecValTok{44789315}\NormalTok{, }\DecValTok{44806887}\NormalTok{, }\DecValTok{45769778}\NormalTok{),}
+                                            \DataTypeTok{type =} \StringTok{'out'}\NormalTok{,}
+                                            \DataTypeTok{startDay=} \DecValTok{-365}\NormalTok{, }
+                                            \DataTypeTok{endDay=}\DecValTok{60}\NormalTok{,}
+                                            \DataTypeTok{scaleMap =} \ControlFlowTok{function}\NormalTok{(x)\{ x =}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(x, rawValue }\OperatorTok{>=}\StringTok{ }\DecValTok{50} \OperatorTok{&}\StringTok{ }\NormalTok{rawValue }\OperatorTok{<=}\StringTok{ }\DecValTok{250}\NormalTok{ ); }\KeywordTok{return}\NormalTok{(x)\},}
+                                            \DataTypeTok{aggregateMethod=} \StringTok{'recent'}\NormalTok{, }
+                                            \DataTypeTok{ageInteraction =} \OtherTok{FALSE}\NormalTok{,}
+                                            \DataTypeTok{lnAgeInteraction =} \OtherTok{FALSE}\NormalTok{,}
+                                            \DataTypeTok{lnValue =} \OtherTok{FALSE}\NormalTok{,}
+                                            \DataTypeTok{analysisId =} \DecValTok{458}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+You can use the ageInteraction, lnAgeInteraction and lnValue to do log
+mapping or include age interaction terms.
+
+To include all the above as covariates, combine them into a list:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cohortCov <-}\StringTok{ }\KeywordTok{list}\NormalTok{(cohortCov1,cohortCov2)}
+\end{Highlighting}
+\end{Shaded}
+
+\end{document}

@@ -1,0 +1,157 @@
+---
+title: "Using the measurement covariate code"
+author: "Jenna M. Reps"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    number_sections: yes
+    toc: yes
+  html_document:
+    number_sections: yes
+    toc: yes
+vignette: >
+  %\VignetteIndexEntry{Using the measurement covariate code}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+  
+  ```{r, echo = FALSE, message = FALSE, warning = FALSE}
+library(PatientLevelPrediction)
+knitr::opts_chunk$set(
+  cache=FALSE,
+  comment = "#>",
+  error = FALSE,
+  tidy = FALSE)
+```
+# Introduction
+
+This vignette describes how one can use the function 'createMeasurementCovariateSettings' to define measurement covariates using the OMOP CDM.  You will need:
+
+1. A concept set for the measurements (a vector of measurement_concept_ids)
+2. A function to standardise the measurements (e.g., filters out unlikely values or converts units)
+3. A value to use for imputation
+4. How to aggregate multiple measurement values (e.g., use most recent to index, max value, min value or mean value)
+
+
+## createMeasurementCovariateSettings
+
+This function contains the settings required to define the covariate.  For a measurement covariate, the code will check the measurement table in the OMOP CDM to find all rows where the measurement_concept_id is in the specified measurement concept set.  It will then check whether the measurement_date column calls between the index date plus the 'startDay' and the index date plus the 'endDay'. The 'scaleMap' will map the measurement values to a uniform scale - this standardises the values.  If there are multiple measurements within the time period then the 'aggregateMethod' method with specify how to get a single value.  The 'imputationValue' input specifies what value to assign to people without a measurement recorded during the time period.  The settings 'ageInteraction' and 'lnAgeInteraction' enable the user to create age/ln(age) interaction terms. The 'lnValue' enables the user to use the natural logarithm of the measurment value. Finally, the 'analysisId' is used to create the cohort covariateId as 1000*'measurementId' + 'analysisId'. 
+
+
+```{r echo = FALSE, results = 'asis'}
+
+data <- data.frame(Input = c('covariateName', 
+                             'covariateId',
+                             'conseptSet',
+                             'startDay',
+                             'endDay',
+                             'scaleMap',
+                             'aggregateMethod',
+                             'imputationValue',
+                             'ageInteraction',
+                             'lnAgeInteraction',
+                             'lnValue',
+                             'analysisId'),
+                   Description = c('The name of the covariate',
+                                   'The id of the covariate - generally measurementId*1000+analysisId',
+                     'A vector of concept_ids corresponding to the measurement',
+                                   'How many days prior to index to see whether the measurement occurs after',
+                                   'How many days relative to index to see whether the mesurement occurs before',
+                                   'A function that takes the covariate Amdromeda table as input and processes it - can include filtering invalid values or mapping based on unit_concept_id values',
+                     'How to pick a measurement value when there are more than 1 during the start and end dates - can be min/max/recent (closest to index)/mean',
+                     'A value to use if a person has no measurement during the start and end dates',
+                                   'Include interaction with age',
+                                   'Include interaction with ln(age)',
+                     'Whether to us the natural log of the measurement value',
+                                   'The analysis id for the covariate'
+                                   ) )
+library(knitr)
+kable(data, caption = 'The inputs into the create function')
+
+```
+
+
+## Example
+
+Assuming the concept set c(2212267, 3015232, 3019900, 3027114, 4008265, 4190897, 4198448, 4260765, 37393449, 37397989, 40484105, 44791053, 44809580) corresponds to 'Total Cholesterol'.  
+
+We create a function to map the covariate object (this contains the measurementConceptId, unitConceptId, rawValue and valueAsNumber columns) to standardise the measurement values.  The unitConceptIds 8840,8954,9028 are all in mg per dL but unitConceptId 8753 corresponds to a different scale and needs to be multipled by 38.6 to covert to mg per dL.  We remove any values less than 80 and greater than 500 and then return the scaled value. 
+
+```{r eval=FALSE}
+function(x){ x = dplyr::mutate(x, rawValue = dplyr::case_when(unitConceptId == 8753 ~ rawValue*38.6, unitConceptId %in% c(8840,8954,9028 ) ~ rawValue, TRUE ~ 0)); x= dplyr::filter(x, rawValue >= 80 & rawValue <= 500 ); x = dplyr::mutate(x,valueAsNumber = rawValue); return(x)}
+
+```
+ 
+We decide to impute missing values with 150.  We include all measurement values with occured within 1 year prior to index and up to 60 days after, but use the value that occurred closest to index.                                                                         
+                                                                             
+To create a Total Cholesterol in mg per dL covariate using a measurement covariate run:
+
+
+```{r eval=FALSE}
+
+cohortCov1 <- createCohortCovariateSettings(covariateName = 'Total Cholesterol in mg per dL',
+                                            analysisId = 457,
+                                            covariateId = 1*1000+457,
+                                            conseptSet = c(2212267, 3015232, 3019900, 3027114, 4008265, 4190897, 4198448, 4260765, 37393449, 37397989, 40484105, 44791053, 44809580)
+                                            startDay= -365, 
+                                            endDay=60,
+                                            scaleMap = function(x){ x = dplyr::mutate(x, rawValue = dplyr::case_when(unitConceptId == 8753 ~ rawValue*38.6, unitConceptId %in% c(8840,8954,9028 ) ~ rawValue, TRUE ~ 0)); x= dplyr::filter(x, rawValue >= 80 & rawValue <= 500 ); x = dplyr::mutate(x,valueAsNumber = rawValue); return(x)},
+                                            aggregateMethod= 'recent', 
+                                            imputationValue = 150,
+                                            ageInteraction = FALSE,
+                                            lnAgeInteraction = FALSE,
+                                            lnValue = FALSE,
+                                            analysisId = 457)
+                                                      
+
+```
+
+If we wanted to use the natureal logarithm of the most recent measurement value then we can use:
+
+```{r eval=FALSE}
+
+cohortCov2 <- createCohortCovariateSettings(covariateName = 'Log Total Cholesterol in mg per dL',
+                                            analysisId = 457,
+                                            covariateId = 2*1000+457,
+                                            conseptSet = c(2212267, 3015232, 3019900, 3027114, 4008265, 4190897, 4198448, 4260765, 37393449, 37397989, 40484105, 44791053, 44809580)
+                                            startDay= -365, 
+                                            endDay=60,
+                                            scaleMap = function(x){ x = dplyr::mutate(x, rawValue = dplyr::case_when(unitConceptId == 8753 ~ rawValue*38.6, unitConceptId %in% c(8840,8954,9028 ) ~ rawValue, TRUE ~ 0)); x= dplyr::filter(x, rawValue >= 80 & rawValue <= 500 ); x = dplyr::mutate(x,valueAsNumber = log(rawValue)); return(x)},
+                                            aggregateMethod= 'recent', 
+                                            imputationValue = 150,
+                                            ageInteraction = FALSE,
+                                            lnAgeInteraction = FALSE,
+                                            lnValue = TRUE,
+                                            analysisId = 457)
+                                                      
+
+```
+
+To include age interactions:
+
+```{r eval=FALSE}
+
+cohortCov3 <- createCohortCovariateSettings(covariateName = 'Total Cholesterol in mg per dL interaction with age',
+                                            analysisId = 457,
+                                            covariateId = 3*1000+457,
+                                            conseptSet = c(2212267, 3015232, 3019900, 3027114, 4008265, 4190897, 4198448, 4260765, 37393449, 37397989, 40484105, 44791053, 44809580)
+                                            startDay= -365, 
+                                            endDay=60,
+                                            scaleMap = function(x){ x = dplyr::mutate(x, rawValue = dplyr::case_when(unitConceptId == 8753 ~ rawValue*38.6, unitConceptId %in% c(8840,8954,9028 ) ~ rawValue, TRUE ~ 0)); x= dplyr::filter(x, rawValue >= 80 & rawValue <= 500 ); x = dplyr::mutate(x,valueAsNumber = rawValue); return(x)},
+                                            aggregateMethod= 'recent', 
+                                            imputationValue = 150,
+                                            ageInteraction = TRUE,
+                                            lnAgeInteraction = FALSE,
+                                            lnValue = FALSE,
+                                            analysisId = 457)
+                                                      
+
+```
+
+
+To include  all the above as covariates, combine them into a list:
+```{r eval=FALSE}
+
+cohortCov <- list(cohortCov1,cohortCov2,cohortCov3)
+                                                      
+```

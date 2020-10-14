@@ -1,0 +1,268 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Using the cohort covariate code},
+  pdfauthor={Jenna M. Reps},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs}
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+
+\title{Using the cohort covariate code}
+\author{Jenna M. Reps}
+\date{2020-10-13}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+This vignette describes how one can use the function
+`createCohortCovariateSettings' to define covariates using the cohort
+table. The first steps are to create all required phenotypes into a
+cohort table and make a note of the cohort database schema, cohort table
+and cohort definition ids.
+
+\hypertarget{createcohortcovariatesettings}{%
+\subsection{createCohortCovariateSettings}\label{createcohortcovariatesettings}}
+
+This function contains the settings required to define the covariate.
+For a cohort covariate, the code will check the cohort table
+`cohortDatabaseSchema'.'cohortTable' to find all rows where the column
+cohort\_definition\_id is `cohortId'. It will then check whether the
+cohort\_start\_date column calls between the index date plus the
+`startDay' and the index date plus the `endDay'. If `count' is set to
+TRUE then it will return the number of rows where the
+cohort\_start\_date falls between the start and end dates, otherwise it
+will return 1 if there are rows and 0 else. The settings
+`ageInteraction' and `lnAgeInteraction' enable the user to create
+age/ln(age) interaction terms. Finally, the `analysisId' is used to
+create the cohort covariateId as 1000*`cohortId' + `analysisId'.
+
+\begin{longtable}[]{@{}ll@{}}
+\caption{The inputs into the create function}\tabularnewline
+\toprule
+Input & Description\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+Input & Description\tabularnewline
+\midrule
+\endhead
+covariateName & The name of the covariate\tabularnewline
+covariateId & The id of the covariate - generally
+cohortId*1000+analysisId\tabularnewline
+cohortDatabaseSchema & The database schema with the cohort used to
+create a covariate\tabularnewline
+cohortTable & The table with the cohort used to create a
+covariate\tabularnewline
+cohortId & The cohort definition id for the cohort used to create a
+covariate\tabularnewline
+startDay & How many days prior to index to see whether the covariate
+cohort occurs after\tabularnewline
+endDay & How many days relative to index to see whether the covariate
+cohort occurs before\tabularnewline
+count & Count how many unique dates occur in the covariate cohort during
+the start and end dates for each patient\tabularnewline
+ageInteraction & Include interaction with age\tabularnewline
+lnAgeInteraction & Include interaction with ln(age)\tabularnewline
+analysisId & The analysis id for the covariate\tabularnewline
+\bottomrule
+\end{longtable}
+
+\hypertarget{example}{%
+\subsection{Example}\label{example}}
+
+Assuming a cohort table exists at: `the\_cohortDatabaseSchema'.'cohort'
+and contains the set of dates a patient is initially diagnosed with
+diabetes with the cohort\_definition\_id of 999. To create a diabetes
+covariate using a cohort definition run:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cohortCov1 <-}\StringTok{ }\KeywordTok{createCohortCovariateSettings}\NormalTok{(}\DataTypeTok{covariateName =} \StringTok{'example diabetes anytime prior'}\NormalTok{,}
+                                                        \DataTypeTok{analysisId =} \DecValTok{456}\NormalTok{,}
+                                                        \DataTypeTok{covariateId =} \DecValTok{999}\OperatorTok{*}\DecValTok{1000}\OperatorTok{+}\DecValTok{456}\NormalTok{,}
+                                                      \DataTypeTok{cohortDatabaseSchema =} \StringTok{'the_cohortDatabaseSchema'}\NormalTok{,}
+                                                      \DataTypeTok{cohortTable =} \StringTok{'cohort'}\NormalTok{,}
+                                                      \DataTypeTok{cohortId =} \DecValTok{999}\NormalTok{,}
+                                                      \DataTypeTok{startDay=} \DecValTok{-9999}\NormalTok{, }
+                                                      \DataTypeTok{endDay=}\OperatorTok{-}\DecValTok{1}\NormalTok{,}
+                                                      \DataTypeTok{count=} \OtherTok{FALSE}\NormalTok{), }
+\NormalTok{                                                      ageInteraction =}\StringTok{ }\OtherTok{FALSE}\NormalTok{,}
+\NormalTok{                                                      lnAgeInteraction =}\StringTok{ }\OtherTok{FALSE}\ErrorTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+If you wanted to only find patients diagnosed with diabetes in the past
+365 days you can use:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cohortCov2 <-}\StringTok{ }\KeywordTok{createCohortCovariateSettings}\NormalTok{(}\DataTypeTok{covariateName =} \StringTok{'example diabetes within 365 days prior'}\NormalTok{,}
+                                                        \DataTypeTok{analysisId =} \DecValTok{456}\NormalTok{,}
+                                                        \DataTypeTok{covariateId =} \DecValTok{999}\OperatorTok{*}\DecValTok{1000}\OperatorTok{+}\DecValTok{456}\NormalTok{,}
+                                                      \DataTypeTok{cohortDatabaseSchema =} \StringTok{'the_cohortDatabaseSchema'}\NormalTok{,}
+                                                      \DataTypeTok{cohortTable =} \StringTok{'cohort'}\NormalTok{,}
+                                                      \DataTypeTok{cohortId =} \DecValTok{999}\NormalTok{,}
+                                                      \DataTypeTok{startDay=} \DecValTok{-365}\NormalTok{, }
+                                                      \DataTypeTok{endDay=}\OperatorTok{-}\DecValTok{1}\NormalTok{,}
+                                                      \DataTypeTok{count=} \OtherTok{FALSE}\NormalTok{), }
+\NormalTok{                                                      ageInteraction =}\StringTok{ }\OtherTok{FALSE}\NormalTok{,}
+\NormalTok{                                                      lnAgeInteraction =}\StringTok{ }\OtherTok{FALSE}\ErrorTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+To include an age interaction (age in years or 0 is the value rather
+than 1 or 0):
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cohortCov3 <-}\StringTok{ }\KeywordTok{createCohortCovariateSettings}\NormalTok{(}\DataTypeTok{covariateName =} \StringTok{'example diabetes anytime prior interaction age'}\NormalTok{,}
+                                                        \DataTypeTok{analysisId =} \DecValTok{456}\NormalTok{,}
+                                                        \DataTypeTok{covariateId =} \DecValTok{999}\OperatorTok{*}\DecValTok{1000}\OperatorTok{+}\DecValTok{456}\NormalTok{,}
+                                                      \DataTypeTok{cohortDatabaseSchema =} \StringTok{'the_cohortDatabaseSchema'}\NormalTok{,}
+                                                      \DataTypeTok{cohortTable =} \StringTok{'cohort'}\NormalTok{,}
+                                                      \DataTypeTok{cohortId =} \DecValTok{999}\NormalTok{,}
+                                                      \DataTypeTok{startDay=} \DecValTok{-9999}\NormalTok{, }
+                                                      \DataTypeTok{endDay=}\OperatorTok{-}\DecValTok{1}\NormalTok{,}
+                                                      \DataTypeTok{count=} \OtherTok{FALSE}\NormalTok{), }
+\NormalTok{                                                      ageInteraction =}\StringTok{ }\OtherTok{TRUE}\NormalTok{,}
+\NormalTok{                                                      lnAgeInteraction =}\StringTok{ }\OtherTok{FALSE}\ErrorTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+To include an ln(age) interaction (natural log of age in years or 0 is
+the value rather than 1 or 0):
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cohortCov4 <-}\StringTok{ }\KeywordTok{createCohortCovariateSettings}\NormalTok{(}\DataTypeTok{covariateName =} \StringTok{'example diabetes anytime prior interaction ln(age)'}\NormalTok{,}
+                                                        \DataTypeTok{analysisId =} \DecValTok{456}\NormalTok{,}
+                                                        \DataTypeTok{covariateId =} \DecValTok{999}\OperatorTok{*}\DecValTok{1000}\OperatorTok{+}\DecValTok{456}\NormalTok{,}
+                                                      \DataTypeTok{cohortDatabaseSchema =} \StringTok{'the_cohortDatabaseSchema'}\NormalTok{,}
+                                                      \DataTypeTok{cohortTable =} \StringTok{'cohort'}\NormalTok{,}
+                                                      \DataTypeTok{cohortId =} \DecValTok{999}\NormalTok{,}
+                                                      \DataTypeTok{startDay=} \DecValTok{-9999}\NormalTok{, }
+                                                      \DataTypeTok{endDay=}\OperatorTok{-}\DecValTok{1}\NormalTok{,}
+                                                      \DataTypeTok{count=} \OtherTok{FALSE}\NormalTok{), }
+\NormalTok{                                                      ageInteraction =}\StringTok{ }\OtherTok{FALSE}\NormalTok{,}
+\NormalTok{                                                      lnAgeInteraction =}\StringTok{ }\OtherTok{TRUE}\ErrorTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+To include all the above as covariates, combine them into a list:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cohortCov <-}\StringTok{ }\KeywordTok{list}\NormalTok{(cohortCov1,cohortCov2,cohortCov3,cohortCov4)}
+\end{Highlighting}
+\end{Shaded}
+
+\end{document}

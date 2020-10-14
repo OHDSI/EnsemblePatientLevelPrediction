@@ -1,0 +1,95 @@
+---
+title: "Using the age covariate code"
+author: "Jenna M. Reps"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    number_sections: yes
+    toc: yes
+  html_document:
+    number_sections: yes
+    toc: yes
+vignette: >
+  %\VignetteIndexEntry{Using the age covariate code}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+  
+  ```{r, echo = FALSE, message = FALSE, warning = FALSE}
+library(PatientLevelPrediction)
+knitr::opts_chunk$set(
+  cache=FALSE,
+  comment = "#>",
+  error = FALSE,
+  tidy = FALSE)
+```
+# Introduction
+
+This vignette describes how one can use the function 'createAgeCovariateSettings' to define age covariates. This is useful if you want to include age covariates other than age in years or 5-year age groups.
+
+You will need to create a function that takes age in years as input and maps it.
+
+## createAgeCovariateSettings
+
+This function contains the settings required to define an age covariate where you can specify any mapping of age.  
+
+The setting 'ageMap' specifies a mapping of age to use.  For example, if you wanted to create a variable log(age)^2 then:
+
+```{r echo = FALSE}
+
+function(x){return(log(x)^2)}
+
+```
+
+
+```{r echo = FALSE, results = 'asis'}
+
+data <- data.frame(Input = c('covariateName', 
+                             'ageMap',
+                             'covariateId',
+                             'analysisId'),
+                   Description = c('The name of the covariate',
+                                   'The function for mapping age in years',
+                                   'The id of the covariate - generally ageId*1000+analysisId',
+                                   'The analysis id for the covariate'
+                                   ) )
+library(knitr)
+kable(data, caption = 'The inputs into the create function')
+
+```
+
+
+## Example
+
+To add the variable natural logaritm of age squared:
+
+```{r eval=FALSE}
+
+ageCov1 <- createCohortCovariateSettings(covariateName = 'log age squared',
+                                            ageMap = function(x){return(log(x)^2)}
+                                            analysisId = 459,
+                                            covariateId = 1*1000+459)
+                                                      
+```
+
+To add the variable age squared:
+
+```{r eval=FALSE}
+
+ageCov2 <- createCohortCovariateSettings(covariateName = 'log age squared',
+                                            ageMap = function(x){return(x^2)}
+                                            analysisId = 459,
+                                            covariateId = 2*1000+459)
+                                                      
+```
+
+
+To include both covariates you can create a list of these settings:
+
+```{r eval=FALSE}
+
+ageCov <- list(ageCov1, ageCov2)
+                                                      
+```
+
+
