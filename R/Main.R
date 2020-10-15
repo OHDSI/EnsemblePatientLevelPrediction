@@ -285,19 +285,21 @@ execute <- function(connectionDetails,
     }
   }
   
-  # [TODO] add create shiny app
-  viewer <- TRUE
-  if(viewShiny) {
-    viewer <- tryCatch({
-      PatientLevelPrediction::viewMultiplePlp(file.path(outputFolder,cdmDatabaseName))},
-      error = function(e){'No results to view...'})
-  }
-  
   if (packageResults) {
     ParallelLogger::logInfo("Packaging results")
     packageResults(outputFolder = file.path(outputFolder,cdmDatabaseName),
                    minCellCount = minCellCount)
   }
+  
+  # [TODO] add create shiny app
+  viewer <- TRUE
+  if(viewShiny) {
+    viewer <- tryCatch({
+      PatientLevelPrediction::viewMultiplePlp(file.path(outputFolder,cdmDatabaseName))},
+      error = function(e){ParallelLogger::logError(e);
+        ParallelLogger::logInfo("No results to view...")})
+  }
+
   
   return(viewer)
 }
