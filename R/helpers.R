@@ -72,7 +72,7 @@ getData <- function(connectionDetails,
       warning('Standard covariates used but not set')
     }
   }
-  length(covSets) <- nrow(varsToCreate)+extra 
+  length(covSets) <- nrow(varsToCreate[varsToCreate$type!='standardCovariate',])+extra 
   
   if(!is.null(standardCovariates)){
     covSets[[1]] <- standardCovariates
