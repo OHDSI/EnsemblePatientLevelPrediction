@@ -47,7 +47,6 @@
 #' @param requireTimeAtRisk    Should subject without time at risk be removed?
 #' @param minTimeAtRisk        The minimum number of days at risk required to be included
 #' @param includeAllOutcomes   (binary) indicating whether to include people with outcomes who are not observed for the whole at risk period
-#' @param standardCovariates   Use this to add standard covariates such as age/gender
 #' @param outputFolder         Name of local folder to place results; make sure to use forward slashes
 #'                             (/). Do not use a folder on a network drive since this greatly impacts
 #'                             performance.
@@ -148,142 +147,55 @@ execute <- function(connectionDetails,
     
     for(i in 1:nrow(analysisSettings)){
       
-      pathToStandard <- system.file("settings", gsub('_model.csv','_standard_features.csv',analysisSettings$model[i]), package = "SkeletonExistingPredictionModelStudy")
-      if(file.exists(pathToStandard)){
-        standTemp <- read.csv(pathToStandard)$x
-        
-        standSet <- list()
-        length(standSet) <- length(standTemp)
-        names(standSet) <- standTemp
-        for(j in 1:length(standSet)){
-          standSet[[j]] <- T
-        }
-        
-        pathToInclude <- system.file("settings", gsub('_model.csv','_standard_features_include.csv',analysisSettings$model[i]), package = "SkeletonExistingPredictionModelStudy")
-        incS <- read.csv(pathToInclude)$x
-        standSet$includedCovariateIds <- incS
-        
-        standardCovariates <- do.call(FeatureExtraction::createCovariateSettings,standSet)
-        
-      } else{
-        standardCovariates <- NULL
+      plpDataSettings <- list(connectionDetails = connectionDetails,
+                              cdmDatabaseSchema = cdmDatabaseSchema,
+                              cdmDatabaseName = cdmDatabaseName,
+                              cohortDatabaseSchema = cohortDatabaseSchema,
+                              cohortTable = cohortTable,
+                              cohortId = analysisSettings$targetId[i],
+                              outcomeId = analysisSettings$outcomeId[i],
+                              oracleTempSchema = oracleTempSchema,
+                              firstExposureOnly = firstExposureOnly,
+                              sampleSize = sampleSize,
+                              cdmVersion = cdmVersion)
+      
+      createPopulationSettings <- list(plpData = plpData, 
+                                       outcomeId = analysisSettings$outcomeId[i],
+                                       riskWindowStart = riskWindowStart,
+                                       startAnchor = startAnchor,
+                                       riskWindowEnd = riskWindowEnd,
+                                       endAnchor = endAnchor,
+                                       firstExposureOnly = firstExposureOnly,
+                                       removeSubjectsWithPriorOutcome = removeSubjectsWithPriorOutcome,
+                                       priorOutcomeLookback = priorOutcomeLookback,
+                                       requireTimeAtRisk = requireTimeAtRisk,
+                                       minTimeAtRisk = minTimeAtRisk,
+                                       includeAllOutcomes = includeAllOutcomes)
+      
+      # run model
+      result <- tryCatch({runModel(modelName = analysisSettings$modelName[i], 
+                                   analysisId = analysisSettings$analysisId[i],
+                                   connection = connection,
+                                   cohortCovariateDatabaseSchema = cohortDatabaseSchema,
+                                   cohortCovariateTable = cohortTable,
+                                   getPlpSettings = getPlpSettings, 
+                                   createPopulationSettings = createPopulationSettings)},
+                         error = function(e){ParallelLogger::logError(e); return(NULL)})
+ 
+      if(recalibrate){
+        # add code here
+      }
+            
+      if(!dir.exists(file.path(outputFolder,cdmDatabaseName))){
+        dir.create(file.path(outputFolder,cdmDatabaseName))
       }
       
-      #getData
-      ParallelLogger::logInfo("Extracting data")
-      plpData <- tryCatch({getData(connectionDetails = connectionDetails,
-                                   cdmDatabaseSchema = cdmDatabaseSchema,
-                                   cdmDatabaseName = cdmDatabaseName,
-                                   cohortDatabaseSchema = cohortDatabaseSchema,
-                                   cohortTable = cohortTable,
-                                   cohortId = analysisSettings$targetId[i],
-                                   outcomeId = analysisSettings$outcomeId[i],
-                                   oracleTempSchema = oracleTempSchema,
-                                   model = analysisSettings$model[i],
-                                   standardCovariates = standardCovariates,
-                                   firstExposureOnly = firstExposureOnly,
-                                   sampleSize = sampleSize,
-                                   cdmVersion = cdmVersion)},
-                          error = function(e){ParallelLogger::logError(e); return(NULL)})
+      ParallelLogger::logInfo("Saving results")
+      PatientLevelPrediction::savePlpResult(result, file.path(outputFolder,cdmDatabaseName,analysisSettings$analysisId[i], 'plpResult'))
+      ParallelLogger::logInfo(paste0("Results saved to:",file.path(outputFolder,cdmDatabaseName,analysisSettings$analysisId[i])))
       
-      if(!is.null(plpData)){
-        
-        #create pop
-        ParallelLogger::logInfo("Creating population")
-        population <- tryCatch({PatientLevelPrediction::createStudyPopulation(plpData = plpData, 
-                                                                              outcomeId = analysisSettings$outcomeId[i],
-                                                                              riskWindowStart = riskWindowStart,
-                                                                              startAnchor = startAnchor,
-                                                                              riskWindowEnd = riskWindowEnd,
-                                                                              endAnchor = endAnchor,
-                                                                              firstExposureOnly = firstExposureOnly,
-                                                                              removeSubjectsWithPriorOutcome = removeSubjectsWithPriorOutcome,
-                                                                              priorOutcomeLookback = priorOutcomeLookback,
-                                                                              requireTimeAtRisk = requireTimeAtRisk,
-                                                                              minTimeAtRisk = minTimeAtRisk,
-                                                                              includeAllOutcomes = includeAllOutcomes)},
-                               error = function(e){ParallelLogger::logError(e); return(NULL)})
-        
-        
-        if(!is.null(population)){
-          # apply the model:
-          plpModel <- list(model = getModel(analysisSettings$model[i]),
-                           analysisId = analysisSettings$analysisId[i],
-                           hyperParamSearch = NULL,
-                           index = NULL,
-                           trainCVAuc = NULL,
-                           modelSettings = list(model = analysisSettings$model[i], 
-                                                modelParameters = NULL),
-                           metaData = NULL,
-                           populationSettings = attr(population, "metaData"),
-                           trainingTime = NULL,
-                           varImp = data.frame(covariateId = getModel(analysisSettings$model[i])$covariateId,
-                                               covariateValue = getModel(analysisSettings$model[i])$points),
-                           dense = T,
-                           cohortId = analysisSettings$cohortId[i],
-                           outcomeId = analysisSettings$outcomeId[i],
-                           covariateMap = NULL,
-                           predict = predictExisting(model = analysisSettings$model[i])
-          )
-          attr(plpModel, "type") <- 'existing'
-          class(plpModel) <- 'plpModel'
-          
-          
-          
-          ParallelLogger::logInfo("Applying and evaluating model")
-          result <- tryCatch({PatientLevelPrediction::applyModel(population = population,
-                                                                 plpData = plpData,
-                                                                 plpModel = plpModel)},
-                             error = function(e){ParallelLogger::logError(e); return(NULL)})
-          
-          if(!is.null(result)){
-            result$inputSetting$database <- cdmDatabaseName
-            result$inputSetting$modelSettings <- list(model = 'existing model', name = analysisSettings$model[i], param = getModel(analysisSettings$model[i]))
-            result$inputSetting$dataExtrractionSettings$covariateSettings <- plpData$metaData$call$covariateSettings
-            result$inputSetting$populationSettings <- attr(population, "metaData")
-            result$executionSummary  <- list()
-            result$model <- plpModel
-            result$analysisRef <- list()
-            result$covariateSummary <- tryCatch({PatientLevelPrediction:::covariateSummary(plpData = plpData, population = population, model = plpModel)},
-                                                error = function(e){ParallelLogger::logError(e); return(NULL)})
-            
-            
-            if(recalibrate){
-              # add code here
-              misCal <- PatientLevelPrediction:::calibrationWeak(result$prediction)
-              predictionWeak <- result$prediction
-              predictionWeak$value[predictionWeak$value==0] <- 0.000000000000001
-              predictionWeak$value[predictionWeak$value==1] <- 1-0.000000000000001
-              predictionWeak$value <- log(predictionWeak$value/(1-predictionWeak$value))
-              predictionWeak$value <- 1/(1+exp(-1*(predictionWeak$value*misCal$gradient+misCal$intercept)))
-              
-              result$prediction <- predictionWeak
-              performance <- PatientLevelPrediction::evaluatePlp(result$prediction, plpData)
-              
-              # reformatting the performance 
-              analysisId <-   analysisSettings$analysisId[i]
-              performance <- reformatePerformance(performance,analysisId)
-              
-              result$performanceEvaluation <- performance
-            }
-            
-            
-            
-            if(!dir.exists(file.path(outputFolder,cdmDatabaseName))){
-              dir.create(file.path(outputFolder,cdmDatabaseName))
-            }
-            ParallelLogger::logInfo("Saving results")
-            PatientLevelPrediction::savePlpResult(result, file.path(outputFolder,cdmDatabaseName,analysisSettings$analysisId[i], 'plpResult'))
-            ParallelLogger::logInfo(paste0("Results saved to:",file.path(outputFolder,cdmDatabaseName,analysisSettings$analysisId[i])))
-            
-          } # result not null
-          
-        } # population not null
-        
-      } # plpData not null
-      
-    }
-  }
+          } # analysis
+    } # if run analysis
   
   if (packageResults) {
     ParallelLogger::logInfo("Packaging results")

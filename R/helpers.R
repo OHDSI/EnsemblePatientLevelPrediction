@@ -10,21 +10,20 @@ getAnalyses <- function(settings, outputFolder,cdmDatabaseName){
     colnames(cohortsSettings) <- c('targetId', 'targetName', 'outcomeId', 'outcomeName')
     
     settingLoc <- system.file("settings", package = "SkeletonExistingPredictionModelStudy")
-    modelSettings <- data.frame(model = dir(settingLoc, pattern = '_model.csv'))
+    modelSettings <- gsub('.json', '', data.frame(model = dir(settingLoc, pattern = '.json')))
     modelSettings$modelSettingsId <- 1:nrow(modelSettings)
     analysesSettings <- merge(cohortsSettings, modelSettings)
   } else{
     
     #use data.frame(tId, oId and model) to create...
-    settings <- settings[, c('tId', 'oId', 'model')]
-    colnames(settings) <- c('targetId','outcomeId','model')
+    settings <- settings[, c('tId', 'oId', 'modelName')]
+    colnames(settings) <- c('targetId','outcomeId','modelName')
     
     settings <- merge(settings, cohorts[,c('cohortId','name')], by.x='targetId', by.y='cohortId')
     colnames(settings)[colnames(settings) == 'name'] <- 'targetName'
     settings <- merge(settings, cohorts[,c('cohortId','name')], by.x='outcomeId', by.y='cohortId')
     colnames(settings)[colnames(settings) == 'name'] <- 'outcomeName'
-    settings <- settings[,c('targetId', 'targetName', 'outcomeId', 'outcomeName','model')]
-    settings$modelSettingsId <- as.double(as.factor(settings$model))
+    settings <- settings[,c('targetId', 'targetName', 'outcomeId', 'outcomeName','modelName')]
     analysesSettings <- settings
     
   }
@@ -34,9 +33,9 @@ getAnalyses <- function(settings, outputFolder,cdmDatabaseName){
   analysesSettings$cohortName <- analysesSettings$targetName
   analysesSettings$devDatabase <- 'NA'
   analysesSettings$valDatabase <- cdmDatabaseName
-  analysesSettings$modelSettingName <- analysesSettings$model
+  analysesSettings$modelSettingName <- analysesSettings$modelName
   analysesSettings$populationSettingId <- 1
-  analysesSettings$covariateSettingId <- analysesSettings$modelSettingsId
+  analysesSettings$covariateSettingId <- analysesSettings$modelName
   
   if(!dir.exists(file.path(outputFolder,cdmDatabaseName))){
     dir.create(file.path(outputFolder,cdmDatabaseName))
@@ -45,169 +44,99 @@ getAnalyses <- function(settings, outputFolder,cdmDatabaseName){
   return(analysesSettings)
 }
 
-getData <- function(connectionDetails,
-                    cdmDatabaseSchema,
-                    cdmDatabaseName,
-                    cohortDatabaseSchema,
-                    cohortTable,
-                    cohortId,
-                    outcomeId,
-                    oracleTempSchema,
-                    model,
-                    standardCovariates,
-                    firstExposureOnly,
-                    sampleSize,
-                    cdmVersion){
-  
-  
-  pathToCustom <- system.file("settings", model, package = "SkeletonExistingPredictionModelStudy")
-  varsToCreate <- utils::read.csv(pathToCustom)
 
-  covSets <- list()
-  if(!is.null(standardCovariates)){
-    extra <- 1
-  } else{
-    extra <- 0
-    if(nrow(varsToCreate[varsToCreate$type == 'standardCovariate',])!=0){
-      warning('Standard covariates used but not set')
-    }
-  }
-  length(covSets) <- nrow(varsToCreate[varsToCreate$type!='standardCovariate',])+extra 
+# takes as input model name - then load that json
+runModel <- function(modelName, 
+                     analysisId,
+                     connection,
+                     cohortCovariateDatabaseSchema,
+                     cohortCovariateTable,
+                     getPlpSettings, 
+                     createPopulationSettings){
   
-  if(!is.null(standardCovariates)){
-    covSets[[1]] <- standardCovariates
-  }
+  runSettingsLoc <- system.file("settings", paste0(modelName,'.json'), package = "SkeletonExistingPredictionModelStudy")
+  runSettings <- loadModelJson(runSettingsLoc, cohortCovariateDatabaseSchema, cohortCovariateTable)
   
-  cohortVarsToCreate <- varsToCreate[varsToCreate$type == 'cohortCovariate',]
-  if(nrow(cohortVarsToCreate)>0){
-  for(i in 1:nrow(cohortVarsToCreate)){
-    covSets[[extra+i]] <- createCohortCovariateSettings(covariateName = as.character(cohortVarsToCreate$cohortName[i]),
-                                                        analysisId = cohortVarsToCreate$analysisId[i],
-                                                        covariateId = cohortVarsToCreate$cohortId[i]*1000+cohortVarsToCreate$analysisId[i],
-                                                      cohortDatabaseSchema = cohortDatabaseSchema,
-                                                      cohortTable = cohortTable,
-                                                      cohortId = cohortVarsToCreate$atlasId[i],
-                                                      startDay=cohortVarsToCreate$startDay[i], 
-                                                      endDay=cohortVarsToCreate$endDay[i],
-                                                      count= ifelse(is.null(cohortVarsToCreate$count), F, cohortVarsToCreate$count[i]), 
-                                                      ageInteraction = ifelse(is.null(cohortVarsToCreate$ageInteraction), F, cohortVarsToCreate$ageInteraction[i]),
-                                                      lnAgeInteraction = ifelse(is.null(cohortVarsToCreate$lnAgeInteraction), F, cohortVarsToCreate$lnAgeInteraction[i])
-                                                      
-    )
-  }
-  }
-  
-  # add measurement covariates...
-  measurementVarsToCreate <- varsToCreate[varsToCreate$type == 'measurementCovariate',]
-  if(nrow(measurementVarsToCreate)>0){
-  for(i in 1:nrow(measurementVarsToCreate)){
-    pathToConcept <- system.file("settings", paste0(measurementVarsToCreate$covariateName[i],'_concepts.csv'), package = "SkeletonExistingPredictionModelStudy")
-    conceptSet <- read.csv(pathToConcept)$x
-    pathToScaleMap <- system.file("settings", paste0(measurementVarsToCreate$covariateName[i],'_scaleMap.rds'), package = "SkeletonExistingPredictionModelStudy")
-    scaleMap <- readRDS(pathToScaleMap)
-    
-    covSets[[extra+nrow(cohortVarsToCreate)+i]] <- createMeasurementCovariateSettings(covariateName = measurementVarsToCreate$covariateName[i], 
-                                                                                      analysisId = measurementVarsToCreate$analysisId[i],
-                                                                                      conceptSet = conceptSet,
-                                                                                      startDay = measurementVarsToCreate$startDay[i], 
-                                                                                      endDay = measurementVarsToCreate$endDay[i], 
-                                                                                      scaleMap = scaleMap, 
-                                                                                      aggregateMethod = measurementVarsToCreate$aggregateMethod[i],
-                                                                                      imputationValue = measurementVarsToCreate$imputationValue[i],
-                                                                                      covariateId = measurementVarsToCreate$covariateId[i],
-                                                                                      ageInteraction = ifelse(is.null(measurementVarsToCreate$ageInteraction), F, measurementVarsToCreate$ageInteraction[i]),
-                                                                                      
-                                                                                      lnAgeInteraction = ifelse(is.null(measurementVarsToCreate$lnAgeInteraction), F, measurementVarsToCreate$lnAgeInteraction[i]),
-                                                                                      lnValue = ifelse(is.null(measurementVarsToCreate$lnValue), F, measurementVarsToCreate$lnValue[i])
-                                                                                      
-                                                                                      )
-  }
-  }
-  
-  # add age covariates...
-  ageVarsToCreate <- varsToCreate[varsToCreate$type == 'ageCovariate',]
-  if(nrow(ageVarsToCreate)>0){
-    for(i in 1:nrow(ageVarsToCreate)){
-      
-      pathToAgeMap <- system.file("settings", paste0(paste0(gsub(' ', '_',gsub('\\)','_',gsub('\\(','_',ageVarsToCreate$covariateName[i])))),'_ageMap.rds'), package = "SkeletonExistingPredictionModelStudy")
-      ageMap <- readRDS(pathToAgeMap)
-      
-      covSets[[extra+nrow(cohortVarsToCreate) +nrow(measurementVarsToCreate) +i]] <- createAgeCovariateSettings(covariateName = ageVarsToCreate$covariateName[i], 
-                                                                                        analysisId = ageVarsToCreate$analysisId[i],
-                                                                                        ageMap = ageMap, 
-                                                                                        covariateId = ageVarsToCreate$covariateId[i]
-                                                                                        
-      )
-    }
-  }
+  # create cohort covariates:
+  createCovariateCohorts(connection = connection,
+                         cdmDatabaseSchema = getPlpSettings$cdmDatabaseSchema,
+                         vocabularyDatabaseSchema = getPlpSettings$cdmDatabaseSchema,
+                         cohortDatabaseSchema = cohortCovariateDatabaseSchema,
+                         cohortTable = cohortCovariateTable,
+                         oracleTempSchema = getPlpSettings$oracleTempSchema,
+                         cohortVarsToCreate = runSettings$cohorts)
   
   
-  # add measurement cohort covariates...
-  measurementCohortVarsToCreate <- varsToCreate[grep('measurementCohortCovariate',varsToCreate$type),]
-  if(nrow(measurementCohortVarsToCreate)>0){
-    for(i in 1:nrow(measurementCohortVarsToCreate)){
-      pathToConcept <- system.file("settings", paste0(measurementCohortVarsToCreate$covariateName[i],'_concepts.csv'), package = "SkeletonExistingPredictionModelStudy")
-      conceptSet <- read.csv(pathToConcept)$x
-      pathToScaleMap <- system.file("settings", paste0(measurementCohortVarsToCreate$covariateName[i],'_scaleMap.rds'), package = "SkeletonExistingPredictionModelStudy")
-      scaleMap <- readRDS(pathToScaleMap)
-      
-      covSets[[extra+nrow(cohortVarsToCreate) + nrow(measurementVarsToCreate) + nrow(ageVarsToCreate) +i]] <- createMeasurementCohortCovariateSettings(covariateName = measurementCohortVarsToCreate$covariateName[i], 
-                                                                                        analysisId = measurementCohortVarsToCreate$analysisId[i],
-                                                                                        cohortDatabaseSchema = cohortDatabaseSchema,
-                                                                                        cohortTable = cohortTable,
-                                                                                        cohortId = measurementCohortVarsToCreate$atlasId[i],
-                                                                                        type = ifelse(length(grep('_in', measurementCohortVarsToCreate$type[i]))>0, 'in', 'out'),
-                                                                                        conceptSet = conceptSet,
-                                                                                        startDay = measurementCohortVarsToCreate$startDay[i], 
-                                                                                        endDay = measurementCohortVarsToCreate$endDay[i], 
-                                                                                        scaleMap = scaleMap, 
-                                                                                        aggregateMethod = measurementCohortVarsToCreate$aggregateMethod[i],
-                                                                                        imputationValue = measurementCohortVarsToCreate$imputationValue[i],
-                                                                                        covariateId = measurementCohortVarsToCreate$covariateId[i],
-                                                                                        ageInteraction = ifelse(is.null(measurementCohortVarsToCreate$ageInteraction), F, measurementCohortVarsToCreate$ageInteraction[i]),
-                                                                                        
-                                                                                        lnAgeInteraction = ifelse(is.null(measurementCohortVarsToCreate$lnAgeInteraction), F, measurementCohortVarsToCreate$lnAgeInteraction[i]),
-                                                                                        lnValue = ifelse(is.null(measurementCohortVarsToCreate$lnValue), F, measurementCohortVarsToCreate$lnValue[i])
-                                                                                        
-      )
-    }
+  # extract data
+  getPlpSettings$covariateSettings = runSettings$covariateSettings
+  plpData <- do.call(PatientLevelPrediction::getPlpData, getPlpSettings)
+  
+  # get population
+  population <- do.call(PatientLevelPrediction::createStudyPopulation, createPopulationSettings)
+  
+  # apply model
+  plpModel <- getModel(modelName, analysisId,getPlpSettings$cohortId,createPopulationSettings$outcomeId, 
+                       population,runSettings$model)
+  
+  result <- PatientLevelPrediction::applyModel(population = population, 
+                                               plpData = plpData, 
+                                               plpModel = plpModel,
+                                               calculatePerformance = T)
+  
+  if(is.null(result)){
+    return(NULL)
   }
   
-  
-  result <- PatientLevelPrediction::getPlpData(connectionDetails = connectionDetails,
-                                     cdmDatabaseSchema = cdmDatabaseSchema,
-                                     oracleTempSchema = oracleTempSchema, 
-                                     cohortId = cohortId, 
-                                     outcomeIds = outcomeId, 
-                                     cohortDatabaseSchema = cohortDatabaseSchema, 
-                                     outcomeDatabaseSchema = cohortDatabaseSchema, 
-                                     cohortTable = cohortTable, 
-                                     outcomeTable = cohortTable, 
-                                     cdmVersion = cdmVersion, 
-                                     firstExposureOnly = firstExposureOnly, 
-                                     sampleSize =  sampleSize, 
-                                     covariateSettings = covSets)
+  result$inputSetting$database <- cdmDatabaseName
+  result$inputSetting$modelSettings <- list(model = 'existing model', name = modelName)
+  result$inputSetting$dataExtrractionSettings$covariateSettings <- runSettings$covariateSettings
+  result$inputSetting$populationSettings <- attr(population, "metaData")
+  result$executionSummary  <- list()
+  result$model <- plpModel
+  result$analysisRef <- list()
+  result$covariateSummary <- tryCatch({PatientLevelPrediction:::covariateSummary(plpData = plpData, population = population, model = plpModel)},
+                                      error = function(e){ParallelLogger::logError(e); return(NULL)})
   
   return(result)
-  
 }
 
-
-getModel <- function(model = 'SimpleModel'){
+getModel <- function(modelName, analysisId,cohortId,outcomeId, population, modelSettings){
   
-  pathToCustom <- system.file("settings", model, package = "SkeletonExistingPredictionModelStudy")
-  coefficients <- utils::read.csv(pathToCustom)
-  coefficients <- coefficients[,colnames(coefficients)%in%c('covariateId','points')]
+  predictionFunction <- do.call(modelSettings$modelFunction, modelSettings$settings)
+  
+  plpModel <- list(model = modelName,
+                   analysisId = analysisId,
+                   hyperParamSearch = NULL,
+                   index = NULL,
+                   trainCVAuc = NULL,
+                   modelSettings = list(model = modelName, 
+                                        modelParameters = NULL),
+                   metaData = NULL,
+                   populationSettings = attr(population, "metaData"),
+                   trainingTime = NULL,
+                   varImp = predictionFunction$varImp,
+                   dense = T,
+                   cohortId = cohortId,
+                   outcomeId = outcomeId,
+                   covariateMap = NULL,
+                   predict = predictionFunction$predict
+  )
+  attr(plpModel, "type") <- 'existing'
+  class(plpModel) <- 'plpModel'
+  
+  return(plpModel)
+}  
  
-   return(coefficients)
-}
 
-predictExisting <- function(model){
+# add the functions for the exisitng models here 
+#======= add custom function here...
+predictFunction.glm <- function(coefficients,
+                                finalMapping,
+                                predictionType){
   
-  coefficients <- getModel(model)
-  mapping <- getMap(gsub('_model.csv','',model))
+  finalMapping <- eval(str2lang(paste0(finalMapping, collapse = ' ')))
   
-  predict <- function(plpData, population){
+  predictionFunction <- function(plpData, population){
     
     plpData$covariateData$coefficients <- coefficients
     on.exit(plpData$covariateData$coefficients <- NULL, add = TRUE)
@@ -223,22 +152,16 @@ predictExisting <- function(model){
     prediction$value[is.na(prediction$value)] <- 0
     
     # add any final mapping here (e.g., add intercept and mapping)
-    prediction$value <- mapping(prediction$value)
+    prediction$value <- finalMapping(prediction$value)
     
-    # make sure every value is less than 1 for the evaluatation
-    scaleVal <- max(prediction$value)
-    if(scaleVal>1){
-      prediction$value <- prediction$value/scaleVal
-    }
-    
-    attr(prediction, "metaData") <- list(predictionType = 'binary', scale = scaleVal)
+    attr(prediction, "metaData") <- list(predictionType = predictionType)
     
     return(prediction)
   }
   
-  return(predict)
+  varImp <- coefficients
+  colnames(coefficients)[colnames(coefficients)=='points'] <- 'covariateValue'
+  
+  return(list(predictionFunction = predictionFunction,
+              varImp = varImp))
 }
-
-
-
-

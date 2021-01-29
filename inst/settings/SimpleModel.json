@@ -1,0 +1,194 @@
+{
+  "details": {
+    "modelname": "SimpleModel",
+    "author": "NA",
+    "date": "2021-01-29"
+  },
+  "covariateSettings": {
+    "createCovariateSettings": {
+      "useDemographicsAgeGroup": true,
+      "useDemographicsGender": true,
+      "includedCovariateIds": [3, 1003, 2003, 3003, 4003, 5003, 6003, 7003, 8003, 9003, 10003, 11003, 12003, 13003, 14003, 15003, 16003, 17003, 8507001]
+    },
+    "createMeasurementCovariateSettings": [
+      {
+        "covariateName": "Measurement 1",
+        "conceptSet": [435454, 64533],
+        "startDay": -90,
+        "endDay": 0,
+        "scaleMap": ["function (x) ", "{", "    return(x)", "}"],
+        "aggregateMethod": "recent",
+        "imputationValue": 0,
+        "ageInteraction": false,
+        "lnAgeInteraction": false,
+        "lnValue": false,
+        "covariateId": 1457,
+        "analysisId": 457
+      },
+      {
+        "covariateName": "measurement 2",
+        "conceptSet": [34343, 124453],
+        "startDay": -30,
+        "endDay": 0,
+        "scaleMap": ["function (x) ", "{", "    return(0)", "}"],
+        "aggregateMethod": "max",
+        "imputationValue": 0,
+        "ageInteraction": null,
+        "lnAgeInteraction": null,
+        "lnValue": null,
+        "covariateId": 2457,
+        "analysisId": 457
+      }
+    ],
+    "createAgeCovariateSettings": [
+      {
+        "covariateName": "log(age)",
+        "ageMap": ["function (x) ", "{", "    return(log(x)^2)", "}"],
+        "covariateId": 1458,
+        "analysisId": 458
+      }
+    ]
+  },
+  "model": {
+    "modelFunction": "modelFunction.glm",
+    "settings": {
+      "finalMapping": ["function (x) ", "{", "    return(x)", "}"],
+      "predictionType": "binary",
+      "coefficients": [
+        {
+          "covariateId": 3,
+          "points": 0,
+          "attr_row.names": 1,
+          "attr_class": "data.frame"
+        },
+        {
+          "covariateId": 1003,
+          "points": 0,
+          "attr_row.names": 2,
+          "attr_class": "data.frame"
+        },
+        {
+          "covariateId": 2003,
+          "points": 0,
+          "attr_row.names": 3,
+          "attr_class": "data.frame"
+        },
+        {
+          "covariateId": 3003,
+          "points": 0,
+          "attr_row.names": 4,
+          "attr_class": "data.frame"
+        },
+        {
+          "covariateId": 4003,
+          "points": 0,
+          "attr_row.names": 5,
+          "attr_class": "data.frame"
+        },
+        {
+          "covariateId": 5003,
+          "points": 0,
+          "attr_row.names": 6,
+          "attr_class": "data.frame"
+        },
+        {
+          "covariateId": 6003,
+          "points": 0,
+          "attr_row.names": 7,
+          "attr_class": "data.frame"
+        },
+        {
+          "covariateId": 7003,
+          "points": 0,
+          "attr_row.names": 8,
+          "attr_class": "data.frame"
+        },
+        {
+          "covariateId": 8003,
+          "points": 0,
+          "attr_row.names": 9,
+          "attr_class": "data.frame"
+        },
+        {
+          "covariateId": 9003,
+          "points": 0,
+          "attr_row.names": 10,
+          "attr_class": "data.frame"
+        },
+        {
+          "covariateId": 10003,
+          "points": 0,
+          "attr_row.names": 11,
+          "attr_class": "data.frame"
+        },
+        {
+          "covariateId": 11003,
+          "points": 0,
+          "attr_row.names": 12,
+          "attr_class": "data.frame"
+        },
+        {
+          "covariateId": 12003,
+          "points": 0,
+          "attr_row.names": 13,
+          "attr_class": "data.frame"
+        },
+        {
+          "covariateId": 13003,
+          "points": 0,
+          "attr_row.names": 14,
+          "attr_class": "data.frame"
+        },
+        {
+          "covariateId": 14003,
+          "points": 0,
+          "attr_row.names": 15,
+          "attr_class": "data.frame"
+        },
+        {
+          "covariateId": 15003,
+          "points": 0,
+          "attr_row.names": 16,
+          "attr_class": "data.frame"
+        },
+        {
+          "covariateId": 16003,
+          "points": 0,
+          "attr_row.names": 17,
+          "attr_class": "data.frame"
+        },
+        {
+          "covariateId": 17003,
+          "points": 0,
+          "attr_row.names": 18,
+          "attr_class": "data.frame"
+        },
+        {
+          "covariateId": 8507001,
+          "points": 0,
+          "attr_row.names": 19,
+          "attr_class": "data.frame"
+        },
+        {
+          "covariateId": 1457,
+          "points": 1.2,
+          "attr_row.names": 20,
+          "attr_class": "data.frame"
+        },
+        {
+          "covariateId": 2457,
+          "points": 0.6,
+          "attr_row.names": 21,
+          "attr_class": "data.frame"
+        },
+        {
+          "covariateId": 1458,
+          "points": 12.344,
+          "attr_row.names": 22,
+          "attr_class": "data.frame"
+        }
+      ]
+    }
+  },
+  "cohorts": null
+}

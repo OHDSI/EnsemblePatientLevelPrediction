@@ -196,7 +196,6 @@ getMeasurementCovariateData <- function(connection,
 
 
 createMeasurementCovariateSettings <- function(covariateName, conceptSet,
-                                          cohortDatabaseSchema, cohortTable, cohortId,
                                           startDay=-30, endDay=0, 
                                           scaleMap = NULL, aggregateMethod = 'recent',
                                           imputationValue = 0,
