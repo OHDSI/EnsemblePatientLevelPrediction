@@ -3,34 +3,14 @@ getAnalyses <- function(settings, outputFolder,cdmDatabaseName){
   cohorts <- system.file("settings", 'CohortsToCreate.csv', package = "SkeletonExistingPredictionModelStudy")
   cohorts <- read.csv(cohorts)
   
-  if(is.null(settings)){
-    cohortsSettings <- cohorts[cohorts$type == 'target', c('cohortId','name')]
-    cohortsSettings$outcomeId <- cohorts$cohortId[cohorts$type == 'outcome']
-    cohortsSettings$outcomeName <- cohorts$name[cohorts$type == 'outcome']
-    colnames(cohortsSettings) <- c('targetId', 'targetName', 'outcomeId', 'outcomeName')
+    settingLoc <- system.file("settings","settings.csv", package = "SkeletonExistingPredictionModelStudy")
+    analysesSettings <- read.csv(settingLoc)
+    analysesSettings$modelSettingsId <- 1:nrow(analysesSettings)
     
-    settingLoc <- system.file("settings", package = "SkeletonExistingPredictionModelStudy")
-    modelSettings <- gsub('.json', '', data.frame(model = dir(settingLoc, pattern = '.json')))
-    modelSettings$modelSettingsId <- 1:nrow(modelSettings)
-    analysesSettings <- merge(cohortsSettings, modelSettings)
-  } else{
-    
-    #use data.frame(tId, oId and model) to create...
-    settings <- settings[, c('tId', 'oId', 'modelName')]
-    colnames(settings) <- c('targetId','outcomeId','modelName')
-    
-    settings <- merge(settings, cohorts[,c('cohortId','name')], by.x='targetId', by.y='cohortId')
-    colnames(settings)[colnames(settings) == 'name'] <- 'targetName'
-    settings <- merge(settings, cohorts[,c('cohortId','name')], by.x='outcomeId', by.y='cohortId')
-    colnames(settings)[colnames(settings) == 'name'] <- 'outcomeName'
-    settings <- settings[,c('targetId', 'targetName', 'outcomeId', 'outcomeName','modelName')]
-    analysesSettings <- settings
-    
-  }
-  analysesSettings$analysisId <- paste0('Analysis_', 1:nrow(analysesSettings))
+  analysesSettings$analysisId <- paste0('Analysis_', analysesSettings$analysisId)
   
   # adding extras for shiny
-  analysesSettings$cohortName <- analysesSettings$targetName
+  analysesSettings$cohortName <- analysesSettings$targetCohortName
   analysesSettings$devDatabase <- 'NA'
   analysesSettings$valDatabase <- cdmDatabaseName
   analysesSettings$modelSettingName <- analysesSettings$modelName
@@ -45,20 +25,36 @@ getAnalyses <- function(settings, outputFolder,cdmDatabaseName){
 }
 
 
+getPopulationSettings <- function(){
+  
+  runSettingsLoc <- system.file("settings", 'existingModelList.json', package = "SkeletonExistingPredictionModelStudy")
+  settings <- ParallelLogger::loadSettingsFromJson(runSettingsLoc )
+  
+  return(settings$populationSettings)
+}
+
+
 # takes as input model name - then load that json
 runModel <- function(modelName, 
                      analysisId,
-                     connection,
+                     connectionDetails,
                      cohortCovariateDatabaseSchema,
                      cohortCovariateTable,
                      getPlpSettings, 
                      createPopulationSettings){
   
-  runSettingsLoc <- system.file("settings", paste0(modelName,'.json'), package = "SkeletonExistingPredictionModelStudy")
-  runSettings <- loadModelJson(runSettingsLoc, cohortCovariateDatabaseSchema, cohortCovariateTable)
+  runSettingsLoc <- system.file("settings", 'existingModelList.json', package = "SkeletonExistingPredictionModelStudy")
+  
+  settings <- ParallelLogger::loadSettingsFromJson(runSettingsLoc )
+  ind <- which(unlist(lapply(settings$modelSettings, function(x) x$details$modelName))==modelName)
+  # if ind is empty return no model
+  if(length(ind)==0){
+    ParallelLogger::logError(paste0('No model called: ',modelName , ' in json settings'))
+  }
+  runSettings <- processModelJson(settings$modelSetting[[ind]], cohortCovariateDatabaseSchema, cohortCovariateTable)
   
   # create cohort covariates:
-  createCovariateCohorts(connection = connection,
+  createCovariateCohorts(connectionDetails = connectionDetails,
                          cdmDatabaseSchema = getPlpSettings$cdmDatabaseSchema,
                          vocabularyDatabaseSchema = getPlpSettings$cdmDatabaseSchema,
                          cohortDatabaseSchema = cohortCovariateDatabaseSchema,
@@ -72,11 +68,16 @@ runModel <- function(modelName,
   plpData <- do.call(PatientLevelPrediction::getPlpData, getPlpSettings)
   
   # get population
+  createPopulationSettings$plpData <- plpData
   population <- do.call(PatientLevelPrediction::createStudyPopulation, createPopulationSettings)
   
   # apply model
-  plpModel <- getModel(modelName, analysisId,getPlpSettings$cohortId,createPopulationSettings$outcomeId, 
-                       population,runSettings$model)
+  plpModel <- getModel(modelName, 
+                       analysisId,
+                       getPlpSettings$cohortId,
+                       createPopulationSettings$outcomeId, 
+                       population,
+                       runSettings$model)
   
   result <- PatientLevelPrediction::applyModel(population = population, 
                                                plpData = plpData, 
@@ -102,8 +103,9 @@ runModel <- function(modelName,
 
 getModel <- function(modelName, analysisId,cohortId,outcomeId, population, modelSettings){
   
-  predictionFunction <- do.call(modelSettings$modelFunction, modelSettings$settings)
+  predictionFunction <- do.call(paste0('predictFunction.',modelSettings$modelFunction), modelSettings$settings)
   
+   
   plpModel <- list(model = modelName,
                    analysisId = analysisId,
                    hyperParamSearch = NULL,
@@ -136,9 +138,9 @@ predictFunction.glm <- function(coefficients,
   
   finalMapping <- eval(str2lang(paste0(finalMapping, collapse = ' ')))
   
-  predictionFunction <- function(plpData, population){
+  predictionFunction <- function(plpData, population, coeff = coefficients, type = predictionType){
     
-    plpData$covariateData$coefficients <- coefficients
+    plpData$covariateData$coefficients <- coeff
     on.exit(plpData$covariateData$coefficients <- NULL, add = TRUE)
     
     prediction <- plpData$covariateData$covariates %>% 
@@ -146,7 +148,8 @@ predictFunction.glm <- function(coefficients,
       dplyr::mutate(values = covariateValue*points) %>%
       dplyr::group_by(rowId) %>%
       dplyr::summarise(value = sum(values, na.rm = TRUE)) %>%
-      dplyr::select(rowId, value) %>% dplyr::collect() 
+      dplyr::select(rowId, value) %>% 
+      dplyr::collect() 
     
     prediction <- merge(population, prediction, by ="rowId", all.x = TRUE)
     prediction$value[is.na(prediction$value)] <- 0
@@ -154,14 +157,20 @@ predictFunction.glm <- function(coefficients,
     # add any final mapping here (e.g., add intercept and mapping)
     prediction$value <- finalMapping(prediction$value)
     
-    attr(prediction, "metaData") <- list(predictionType = predictionType)
+    metaData <- list(predictionType = type,
+                     cohortId = attr(population,'metaData')$cohortId,
+                     outcomeId = attr(population,'metaData')$outcomeId,
+                     timepoint = attr(population,'metaData')$riskWindowEnd)
+    
+    attr(prediction, "metaData") <- metaData
+    
     
     return(prediction)
   }
   
   varImp <- coefficients
-  colnames(coefficients)[colnames(coefficients)=='points'] <- 'covariateValue'
+  colnames(varImp)[colnames(varImp)=='points'] <- 'covariateValue'
   
-  return(list(predictionFunction = predictionFunction,
+  return(list(predict = predictionFunction,
               varImp = varImp))
 }

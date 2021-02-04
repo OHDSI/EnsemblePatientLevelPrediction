@@ -105,16 +105,16 @@ execute <- function(connectionDetails,
                     setting = NULL,
                     sampleSize = NULL,
                     recalibrate = F, 
-                    riskWindowStart = 1,
-                    startAnchor = 'cohort start',
-                    riskWindowEnd = 365,
-                    endAnchor = 'cohort start',
-                    firstExposureOnly = F,
-                    removeSubjectsWithPriorOutcome = F,
-                    priorOutcomeLookback = 99999,
-                    requireTimeAtRisk = F,
-                    minTimeAtRisk = 1,
-                    includeAllOutcomes = T,
+                    riskWindowStart ,
+                    startAnchor,
+                    riskWindowEnd,
+                    endAnchor,
+                    firstExposureOnly,
+                    removeSubjectsWithPriorOutcome,
+                    priorOutcomeLookback,
+                    requireTimeAtRisk,
+                    minTimeAtRisk,
+                    includeAllOutcomes,
                     outputFolder,
                     createCohorts = F,
                     runAnalyses = F,
@@ -147,45 +147,55 @@ execute <- function(connectionDetails,
     
     for(i in 1:nrow(analysisSettings)){
       
+      createPopulationSettings <- getPopulationSettings()
+      createPopulationSettings$outcomeId <- analysisSettings$outcomeId[i]
+      
+      
       plpDataSettings <- list(connectionDetails = connectionDetails,
                               cdmDatabaseSchema = cdmDatabaseSchema,
-                              cdmDatabaseName = cdmDatabaseName,
+                              #cdmDatabaseName = cdmDatabaseName,
                               cohortDatabaseSchema = cohortDatabaseSchema,
                               cohortTable = cohortTable,
-                              cohortId = analysisSettings$targetId[i],
+                              cohortId = analysisSettings$targetCohortId[i],
+                              outcomeDatabaseSchema = cohortDatabaseSchema,
+                              outcomeTable = cohortTable,
                               outcomeId = analysisSettings$outcomeId[i],
                               oracleTempSchema = oracleTempSchema,
-                              firstExposureOnly = firstExposureOnly,
+                              firstExposureOnly = createPopulationSettings$firstExposureOnly,
                               sampleSize = sampleSize,
                               cdmVersion = cdmVersion)
       
-      createPopulationSettings <- list(plpData = plpData, 
-                                       outcomeId = analysisSettings$outcomeId[i],
-                                       riskWindowStart = riskWindowStart,
-                                       startAnchor = startAnchor,
-                                       riskWindowEnd = riskWindowEnd,
-                                       endAnchor = endAnchor,
-                                       firstExposureOnly = firstExposureOnly,
-                                       removeSubjectsWithPriorOutcome = removeSubjectsWithPriorOutcome,
-                                       priorOutcomeLookback = priorOutcomeLookback,
-                                       requireTimeAtRisk = requireTimeAtRisk,
-                                       minTimeAtRisk = minTimeAtRisk,
-                                       includeAllOutcomes = includeAllOutcomes)
+
+      ## replace if not null
+      #riskWindowStart = riskWindowStart
+      #startAnchor = startAnchor
+      #riskWindowEnd = riskWindowEnd
+      #endAnchor = endAnchor
+      #firstExposureOnly = firstExposureOnly
+      #removeSubjectsWithPriorOutcome = removeSubjectsWithPriorOutcome
+      #priorOutcomeLookback = priorOutcomeLookback
+      #requireTimeAtRisk = requireTimeAtRisk
+      #minTimeAtRisk = minTimeAtRisk
+      #includeAllOutcomes = includeAllOutcomes
       
       # run model
       result <- tryCatch({runModel(modelName = analysisSettings$modelName[i], 
                                    analysisId = analysisSettings$analysisId[i],
-                                   connection = connection,
+                                   connectionDetails = connectionDetails,
                                    cohortCovariateDatabaseSchema = cohortDatabaseSchema,
                                    cohortCovariateTable = cohortTable,
-                                   getPlpSettings = getPlpSettings, 
+                                   getPlpSettings = plpDataSettings, 
                                    createPopulationSettings = createPopulationSettings)},
                          error = function(e){ParallelLogger::logError(e); return(NULL)})
+      
+      
+      
+      if(!is.null(result)){
  
       if(recalibrate){
         # add code here
       }
-            
+      
       if(!dir.exists(file.path(outputFolder,cdmDatabaseName))){
         dir.create(file.path(outputFolder,cdmDatabaseName))
       }
@@ -193,6 +203,8 @@ execute <- function(connectionDetails,
       ParallelLogger::logInfo("Saving results")
       PatientLevelPrediction::savePlpResult(result, file.path(outputFolder,cdmDatabaseName,analysisSettings$analysisId[i], 'plpResult'))
       ParallelLogger::logInfo(paste0("Results saved to:",file.path(outputFolder,cdmDatabaseName,analysisSettings$analysisId[i])))
+      }
+      
       
           } # analysis
     } # if run analysis

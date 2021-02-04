@@ -77,13 +77,6 @@ addCohortNames <- function(data, IdColumnName = "cohortDefinitionId", nameColumn
   pathToCsv <- system.file("settings", "CohortsToCreate.csv", package = "SkeletonExistingPredictionModelStudy")
   cohortsToCreate <- utils::read.csv(pathToCsv)
   
-  # extra
-  cohortsToCreate <- cohortsToCreate[,c('cohortId','name')]
-  pathToCsv <- system.file("settings", "CustomCovariates.csv", package = "SkeletonExistingPredictionModelStudy")
-  cohortsToCreate2 <- utils::read.csv(pathToCsv)
-  colnames(cohortsToCreate2) <- c('cohortId','name')
-  cohortsToCreate <- rbind(cohortsToCreate, cohortsToCreate2)
-  #===
   
   idToName <- data.frame(cohortId = c(cohortsToCreate$cohortId),
                          cohortName = c(as.character(cohortsToCreate$name)))

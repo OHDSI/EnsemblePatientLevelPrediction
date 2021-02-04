@@ -53,7 +53,7 @@
   
 }
 
-createCovariateCohorts  <- function(connection,
+createCovariateCohorts  <- function(connectionDetails,
                                     cdmDatabaseSchema,
                                     vocabularyDatabaseSchema = cdmDatabaseSchema,
                                     cohortDatabaseSchema,
@@ -64,6 +64,8 @@ createCovariateCohorts  <- function(connection,
   if(sum(colnames(cohortVarsToCreate)%in%c('atlasId', 'cohortName'))!=2){
     stop('Issue with cohortVariableSetting - make sure it is NULL or a setting')  
   }
+  
+  connection <- DatabaseConnector::connect(connectionDetails)
   
   cohortTableExists <-   tolower(cohortTable)%in%tolower(DatabaseConnector::getTableNames(connection = connection, 
                                                                          databaseSchema = cohortDatabaseSchema))
@@ -92,4 +94,6 @@ createCovariateCohorts  <- function(connection,
                                              target_cohort_id = cohortVarsToCreate$atlasId[i])
     DatabaseConnector::executeSql(connection, sql)
   }
+  
+  DatabaseConnector::disconnect(connection)
 }

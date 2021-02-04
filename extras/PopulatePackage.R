@@ -15,69 +15,94 @@
 # limitations under the License.
 
 
-replaceName <- function(packageLocation = getwd(), 
-                        packageName = 'ValidateRCRI'){
+createStudyJson <- function(packageName = 'exampleStudy',
+                            packageDescription = 'an example of the skeleton',
+                            createdBy,
+                            organizationName,
+                            settings = data.frame(targetCohortId = ,
+                                                  targetCohortName =,
+                                                  outcomeId = ,
+                                                  outcomeName = 
+                                                  ),
+                            baseUrl = 'https://...',
+                            populationSetting,
+                            modelList,
+                            outputLocation = './',
+                            jsonName = 'existingModelSettings.json'){
   
-  # rename files:
-  #=====
-  # file.path(packageLocation,"SkeletonExistingPredictionModelStudy.Rproj")
-  # file.path(packageLocation,"R/SkeletonExistingPredictionModelStudy.R")
-  filesToRename <- c("SkeletonExistingPredictionModelStudy.Rproj","R/SkeletonExistingPredictionModelStudy.R")
-  for(f in filesToRename){
-    ParallelLogger::logInfo(paste0('Renaming ', f))
-    fnew <- gsub("SkeletonExistingPredictionModelStudy", packageName, f)
-    file.rename(from = file.path(packageLocation,f), to = file.path(packageLocation,fnew))
+  json <- list()
+  
+  json$skeletonType <-  "PatientLevelPredictionExistingStudy"
+  json$skeletonVersion <- "v0.0.1"
+  json$packageName <- packageName
+  json$description <- packageDescription
+  
+  json$createdBy <- 'add name'
+  json$organizationName <-  organizationName
+  json$createdDate <- Sys.Date()
+  
+  json$CohortsToCreate <- unique(data.frame(id = c(settings$targetCohortId,settings$outcomeId),
+                                    atlasId = c(settings$targetCohortId,settings$outcomeId),
+                                    name = gsub(' ', '_',c(as.character(settings$targetCohortName),as.character(settings$outcomeName)))))
+  
+  if(!is.null(modelList$details$modelName)){
+    models <- modelList$details$modelName
+  }else{
+    models <- unique(unlist(lapply(1:length(modelList), function(i) modelList[[i]]$details$modelName)))
   }
+  settings <- merge(settings,models)
+  colnames(settings)[colnames(settings)=='y'] <- 'modelName'
+  settings$analysisId <- 1:nrow(settings)
+  json$settings <- settings
   
-  # edit test in files:
-  #=====
-  # file.path(packageLocation,"DESCRIPTION")
-  # file.path(packageLocation,"README.md")
-  # file.path(packageLocation,"extras/CodeToRun.R")
-  # each file in dir(file.path(packageLocation,"R"))
+  json$cohortDefinitions  <- getCohorts(settings,
+                                   do.call(rbind,lapply(modelList, function(x) x$cohorts)),
+                                   baseUrl)
   
-  filesToEdit <- c(file.path(packageLocation,"DESCRIPTION"),
-                   file.path(packageLocation,"README.md"),
-                   file.path(packageLocation,"extras/CodeToRun.R"),
-                   dir(file.path(packageLocation,"R"), full.names = T))
-  for( f in filesToEdit ){
-    ParallelLogger::logInfo(paste0('Editing ', f))
-    x <- readLines(f)
-    y <- gsub( "SkeletonExistingPredictionModelStudy", packageName, x )
-    cat(y, file=f, sep="\n")
+  json$populationSettings <- populationSetting
     
+  json$modelSettings <- modelList
+  
+  
+  if(!dir.exists(outputLocation)){
+    dir.create(outputLocation, recursive = T)
   }
+  
+  #json <- RJSONIO::toJSON(json)
+  ParallelLogger::saveSettingsToJson(json,
+                                     file.path(outputLocation, jsonName))
+    
+return(json)
 }
 
 # Insert covariate cohort definitions from ATLAS into package -----------------------
-populatePackageCohorts <- function(targetCohortIds,
-                                   targetCohortNames,
-                                   outcomeIds,
-                                   outcomeNames,
-                                   baseUrl = 'https://...'){
+getCohorts <- function(cohorts,
+                       covariates,
+                       baseUrl = 'https://...'){
   
   # insert the target and outcome cohorts:
-  cohortsToCreate <- data.frame(cohortId = c(targetCohortIds, outcomeIds),
-                                atlasId = c(targetCohortIds, outcomeIds),
-                                name = c(targetCohortNames, outcomeNames),
-                                type = c(rep('target', length(targetCohortIds)), rep('outcome',length(outcomeIds)))
+  cohortsToCreate <- data.frame(cohortId = unique(c(cohorts$targetCohortId, cohorts$outcomeId, covariates$atlasId)),
+                                atlasId = unique(c(cohorts$targetCohortId, cohorts$outcomeId, covariates$atlasId)),
+                                name = gsub(' ','_',unique(c(as.character(cohorts$targetCohortName), as.character(cohorts$outcomeName), covariates$cohortName)))
   )
   
-  write.csv(cohortsToCreate, file.path("./inst/settings",'CohortsToCreate.csv' ), row.names = F)
+  cohortDefinitions <- list()
+  length(cohortDefinitions) <- nrow(cohortsToCreate)
   
   for (i in 1:nrow(cohortsToCreate)) {
-    writeLines(paste("Inserting cohort:", cohortsToCreate$name[i]))
-    OhdsiRTools::insertCohortDefinitionInPackage(definitionId = cohortsToCreate$atlasId[i], 
-                                                 name = cohortsToCreate$name[i], 
-                                                 baseUrl = baseUrl, 
-                                                 generateStats = F)
+    writeLines(paste("Extracting cohort:", cohortsToCreate$name[i]))
+    cohortDefinitions[[i]] <- ROhdsiWebApi::getCohortDefinition(cohortId = cohortsToCreate$atlasId[i], 
+                                                 baseUrl = baseUrl)
+    cohortDefinitions[[i]]$expressionSql <- RJSONIO::toJSON(cohortDefinitions[[i]]$expression)
+    cohortDefinitions[[i]]$name = cohortsToCreate$name[i]
   }
-  
+
+  return(cohortDefinitions)
 }
 
 # Insert models into package -----------------------
-saveModelJson <- function(modelname = 'SimpleModel', modelFunction = 'modelFunction.glm',
-                          packageDir,
+createModelJson <- function(modelname = 'SimpleModel', 
+                            modelFunction = 'modelFunction.glm',
                           standardCovariates = data.frame(covariateId = c(0003, 1003,
                                                                           2003, 3003,
                                                                           4003, 5003,
@@ -159,8 +184,7 @@ saveModelJson <- function(modelname = 'SimpleModel', modelFunction = 'modelFunct
                           ),
                           
                           finalMapping = function(x){return(x)},
-                          predictionType = 'binary',
-                          baseUrl = 'https://...'
+                          predictionType = 'binary'
 ){
   
   #====================
@@ -168,7 +192,7 @@ saveModelJson <- function(modelname = 'SimpleModel', modelFunction = 'modelFunct
   #====================
   
   # create details:
-  details <- list(modelname = modelname,
+  details <- list(modelName = modelname,
                   author = 'NA',
                   date = Sys.Date())
   
@@ -178,7 +202,7 @@ saveModelJson <- function(modelname = 'SimpleModel', modelFunction = 'modelFunct
   
   # initiate the model data.frame (this has the covariateId and points)
   model <- list(modelFunction = modelFunction,
-                settings = list(finalMapping = deparse(finalMapping),
+                settings = list(finalMapping = finalMapping,
                                 predictionType = predictionType,
                                 coefficients = NULL)
   )
@@ -208,7 +232,7 @@ saveModelJson <- function(modelname = 'SimpleModel', modelFunction = 'modelFunct
                                                                                                                               analysisId = cohortCovariateSettings$analysisIds[i])})
     
     
-    if(modelFunction == 'modelFunction.glm'){
+    if(modelFunction == 'glm'){
       cmodel <- data.frame(covariateId = 1000*cohortCovariateSettings$atlasCovariateIds+cohortCovariateSettings$analysisIds,
                            points = cohortCovariateSettings$points)
       
@@ -227,7 +251,7 @@ saveModelJson <- function(modelname = 'SimpleModel', modelFunction = 'modelFunct
     names(covariateSettings$createCovariateSettings) <- standFE
     covariateSettings$createCovariateSettings$includedCovariateIds <- unlist(standardCovariates$covariateId)
     
-    if(modelFunction == 'modelFunction.glm'){
+    if(modelFunction == 'glm'){
       model$settings$coefficients  <- rbind(model$settings$coefficients, standardCovariates[,c('covariateId','points')])
     }
     
@@ -248,7 +272,7 @@ saveModelJson <- function(modelname = 'SimpleModel', modelFunction = 'modelFunct
                                                                           #cohortId,
                                                                           startDay = measurementCovariateSettings$startDays[i], 
                                                                           endDay = measurementCovariateSettings$endDays[i], 
-                                                                          scaleMap = deparse(measurementCovariateSettings$scaleMaps[[i]]), 
+                                                                          scaleMap = measurementCovariateSettings$scaleMaps[[i]], 
                                                                           aggregateMethod = measurementCovariateSettings$aggregateMethods[i],
                                                                           imputationValue = measurementCovariateSettings$imputationValues[i],
                                                                           ageInteraction = measurementCovariateSettings$ageInteractions[i],
@@ -259,7 +283,7 @@ saveModelJson <- function(modelname = 'SimpleModel', modelFunction = 'modelFunct
                                                                      )}
     )
     
-    if(modelFunction == 'modelFunction.glm'){
+    if(modelFunction == 'glm'){
       smodel <- data.frame(
         covariateId = 1000*measurementCovariateSettings$measurementIds+measurementCovariateSettings$analysisIds,
         points = measurementCovariateSettings$points
@@ -282,7 +306,7 @@ saveModelJson <- function(modelname = 'SimpleModel', modelFunction = 'modelFunct
            type = measurementCohortCovariateSettings$types[i],
            startDay = measurementCohortCovariateSettings$startDays[i], 
            endDay = measurementCohortCovariateSettings$endDays[i], 
-           scaleMap = deparse(measurementCohortCovariateSettings$scaleMaps[[i]]), 
+           scaleMap = measurementCohortCovariateSettings$scaleMaps[[i]], 
            aggregateMethod = measurementCohortCovariateSettings$aggregateMethods[i],
            imputationValue = measurementCohortCovariateSettings$imputationValues[i],
            ageInteraction = measurementCohortCovariateSettings$ageInteractions[i],
@@ -292,7 +316,7 @@ saveModelJson <- function(modelname = 'SimpleModel', modelFunction = 'modelFunct
            analysisId = measurementCohortCovariateSettings$analysisIds[i]
       )})
     
-    if(modelFunction == 'modelFunction.glm'){
+    if(modelFunction == 'glm'){
       scmodel <- data.frame(
         covariateId = 1000*measurementCohortCovariateSettings$measurementIds+measurementCohortCovariateSettings$analysisIds,
         points = measurementCohortCovariateSettings$points
@@ -311,13 +335,13 @@ saveModelJson <- function(modelname = 'SimpleModel', modelFunction = 'modelFunct
     covariateSettings$createAgeCovariateSettings <- lapply(1:length(ageCovariateSettings$names), 
                                                            function(i){
                                                              list(covariateName = ageCovariateSettings$names[i], 
-                                                                  ageMap = deparse(ageCovariateSettings$ageMaps[[i]]),
+                                                                  ageMap = ageCovariateSettings$ageMaps[[i]],
                                                                   covariateId = 1000*ageCovariateSettings$ageIds+ageCovariateSettings$analysisIds[i],
                                                                   analysisId = ageCovariateSettings$analysisIds[i])
                                                            }
     )
     
-    if(modelFunction == 'modelFunction.glm'){
+    if(modelFunction == 'glm'){
       amodel <- data.frame(covariateId = 1000*ageCovariateSettings$ageIds+ageCovariateSettings$analysisIds,
                            points = ageCovariateSettings$points)
       model$settings$coefficients  <- rbind(model$settings$coefficients , amodel)
@@ -346,15 +370,17 @@ saveModelJson <- function(modelname = 'SimpleModel', modelFunction = 'modelFunct
   # data.frame with the requires cohorts 
   cohortsToCreate <- unique(cohortsToCreate)
   
-  if(length(cohortsToCreate) != 0){
-    for (i in 1:nrow(cohortsToCreate )) {
-      writeLines(paste("Inserting cohort:", cohortsToCreate$cohortName[i]))
-      OhdsiRTools::insertCohortDefinitionInPackage(definitionId = cohortsToCreate$atlasId[i], # atlas or cohort? 
-                                                   name = cohortsToCreate$cohortName[i], 
-                                                   baseUrl = baseUrl, 
-                                                   generateStats = F)
-    }
-  }
+  cohortsToCreate$cohortName <- gsub(' ','_',cohortsToCreate$cohortName)
+  
+  #if(length(cohortsToCreate) != 0){
+  #  for (i in 1:nrow(cohortsToCreate )) {
+  #    writeLines(paste("Inserting cohort:", cohortsToCreate$cohortName[i]))
+  #    OhdsiRTools::insertCohortDefinitionInPackage(definitionId = cohortsToCreate$atlasId[i], # atlas or cohort? 
+  #                                                 name = cohortsToCreate$cohortName[i], 
+  #                                                 baseUrl = baseUrl, 
+  #                                                 generateStats = F)
+  #  }
+  #}
   
   #====================
   #  create json and save
@@ -365,14 +391,48 @@ saveModelJson <- function(modelname = 'SimpleModel', modelFunction = 'modelFunct
                    cohorts =  cohortsToCreate)
   
   #saveJsonLocation <- system.file("settings", package = packageName)
-  saveJsonLocation <- file.path(packageDir, 'inst','settings', paste0(gsub(' ', '', modelname),".json"))
+  #saveJsonLocation <- file.path(packageDir, 'inst','settings', paste0(gsub(' ', '', modelname),".json"))
   
-  ParallelLogger::saveSettingsToJson(settings,
-                                     saveJsonLocation)
+  #ParallelLogger::saveSettingsToJson(settings,
+  #                                   saveJsonLocation)
   
-  return(saveJsonLocation)
+  return(settings)
 }
 
 
+
+replaceName <- function(packageLocation = getwd(), 
+                        packageName = 'ValidateRCRI'){
+  
+  # rename files:
+  #=====
+  # file.path(packageLocation,"SkeletonExistingPredictionModelStudy.Rproj")
+  # file.path(packageLocation,"R/SkeletonExistingPredictionModelStudy.R")
+  filesToRename <- c("SkeletonExistingPredictionModelStudy.Rproj","R/SkeletonExistingPredictionModelStudy.R")
+  for(f in filesToRename){
+    ParallelLogger::logInfo(paste0('Renaming ', f))
+    fnew <- gsub("SkeletonExistingPredictionModelStudy", packageName, f)
+    file.rename(from = file.path(packageLocation,f), to = file.path(packageLocation,fnew))
+  }
+  
+  # edit test in files:
+  #=====
+  # file.path(packageLocation,"DESCRIPTION")
+  # file.path(packageLocation,"README.md")
+  # file.path(packageLocation,"extras/CodeToRun.R")
+  # each file in dir(file.path(packageLocation,"R"))
+  
+  filesToEdit <- c(file.path(packageLocation,"DESCRIPTION"),
+                   file.path(packageLocation,"README.md"),
+                   file.path(packageLocation,"extras/CodeToRun.R"),
+                   dir(file.path(packageLocation,"R"), full.names = T))
+  for( f in filesToEdit ){
+    ParallelLogger::logInfo(paste0('Editing ', f))
+    x <- readLines(f)
+    y <- gsub( "SkeletonExistingPredictionModelStudy", packageName, x )
+    cat(y, file=f, sep="\n")
+    
+  }
+}
 
 

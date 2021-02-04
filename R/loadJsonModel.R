@@ -17,13 +17,8 @@ evalFunction <- function(list){
   return(list)
 }
 
-loadModelJson <- function(modelJsonFile, cohortDatabaseSchema, cohortTable){
-  json <- tryCatch({
-    ParallelLogger::loadSettingsFromJson(file = modelJsonFile)
-  }, error = function(cond) {
-    stop("Issue with json file...")
-  })
-  
+processModelJson <- function(json, cohortDatabaseSchema, cohortTable){
+
   covariateSettings <- list()
   length(covariateSettings) <- sum(unlist(lapply(1:length(json$covariateSettings), function(i) ifelse(class(json$covariateSettings[[i]][[1]])!='list', 1, length(json$covariateSettings[[i]])))))
   k <- 1
