@@ -36,7 +36,7 @@
 #'                             priviliges for storing temporary tables.
 #' @param setting              A data.frame with the tId, oId, model triplets to run - if NULL it runs all possible combinations                
 #' @param sampleSize           How many patients to sample from the target population 
-#' @param recalibrate          Recalibrate for the new population?                            
+#' @param recalibrate          Recalibrate for the new population ('recalibrationInTheLarge' and/or 'weakRecalibration')                           
 #' @param riskWindowStart      The start of the risk window (in days) relative to the startAnchor.                           
 #' @param startAnchor          The anchor point for the start of the risk window. Can be "cohort start" or "cohort end".
 #' @param riskWindowEnd        The end of the risk window (in days) relative to the endAnchor parameter
@@ -104,7 +104,7 @@ execute <- function(connectionDetails,
                     oracleTempSchema = cohortDatabaseSchema,
                     setting = NULL,
                     sampleSize = NULL,
-                    recalibrate = F, 
+                    recalibrate = NULL, 
                     riskWindowStart ,
                     startAnchor,
                     riskWindowEnd,
@@ -150,6 +150,48 @@ execute <- function(connectionDetails,
       createPopulationSettings <- getPopulationSettings()
       createPopulationSettings$outcomeId <- analysisSettings$outcomeId[i]
       
+      ## replace values if set when executing
+      if(!missing(riskWindowStart)){
+        ParallelLogger::logInfo(paste0('Using execute riskWindowStart setting of ', riskWindowStart))
+        createPopulationSettings$riskWindowStart <- riskWindowStart 
+      }
+      if(!missing(startAnchor)){
+        ParallelLogger::logInfo(paste0('Using execute startAnchor setting of ', startAnchor))
+        createPopulationSettings$startAnchor <- startAnchor
+      }
+      if(!missing(riskWindowEnd)){
+        ParallelLogger::logInfo(paste0('Using execute riskWindowEnd setting of ', riskWindowEnd))
+        createPopulationSettings$riskWindowEnd <- riskWindowEnd
+      }
+      if(!missing(endAnchor)){
+        ParallelLogger::logInfo(paste0('Using execute endAnchor setting of ', endAnchor))
+        createPopulationSettings$endAnchor <- endAnchor
+      }
+      if(!missing(firstExposureOnly)){
+        ParallelLogger::logInfo(paste0('Using execute firstExposureOnly setting of ', firstExposureOnly))
+        createPopulationSettings$firstExposureOnly <- firstExposureOnly
+      }
+      if(!missing(removeSubjectsWithPriorOutcome)){
+        ParallelLogger::logInfo(paste0('Using execute removeSubjectsWithPriorOutcome setting of ', removeSubjectsWithPriorOutcome))
+        createPopulationSettings$removeSubjectsWithPriorOutcome <- removeSubjectsWithPriorOutcome
+      }
+      if(!missing(priorOutcomeLookback)){
+        ParallelLogger::logInfo(paste0('Using execute priorOutcomeLookback setting of ', priorOutcomeLookback))
+        createPopulationSettings$priorOutcomeLookback <- priorOutcomeLookback
+      }
+      if(!missing(requireTimeAtRisk)){
+        ParallelLogger::logInfo(paste0('Using execute requireTimeAtRisk setting of ', requireTimeAtRisk))
+        createPopulationSettings$requireTimeAtRisk <- requireTimeAtRisk
+        
+        if(!missing(minTimeAtRisk)){
+          ParallelLogger::logInfo(paste0('Using execute minTimeAtRisk setting of ', minTimeAtRisk))
+          createPopulationSettings$minTimeAtRisk <- minTimeAtRisk
+        }
+      }
+      if(!missing(includeAllOutcomes)){
+        ParallelLogger::logInfo(paste0('Using execute includeAllOutcomes setting of ', includeAllOutcomes))
+        createPopulationSettings$includeAllOutcomes <- includeAllOutcomes
+      }
       
       plpDataSettings <- list(connectionDetails = connectionDetails,
                               cdmDatabaseSchema = cdmDatabaseSchema,
@@ -166,21 +208,10 @@ execute <- function(connectionDetails,
                               cdmVersion = cdmVersion)
       
 
-      ## replace if not null
-      #riskWindowStart = riskWindowStart
-      #startAnchor = startAnchor
-      #riskWindowEnd = riskWindowEnd
-      #endAnchor = endAnchor
-      #firstExposureOnly = firstExposureOnly
-      #removeSubjectsWithPriorOutcome = removeSubjectsWithPriorOutcome
-      #priorOutcomeLookback = priorOutcomeLookback
-      #requireTimeAtRisk = requireTimeAtRisk
-      #minTimeAtRisk = minTimeAtRisk
-      #includeAllOutcomes = includeAllOutcomes
-      
       # run model
       result <- tryCatch({runModel(modelName = analysisSettings$modelName[i], 
                                    analysisId = analysisSettings$analysisId[i],
+                                   recalibrate = recalibrate,
                                    connectionDetails = connectionDetails,
                                    cohortCovariateDatabaseSchema = cohortDatabaseSchema,
                                    cohortCovariateTable = cohortTable,
@@ -191,10 +222,6 @@ execute <- function(connectionDetails,
       
       
       if(!is.null(result)){
- 
-      if(recalibrate){
-        # add code here
-      }
       
       if(!dir.exists(file.path(outputFolder,cdmDatabaseName))){
         dir.create(file.path(outputFolder,cdmDatabaseName))

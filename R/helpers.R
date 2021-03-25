@@ -37,6 +37,7 @@ getPopulationSettings <- function(){
 # takes as input model name - then load that json
 runModel <- function(modelName, 
                      analysisId,
+                     recalibrate,
                      connectionDetails,
                      cohortCovariateDatabaseSchema,
                      cohortCovariateTable,
@@ -88,6 +89,23 @@ runModel <- function(modelName,
     return(NULL)
   }
   
+  # add recalibration 
+  if(!is.null(recalibrate)){
+    ParallelLogger::logInfo('Recalibrating')
+    for(k in 1:length(recalibrate)){
+      if(recalibrate[k] %in% c('RecalibrationintheLarge', 'weakRecalibration')){
+        ParallelLogger::logInfo(paste0('Using method ', recalibrate[k]))
+        recal <- PatientLevelPrediction::recalibratePlp(result$prediction, analysisId = analysisId,
+                                method = recalibrate[k])
+        
+        result$prediction <- recal$prediction
+        result$performanceEvaluation <- PatientLevelPrediction::addRecalibration(result$performanceEvaluation, 
+                                                               recalibration = recal)
+      }
+      
+    }
+  }
+  
   result$inputSetting$database <- cdmDatabaseName
   result$inputSetting$modelSettings <- list(model = 'existing model', name = modelName)
   result$inputSetting$dataExtrractionSettings$covariateSettings <- runSettings$covariateSettings
@@ -134,7 +152,9 @@ getModel <- function(modelName, analysisId,cohortId,outcomeId, population, model
 #======= add custom function here...
 predictFunction.glm <- function(coefficients,
                                 finalMapping,
-                                predictionType){
+                                predictionType,
+                                offset = 0,
+                                baselineHazard = 0.9){
   
   finalMapping <- eval(str2lang(paste0(finalMapping, collapse = ' ')))
   
@@ -143,13 +163,23 @@ predictFunction.glm <- function(coefficients,
     plpData$covariateData$coefficients <- coeff
     on.exit(plpData$covariateData$coefficients <- NULL, add = TRUE)
     
+    if(sum(c('power','offset')%in%colnames(coeff))==2){
     prediction <- plpData$covariateData$covariates %>% 
       dplyr::inner_join(plpData$covariateData$coefficients, by= 'covariateId') %>% 
-      dplyr::mutate(values = covariateValue*points) %>%
+      dplyr::mutate(values = (covariateValue-offset)^power*points) %>%
       dplyr::group_by(rowId) %>%
       dplyr::summarise(value = sum(values, na.rm = TRUE)) %>%
       dplyr::select(rowId, value) %>% 
       dplyr::collect() 
+    } else{
+      prediction <- plpData$covariateData$covariates %>% 
+        dplyr::inner_join(plpData$covariateData$coefficients, by= 'covariateId') %>% 
+        dplyr::mutate(values = covariateValue*points) %>%
+        dplyr::group_by(rowId) %>%
+        dplyr::summarise(value = sum(values, na.rm = TRUE)) %>%
+        dplyr::select(rowId, value) %>% 
+        dplyr::collect() 
+    }
     
     prediction <- merge(population, prediction, by ="rowId", all.x = TRUE)
     prediction$value[is.na(prediction$value)] <- 0
@@ -160,10 +190,12 @@ predictFunction.glm <- function(coefficients,
     metaData <- list(predictionType = type,
                      cohortId = attr(population,'metaData')$cohortId,
                      outcomeId = attr(population,'metaData')$outcomeId,
-                     timepoint = attr(population,'metaData')$riskWindowEnd)
-    
+                     timepoint = attr(population,'metaData')$riskWindowEnd) 
     attr(prediction, "metaData") <- metaData
     
+    attr(prediction, "baselineHazard") <- baselineHazard
+    attr(prediction, "offset") <-  offset 
+    attr(prediction, "timepoint") <- attr(population,'metaData')$riskWindowEn
     
     return(prediction)
   }

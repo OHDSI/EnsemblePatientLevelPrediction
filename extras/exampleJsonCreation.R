@@ -54,7 +54,9 @@ modelList[[1]] <- createModelJson(modelname = 'rcri_with_creatinine',
                                   ageCovariateSettings = NULL,
                                   
                                   finalMapping = 'function(x){xTemp = x; xTemp[x==0] <- 0.039; xTemp[x==1] <- 0.06;xTemp[x==2] <- 0.101;xTemp[x>=3] <- 0.15;return(xTemp) }',
-                                  predictionType = 'survival'
+                                  predictionType = 'survival',
+                                  baseline = 0.8,
+                                  offset = 0
 )
 
 

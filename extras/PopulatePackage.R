@@ -124,6 +124,8 @@ createModelJson <- function(modelname = 'SimpleModel',
                                                                             'Age 80-84', 'Age 85-90',
                                                                             'Male'), 
                                                           points = c(rep(0,19)),
+                                                          offset = c(rep(0,19)),
+                                                          power = c(rep(1,19)),
                                                           featureExtraction = c(rep('useDemographicsAgeGroup',18),
                                                                                 'useDemographicsGender')),
                           cohortCovariateSettings = list(atlasCovariateIds = c(1,109),
@@ -132,6 +134,8 @@ createModelJson <- function(modelname = 'SimpleModel',
                                                          startDays = c(-999,-30),
                                                          endDays = c(-1,0),
                                                          points = c(1,2),
+                                                         offset = c(rep(0,2)),
+                                                         power = c(rep(1,2)),
                                                          count = rep(F, length(points)),
                                                          ageInteraction = rep(F, length(points)),
                                                          lnAgeInteraction = rep(F, length(points))
@@ -144,6 +148,8 @@ createModelJson <- function(modelname = 'SimpleModel',
                                                               scaleMaps= list(function(x){return(x)}, 
                                                                               function(x){return(0)} ), 
                                                               points = c(1.2,0.6),
+                                                              offset = c(rep(0,2)),
+                                                              power = c(rep(1,2)),
                                                               aggregateMethods = c('recent', 'max'),
                                                               imputationValues = c(0,0),
                                                               ageInteractions = rep(F, length(points)),
@@ -164,6 +170,8 @@ createModelJson <- function(modelname = 'SimpleModel',
                                                                     scaleMaps= list(function(x){return(x)}, 
                                                                                     function(x){return(0)} ), 
                                                                     points = c(1.2,0.6),
+                                                                    offset = c(rep(0,2)),
+                                                                    power = c(rep(1,2)),
                                                                     aggregateMethods = c('recent', 'max'),
                                                                     imputationValues = c(0,0),
                                                                     ageInteractions = rep(F, length(points)),
@@ -179,13 +187,18 @@ createModelJson <- function(modelname = 'SimpleModel',
                                                       ageMaps = list(function(x){return(log(x)^2)}),
                                                       ageIds = 1,
                                                       analysisIds = c(458),
-                                                      points = c(12.344)
+                                                      points = c(12.344),
+                                                      offset = c(rep(0,1)),
+                                                      power = c(rep(1,1))
                                                       
                           ),
                           
                           finalMapping = function(x){return(x)},
-                          predictionType = 'binary'
+                          predictionType = 'binary',
+                          baselineHazard = 0.9,
+                          offset = 0
 ){
+  
   
   #====================
   #   initiate the settings
@@ -204,6 +217,8 @@ createModelJson <- function(modelname = 'SimpleModel',
   model <- list(modelFunction = modelFunction,
                 settings = list(finalMapping = finalMapping,
                                 predictionType = predictionType,
+                                baselineHazard = baselineHazard,
+                                offset = offset,
                                 coefficients = NULL)
   )
   
@@ -213,6 +228,18 @@ createModelJson <- function(modelname = 'SimpleModel',
   #====================
   # add atlas cohort covariates 
   if(!is.null(cohortCovariateSettings)){
+  
+    # check settings
+    if(length(cohortCovariateSettings$points) != length(cohortCovariateSettings$atlasCovariateIds)){
+      ParallelLogger::logWarn('CovariateSettings points and covariateId length mismatch')
+    }
+    if(length(cohortCovariateSettings$points) != length(cohortCovariateSettings$offset)){
+      ParallelLogger::logWarn('CovariateSettings points and offset length mismatch')
+    }
+    if(length(cohortCovariateSettings$points) != length(cohortCovariateSettings$power)){
+      ParallelLogger::logWarn('CovariateSettings points and power length mismatch')
+    }
+    
     
     covariateSettings$createCohortCovariateSettings <- lapply(1:length(cohortCovariateSettings$analysisIds), function(i){list(covariateName = paste0(ifelse(cohortCovariateSettings$count[i], ' Number of ', ''),
                                                                                                                                                      cohortCovariateSettings$atlasCovariateNames[i], 
@@ -234,7 +261,9 @@ createModelJson <- function(modelname = 'SimpleModel',
     
     if(modelFunction == 'glm'){
       cmodel <- data.frame(covariateId = 1000*cohortCovariateSettings$atlasCovariateIds+cohortCovariateSettings$analysisIds,
-                           points = cohortCovariateSettings$points)
+                           points = cohortCovariateSettings$points,
+                           offset = cohortCovariateSettings$offset,
+                           power = cohortCovariateSettings$power)
       
       model$settings$coefficients <- rbind(model$settings$coefficients , cmodel)
     }
@@ -252,7 +281,7 @@ createModelJson <- function(modelname = 'SimpleModel',
     covariateSettings$createCovariateSettings$includedCovariateIds <- unlist(standardCovariates$covariateId)
     
     if(modelFunction == 'glm'){
-      model$settings$coefficients  <- rbind(model$settings$coefficients, standardCovariates[,c('covariateId','points')])
+      model$settings$coefficients  <- rbind(model$settings$coefficients, standardCovariates[,c('covariateId','points', 'offset', 'power')])
     }
     
   }
@@ -262,6 +291,16 @@ createModelJson <- function(modelname = 'SimpleModel',
   #====================
   # add measurement covariates 
   if(!is.null(measurementCovariateSettings)){
+    
+    if(length(measurementCovariateSettings$points) != length(measurementCovariateSettings$measurementIds)){
+      ParallelLogger::logWarn('measurementCovariateSettings points and covariateId length mismatch')
+    }
+    if(length(measurementCovariateSettings$points) != length(measurementCovariateSettings$offset)){
+      ParallelLogger::logWarn('measurementCovariateSettings points and offset length mismatch')
+    }
+    if(length(measurementCovariateSettings$points) != length(measurementCovariateSettings$power)){
+      ParallelLogger::logWarn('measurementCovariateSettings points and power length mismatch')
+    }
     
     covariateSettings$createMeasurementCovariateSettings <- lapply(1:length(measurementCovariateSettings$analysisIds),
                                                                    function(i){
@@ -286,7 +325,9 @@ createModelJson <- function(modelname = 'SimpleModel',
     if(modelFunction == 'glm'){
       smodel <- data.frame(
         covariateId = 1000*measurementCovariateSettings$measurementIds+measurementCovariateSettings$analysisIds,
-        points = measurementCovariateSettings$points
+        points = measurementCovariateSettings$points,
+        offset = measurementCovariateSettings$offset,
+        power = measurementCovariateSettings$power
       )
       model$settings$coefficients  <- rbind(model$settings$coefficients , smodel)
     }
@@ -297,6 +338,16 @@ createModelJson <- function(modelname = 'SimpleModel',
   #   Add Measurement Cohort Covariate Settings (if any)
   #====================
   if(!is.null(measurementCohortCovariateSettings)){
+    
+    if(length(measurementCohortCovariateSettings$points) != length(measurementCohortCovariateSettings$measurementIds)){
+      ParallelLogger::logWarn('measurementCohortCovariateSettings points and covariateId length mismatch')
+    }
+    if(length(measurementCohortCovariateSettings$points) != length(measurementCohortCovariateSettings$offset)){
+      ParallelLogger::logWarn('measurementCohortCovariateSettings points and offset length mismatch')
+    }
+    if(length(measurementCohortCovariateSettings$points) != length(measurementCohortCovariateSettings$power)){
+      ParallelLogger::logWarn('measurementCohortCovariateSettings points and power length mismatch')
+    }
     
     covariateSettings$createMeasurementCohortCovariateSettings <- lapply(1:length(), function(i){
       list(covariateName = measurementCohortCovariateSettings$names[i], 
@@ -319,7 +370,9 @@ createModelJson <- function(modelname = 'SimpleModel',
     if(modelFunction == 'glm'){
       scmodel <- data.frame(
         covariateId = 1000*measurementCohortCovariateSettings$measurementIds+measurementCohortCovariateSettings$analysisIds,
-        points = measurementCohortCovariateSettings$points
+        points = measurementCohortCovariateSettings$points,
+        offset = measurementCohortCovariateSettings$offset,
+        power = measurementCohortCovariateSettings$power
       )
       model$settings$coefficients  <- rbind(model$settings$coefficients , scmodel)
     }
@@ -332,6 +385,16 @@ createModelJson <- function(modelname = 'SimpleModel',
   # add age map variables
   if(!is.null(ageCovariateSettings)){
     
+    if(length(ageCovariateSettings$points) != length(ageCovariateSettings$ageIds)){
+      ParallelLogger::logWarn('ageCovariateSettings points and covariateId length mismatch')
+    }
+    if(length(ageCovariateSettings$points) != length(ageCovariateSettings$offset)){
+      ParallelLogger::logWarn('ageCovariateSettings points and offset length mismatch')
+    }
+    if(length(ageCovariateSettings$points) != length(ageCovariateSettings$power)){
+      ParallelLogger::logWarn('ageCovariateSettings points and power length mismatch')
+    }
+    
     covariateSettings$createAgeCovariateSettings <- lapply(1:length(ageCovariateSettings$names), 
                                                            function(i){
                                                              list(covariateName = ageCovariateSettings$names[i], 
@@ -343,7 +406,10 @@ createModelJson <- function(modelname = 'SimpleModel',
     
     if(modelFunction == 'glm'){
       amodel <- data.frame(covariateId = 1000*ageCovariateSettings$ageIds+ageCovariateSettings$analysisIds,
-                           points = ageCovariateSettings$points)
+                           points = ageCovariateSettings$points,
+                           offset = ageCovariateSettings$offset,
+                           power = ageCovariateSettings$power
+                           )
       model$settings$coefficients  <- rbind(model$settings$coefficients , amodel)
     }
     
