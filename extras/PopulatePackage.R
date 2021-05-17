@@ -93,7 +93,8 @@ getCohorts <- function(cohorts,
     writeLines(paste("Extracting cohort:", cohortsToCreate$name[i]))
     cohortDefinitions[[i]] <- ROhdsiWebApi::getCohortDefinition(cohortId = cohortsToCreate$atlasId[i], 
                                                  baseUrl = baseUrl)
-    cohortDefinitions[[i]]$expressionSql <- RJSONIO::toJSON(cohortDefinitions[[i]]$expression)
+    cohortDefinitions[[i]]$expressionSql <- RJSONIO::toJSON(cohortDefinitions[[i]]$expression,
+                                                            digits = 23)
     cohortDefinitions[[i]]$name = cohortsToCreate$name[i]
   }
 
