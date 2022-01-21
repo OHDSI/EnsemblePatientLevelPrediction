@@ -1,3 +1,3 @@
-SkeletonExistingPredictionModelStudy 0.0.2
+EnsemblePatientLevelPrediction 0.0.1
 ======================
-  - A skeleton package that can be used to develop studies to externally validate existing prediction models
+  - A new package that wraps around PatientLevelPrediction to create and evaluate ensemble models

@@ -1,32 +1,22 @@
-Package: SkeletonExistingPredictionModelStudy
+Package: EnsemblePatientLevelPrediction
 Type: Package
-Title: A Package Skeleton for Replicating Published Prediction Models
-Version: 1.1.1
+Title: Expanding PatientLevelPrediction with ensemble capabilities
+Version: 0.0.1
 Author: Jenna Reps [aut, cre]
 Maintainer: Jenna M Reps <reps@ohdsi.org>
-Description: A skeleton package, to be used as a starting point when implementing patient-level prediction studies.
+Description: This package uses functions in PatientLevelPrediction to develop and evaluate ensemble models.
 Depends:
-    R (>= 3.3.0),
-    DatabaseConnector
+    R (>= 3.3.0)
 Imports:
-    SqlRender,
-    Cyclops,
-    FeatureExtraction,
-    PatientLevelPrediction (>= 4.0.0),
-    ggplot2,
-    OhdsiSharing,
-    zip,
+    PatientLevelPrediction (>= 5.0.0),
     ParallelLogger,
-    magrittr,
     dplyr,
-    officer,
     Andromeda
 Suggests:
     knitr,
     rmarkdown,
     DT,
-    shiny,
-    Hydra
+    shiny
 License: Apache License 2.0
 VignetteBuilder: knitr
 LazyData: TRUE

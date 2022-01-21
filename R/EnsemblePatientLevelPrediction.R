@@ -1,8 +1,8 @@
-# @file SkeletonExistingPredictionModelStudy.R
+# @file EnsemblePatientLevelPrediction
 #
 # Copyright 2020 Observational Health Data Sciences and Informatics
 #
-# This file is part of SkeletonExistingPredictionModelStudy
+# This file is part of EnsemblePatientLevelPrediction
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' SkeletonExistingPredictionModelStudy
+#' EnsemblePatientLevelPrediction
 #'
 #' @docType package
-#' @name SkeletonExistingPredictionModelStudy
-#' @importFrom magrittr %>%
+#' @name EnsemblePatientLevelPrediction
+#' @importFrom dplyr %>%
 NULL
