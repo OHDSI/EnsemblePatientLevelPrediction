@@ -18,7 +18,10 @@
 
 #' EnsemblePatientLevelPrediction
 #'
+#' @description A package for developing ensembles using the PatientLevelPrediction framework
+#'
 #' @docType package
 #' @name EnsemblePatientLevelPrediction
 #' @importFrom dplyr %>%
+#' @importFrom rlang .data
 NULL

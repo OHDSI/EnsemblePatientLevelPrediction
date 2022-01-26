@@ -2,5 +2,8 @@
 
 export(createFusionCombiner)
 export(runEnsemble)
-export(setEnsemble)
+export(setEnsembleFromDesign)
+export(setEnsembleFromFiles)
+export(setEnsembleFromResults)
 importFrom(dplyr,"%>%")
+importFrom(rlang,.data)

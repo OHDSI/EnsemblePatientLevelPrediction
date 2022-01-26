@@ -1,17 +1,13 @@
 # modify this to be for non saved as well
-filterEnsembleFiles <- function(
-  filterSettings,
-  modelsLocation
+# this results a subset of resultList where only models
+# passing the filtering settings are kept
+filterBaseModels <- function(
+  resultList,
+  filterSettings
 ){
   
-  # load each model in the location
-  models <- dir(modelsLocation, pattern = 'Analysis_')
-  
   includeModels <- c()
-  for(model in models){
-    resultLocation <- file.path(modelsLocation, model, 'plpResult')
-    plpResult <- PatientLevelPrediction::loadPlpResult(resultLocation)
-    
+  for(plpResult in resultList){
     value <- plpResult$performanceEvaluation$evaluationStatistics %>%
       dplyr::filter(
         .data$evaluation == filterSettings$evaluation & 
@@ -33,10 +29,12 @@ filterEnsembleFiles <- function(
     }
     
     if(includeMin && includeMax){
-      includeModels <- c(includeModels, model)
+      includeModels <- c(includeModels, T)
+    } else{
+      includeModels <- c(includeModels, F)
     }
     
   }
   
-  return(includeModels)
+  return(resultList[includeModels])
 }

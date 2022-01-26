@@ -8,15 +8,18 @@ Description: This package uses functions in PatientLevelPrediction to develop an
 Depends:
     R (>= 3.3.0)
 Imports:
+    dplyr,
     PatientLevelPrediction (>= 5.0.0),
     ParallelLogger,
-    dplyr,
-    Andromeda
+    rlang,
+    tidyr
 Suggests:
+    DT,
+    Eunomia,
     knitr,
     rmarkdown,
-    DT,
-    shiny
+    shiny,
+    testthat
 License: Apache License 2.0
 VignetteBuilder: knitr
 LazyData: TRUE

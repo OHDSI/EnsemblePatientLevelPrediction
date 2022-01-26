@@ -2,18 +2,15 @@
 % Please edit documentation in R/runEnsemble.R
 \name{runEnsemble}
 \alias{runEnsemble}
-\title{Code to run the ensemble model developement (including developing the base models)}
+\title{Code to run the ensemble model developement}
 \usage{
 runEnsemble(
-  databaseDetails = PatientLevelPrediction::createDatabaseDetails(),
   ensembleSettings,
   logSettings = PatientLevelPrediction::createLogSettings(logName = "ensemble"),
   saveDirectory
 )
 }
 \arguments{
-\item{databaseDetails}{The OMOP CDM database and connection details created using \code{PatientLevelPrediction::createDatabaseDetails()}}
-
 \item{ensembleSettings}{The ensemble specifications created using \code{setEnsemble()}}
 
 \item{logSettings}{The settings used to specify the logging, created using \code{PatientLevelPrediction::createLogSettings()}}
@@ -21,5 +18,5 @@ runEnsemble(
 \item{saveDirectory}{The location to save the ensemble}
 }
 \description{
-Code to run the ensemble model developement (including developing the base models)
+Code to run the ensemble model developement
 }

@@ -4,3 +4,6 @@
 \name{EnsemblePatientLevelPrediction}
 \alias{EnsemblePatientLevelPrediction}
 \title{EnsemblePatientLevelPrediction}
+\description{
+A package for developing ensembles using the PatientLevelPrediction framework
+}

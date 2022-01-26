@@ -35,7 +35,7 @@ saveEnsembleModel <- function(ensembleModel, dirPath){
     for(i in 1:length(ensembleModel$model$baseModels)){
       PatientLevelPrediction::savePlpModel(
         plpModel = ensembleModel$model$baseModels[[i]], 
-        dirPath = file.path(dirPath, 'base', ensembleModel$model$baseModels[[i]]$trainDetails$analysisId)
+        dirPath = file.path(dirPath, 'base', paste0('basemodel_',i) )
       )
     }
     
@@ -43,7 +43,7 @@ saveEnsembleModel <- function(ensembleModel, dirPath){
     baseModels <- lapply(
       1:length(ensembleModel$model$baseModels), 
       function(i){
-        file.path(dirPath, 'base', ensembleModel$model$baseModels[[i]]$trainDetails$analysisId)
+        paste0('base/', paste0('basemodel_',i))
       } 
     )
     
@@ -71,7 +71,7 @@ loadEnsembleModel <- function(dirPath){
   ensembleModel$model$baseModels <- lapply(
     ensembleModel$model$baseModels, 
     function(x){
-      PatientLevelPrediction::loadPlpModel(dirPath = x)
+      PatientLevelPrediction::loadPlpModel(dirPath = file.path(dirPath, x))
     }
   )
   
