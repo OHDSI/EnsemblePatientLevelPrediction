@@ -20,6 +20,9 @@ Suggests:
     rmarkdown,
     shiny,
     testthat
+Remotes:
+    ohdsi/PatientLevelPrediction,
+    ohdsi/Eunomia
 License: Apache License 2.0
 VignetteBuilder: knitr
 LazyData: TRUE
