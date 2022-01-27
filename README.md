@@ -19,7 +19,7 @@ Vignette: [EnsemblePatientLevelPrediction](https://raw.githubusercontent.com/OHD
 
 Website: Documentation can be found on the [package website](https://ohdsi.github.io/EnsemblePatientLevelPrediction).
 
-Package manual: [EnsemblePatientLevelPrediction.pdf](https://github.com/OHDSI/PatientLevelPrediction/blob/master/extras/EnsemblePatientLevelPrediction.pdf)
+Package manual: [EnsemblePatientLevelPrediction.pdf](https://github.com/OHDSI/EnsemblePatientLevelPrediction/blob/master/extras/EnsemblePatientLevelPrediction.pdf)
 
 
 Support
