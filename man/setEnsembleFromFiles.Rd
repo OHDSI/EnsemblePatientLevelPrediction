@@ -7,9 +7,12 @@
 setEnsembleFromFiles(fileVector, filterSettings, combinerSettings)
 }
 \arguments{
-\item{fileVector}{A vector of files containing the location of the \code{PatientLevelPrediction::runPlp()} results}
+\item{fileVector}{A vector of files containing the location of the
+\code{PatientLevelPrediction::runPlp()} results}
 
-\item{filterSettings}{Setting specifying rules to use to filter (remove) any model specified in the list of model designs that performs insufficiently (these models get ignored from the ensemble)}
+\item{filterSettings}{Setting specifying rules to use to filter (remove) any model specified in
+the list of model designs that performs insufficiently (these models get
+ignored from the ensemble)}
 
 \item{combinerSettings}{Settings specifying how to combine the remaining models into an ensemble}
 }
@@ -19,14 +22,10 @@ Create setting for creating ensemble from model settings
 \examples{
 \dontrun{
 
-ensembleSettings <- setEnsembleFromFiles(
- fileVector = c('./result1', './result2', './result3'),
- filterSettings = list(minValue = 0.5, maxValue = 1),
- combinerSettings = createFusionCombiner(
-   type = 'uniform',
-   evaluation = 'CV',
-   scaleFunction = 'normalize'
- )
-)
+ensembleSettings <- setEnsembleFromFiles(fileVector = c("./result1", "./result2", "./result3"),
+                                         filterSettings = list(minValue = 0.5, maxValue = 1),
+                                         combinerSettings = createFusionCombiner(type = "uniform",
+                                                                                 evaluation = "CV",
+                                                                                 scaleFunction = "normalize"))
 }
 }

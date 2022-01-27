@@ -3,4 +3,4 @@
 library(testthat)
 library(EnsemblePatientLevelPrediction)
 test_check("EnsemblePatientLevelPrediction")
-unlink('T:/Temp', recursive = T)
+unlink("T:/Temp", recursive = T)

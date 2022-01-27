@@ -13,13 +13,18 @@ setEnsembleFromDesign(
 )
 }
 \arguments{
-\item{modelDesignList}{A list of model designs to develop and then combine. Each model design is created by \code{PatientLevelPrediction::createModelDesign()}}
+\item{modelDesignList}{A list of model designs to develop and then combine. Each model design is
+created by \code{PatientLevelPrediction::createModelDesign()}}
 
 \item{databaseDetails}{The OMOP CDM database details and connection for extracting the data}
 
-\item{splitSettings}{The test/train and cross validation settings created using \code{PatientLevelPrediction::createDefaultSplitSetting()} or via a custom function}
+\item{splitSettings}{The test/train and cross validation settings created using
+\code{PatientLevelPrediction::createDefaultSplitSetting()} or via a custom
+function}
 
-\item{filterSettings}{Setting specifying rules to use to filter (remove) any model specified in the list of model designs that performs insufficiently (these models get ignored from the ensemble)}
+\item{filterSettings}{Setting specifying rules to use to filter (remove) any model specified in
+the list of model designs that performs insufficiently (these models get
+ignored from the ensemble)}
 
 \item{combinerSettings}{Settings specifying how to combine the remaining models into an ensemble}
 }
@@ -28,37 +33,29 @@ Create setting for creating ensemble from model settings
 }
 \examples{
 \dontrun{
-modelDesign1 <- PatientLevelPrediction::createModelDesign(
- targetId = 4,
- outcomeId = 3, 
- restrictPlpDataSettings = restrictPlpDataSettings,
- covariateSettings = covSet, 
- runCovariateSummary = F,
- modelSettings = PatientLevelPrediction::setLassoLogisticRegression(),
- populationSettings = populationSet, 
- preprocessSettings = PatientLevelPrediction::createPreprocessSettings()
-)
-modelDesign2 <- PatientLevelPrediction::createModelDesign(
- targetId = 4,
- outcomeId = 3, 
- restrictPlpDataSettings = restrictPlpDataSettings,
- covariateSettings = covSet, 
- runCovariateSummary = F,
- modelSettings = PatientLevelPrediction::setGradientBoostingMachine(),
- populationSettings = populationSet, 
- preprocessSettings = PatientLevelPrediction::createPreprocessSettings()
-)
+modelDesign1 <- PatientLevelPrediction::createModelDesign(targetId = 4,
+                                                          outcomeId = 3,
+                                                          restrictPlpDataSettings = restrictPlpDataSettings,
+                                                          covariateSettings = covSet,
+                                                          runCovariateSummary = F,
+                                                          modelSettings = PatientLevelPrediction::setLassoLogisticRegression(),
+                                                          populationSettings = populationSet,
+                                                          preprocessSettings = PatientLevelPrediction::createPreprocessSettings())
+modelDesign2 <- PatientLevelPrediction::createModelDesign(targetId = 4,
+                                                          outcomeId = 3,
+                                                          restrictPlpDataSettings = restrictPlpDataSettings,
+                                                          covariateSettings = covSet,
+                                                          runCovariateSummary = F,
+                                                          modelSettings = PatientLevelPrediction::setGradientBoostingMachine(),
+                                                          populationSettings = populationSet,
+                                                          preprocessSettings = PatientLevelPrediction::createPreprocessSettings())
 
-ensembleSettings <- setEnsembleFromDesign(
- modelDesignList = list(modelDesign1, modelDesign2),
- databaseDetails = PatientLevelPrediction::createDatabaseDetails(),
- splitSettings = PatientLevelPrediction::createDefaultSplitSetting(),
- filterSettings = list(minValue = 0.5, maxValue = 1),
- combinerSettings = createFusionCombiner(
-   type = 'uniform',
-   evaluation = 'CV',
-   scaleFunction = 'normalize'
- )
-)
+ensembleSettings <- setEnsembleFromDesign(modelDesignList = list(modelDesign1, modelDesign2),
+                                          databaseDetails = PatientLevelPrediction::createDatabaseDetails(),
+                                          splitSettings = PatientLevelPrediction::createDefaultSplitSetting(),
+                                          filterSettings = list(minValue = 0.5, maxValue = 1),
+                                          combinerSettings = createFusionCombiner(type = "uniform",
+                                                                                  evaluation = "CV",
+                                                                                  scaleFunction = "normalize"))
 }
 }

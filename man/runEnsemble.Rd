@@ -2,7 +2,7 @@
 % Please edit documentation in R/runEnsemble.R
 \name{runEnsemble}
 \alias{runEnsemble}
-\title{Code to run the ensemble model developement}
+\title{Code to run the ensemble model development}
 \usage{
 runEnsemble(
   ensembleSettings,
@@ -13,10 +13,11 @@ runEnsemble(
 \arguments{
 \item{ensembleSettings}{The ensemble specifications created using \code{setEnsemble()}}
 
-\item{logSettings}{The settings used to specify the logging, created using \code{PatientLevelPrediction::createLogSettings()}}
+\item{logSettings}{The settings used to specify the logging, created using
+\code{PatientLevelPrediction::createLogSettings()}}
 
 \item{saveDirectory}{The location to save the ensemble}
 }
 \description{
-Code to run the ensemble model developement
+Code to run the ensemble model development
 }

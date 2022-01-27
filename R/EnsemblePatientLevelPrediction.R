@@ -1,6 +1,6 @@
 # @file EnsemblePatientLevelPrediction
 #
-# Copyright 2020 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of EnsemblePatientLevelPrediction
 # 
@@ -18,7 +18,8 @@
 
 #' EnsemblePatientLevelPrediction
 #'
-#' @description A package for developing ensembles using the PatientLevelPrediction framework
+#' @description
+#' A package for developing ensembles using the PatientLevelPrediction framework
 #'
 #' @docType package
 #' @name EnsemblePatientLevelPrediction

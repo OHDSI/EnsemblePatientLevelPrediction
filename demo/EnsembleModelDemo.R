@@ -1,4 +1,13 @@
-saveDirectory <- tempdir()
+library(EnsemblePatientLevelPrediction)
+library(FeatureExtraction)
+library(PatientLevelPrediction)
+library(Eunomia)
+# This demo will generate a fusion ensemble consisting of two Logistic Regression models and gradient
+# boosting machine.  Dependent on your system it can take some time to run
+
+# We first simulate some data using Eunomia
+cat("Press a key to continue")
+invisible(readline())
 
 connectionDetails <- Eunomia::getEunomiaConnectionDetails()
 Eunomia::createCohorts(connectionDetails)
@@ -67,10 +76,16 @@ ensembleSettings <- EnsemblePatientLevelPrediction::setEnsembleFromDesign(modelD
                                                                                                 maxValue = 1,
                                                                                                 evaluation = "CV",
                                                                                                 metric = "AUROC"),
-                                                                          combinerSettings = EnsemblePatientLevelPrediction::createFusionCombiner(type = "uniform",
+                                                                          combinerSettings = EnsemblePatientLevelPrediction::createFusionCombiner(type = "AUROC",
                                                                                                                                                   evaluation = "CV",
                                                                                                                                                   scaleFunction = "normalize"))
 
-ensemble <- EnsemblePatientLevelPrediction::runEnsemble(ensembleSettings = ensembleSettings,
-                                                        logSettings = PatientLevelPrediction::createLogSettings(logName = "ensemble"),
-                                                        saveDirectory = saveDirectory)
+# Now we build the fusion ensemble
+cat("Press a key to continue")
+invisible(readline())
+ensembleResult <- EnsemblePatientLevelPrediction::runEnsemble(ensembleSettings = ensembleSettings,
+                                                              logSettings = PatientLevelPrediction::createLogSettings(logName = "ensemble"),
+                                                              saveDirectory = "./testingEnsemble")
+
+# You could now save the model and apply it on other data as described in more detail in the
+# vignette.

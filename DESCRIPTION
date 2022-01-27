@@ -6,7 +6,7 @@ Author: Jenna Reps [aut, cre]
 Maintainer: Jenna M Reps <reps@ohdsi.org>
 Description: This package uses functions in PatientLevelPrediction to develop and evaluate ensemble models.
 Depends:
-    R (>= 3.3.0)
+    R (>= 3.5.0)
 Imports:
     dplyr,
     PatientLevelPrediction (>= 5.0.0),

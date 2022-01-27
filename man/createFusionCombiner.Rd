@@ -5,17 +5,20 @@
 \title{Create the settings for a fusion ensemble}
 \usage{
 createFusionCombiner(
-  type = "uniform",
+  type = c("uniform", "AUROC", "AUPRC")[1],
   evaluation = "CV",
   scaleFunction = "normalize"
 )
 }
 \arguments{
-\item{type}{The type of fusion ensemble pick from: 'uniform', 'AUROC', 'AUPRC' or any other metric from evaluationSummary}
+\item{type}{The type of fusion ensemble pick from: 'uniform', 'AUROC', 'AUPRC' or any
+other metric from evaluationSummary}
 
-\item{evaluation}{The evaluation type used to learn the weights (if evaluation is CV and type is 'AUROC' then the cross validation AUROC is used to determine the weight given to of the base models)}
+\item{evaluation}{The evaluation type used to learn the weights (if evaluation is CV and type
+is 'AUROC' then the cross validation AUROC is used to determine the weight
+given to of the base models)}
 
-\item{scaleFunction}{How to scale the weights (normalise means weights add up to 1)}
+\item{scaleFunction}{How to scale the weights (normalize means weights add up to 1)}
 }
 \description{
 Create the settings for a fusion ensemble
@@ -23,17 +26,13 @@ Create the settings for a fusion ensemble
 \examples{
 \dontrun{
 
-comSettingNormAUC <- createFusionCombiner(
- type = 'AUROC',
- evaluation = 'CV',
- scaleFunction = 'normalize'
-)
+comSettingNormAUC <- createFusionCombiner(type = "AUROC",
+                                          evaluation = "CV",
+                                          scaleFunction = "normalize")
 
-comSettingUniform <- createFusionCombiner(
- type = 'uniform',
- evaluation = 'CV',
- scaleFunction = 'normalize'
-)
+comSettingUniform <- createFusionCombiner(type = "uniform",
+                                          evaluation = "CV",
+                                          scaleFunction = "normalize")
 
 }
 }

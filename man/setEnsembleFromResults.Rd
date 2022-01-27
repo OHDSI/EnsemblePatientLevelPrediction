@@ -9,7 +9,9 @@ setEnsembleFromResults(resultList, filterSettings, combinerSettings)
 \arguments{
 \item{resultList}{A list of runPlp results to combine.}
 
-\item{filterSettings}{Setting specifying rules to use to filter (remove) any model specified in the list of model designs that performs insufficiently (these models get ignored from the ensemble)}
+\item{filterSettings}{Setting specifying rules to use to filter (remove) any model specified in
+the list of model designs that performs insufficiently (these models get
+ignored from the ensemble)}
 
 \item{combinerSettings}{Settings specifying how to combine the remaining models into an ensemble}
 }
@@ -19,18 +21,14 @@ Create setting for creating ensemble from model settings
 \examples{
 \dontrun{
 
-plpResult1 <- PatientLevelPrediction::loadPlpResult('./result1')
-plpResult2 <- PatientLevelPrediction::loadPlpResult('./result2')
-plpResult3 <- PatientLevelPrediction::loadPlpResult('./result3')
+plpResult1 <- PatientLevelPrediction::loadPlpResult("./result1")
+plpResult2 <- PatientLevelPrediction::loadPlpResult("./result2")
+plpResult3 <- PatientLevelPrediction::loadPlpResult("./result3")
 
-ensembleSettings <- setEnsembleFromResults(
- resultList = list(plpResult1, plpResult2, plpResult3),
- filterSettings = list(minValue = 0.5, maxValue = 1),
- combinerSettings = createFusionCombiner(
-   type = 'uniform',
-   evaluation = 'CV',
-   scaleFunction = 'normalize'
- )
-)
+ensembleSettings <- setEnsembleFromResults(resultList = list(plpResult1, plpResult2, plpResult3),
+                                           filterSettings = list(minValue = 0.5, maxValue = 1),
+                                           combinerSettings = createFusionCombiner(type = "uniform",
+                                                                                   evaluation = "CV",
+                                                                                   scaleFunction = "normalize"))
 }
 }
