@@ -42,29 +42,29 @@ navbar:
 
 reference:
   - title: "Specifying the ensemble"
-  desc: >
-    Functions for specifying how to create the ensemble.
-  contents:
-    - setEnsembleFromDesign
-    - setEnsembleFromResults
-    - setEnsembleFromFiles
+    desc: >
+      Functions for specifying how to create the ensemble.
+    contents:
+      - setEnsembleFromDesign
+      - setEnsembleFromResults
+      - setEnsembleFromFiles
   - title: "Different combiners"
-  desc: >
-    Functions combining based models (e.g., fusion or stacking).
-  contents:
-    - createFusionCombiner
+    desc: >
+      Functions combining based models (e.g., fusion or stacking).
+    contents:
+      - createFusionCombiner
   - title: "Creating the ensemble "
-  desc: >
-    Functions creating an ensemble model and then applying it to make predictions.
-  contents:
-    - runEnsemble
-    - applyEnsemble
-    - applyEnsembleToPredictions
+    desc: >
+      Functions creating an ensemble model and then applying it to make predictions.
+    contents:
+      - runEnsemble
+      - applyEnsemble
+      - applyEnsembleToPredictions
   - title: "Saving/loading the ensemble"
-  desc: >
-    Functions for saving/loading an ensemble model or result
-  contents:
-    - saveEnsemble
-    - loadEnsemble
-    - saveEnsembleModel
-    - loadEnsembleModel
+    desc: >
+      Functions for saving/loading an ensemble model or result
+    contents:
+      - saveEnsemble
+      - loadEnsemble
+      - saveEnsembleModel
+      - loadEnsembleModel

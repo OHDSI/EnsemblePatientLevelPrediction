@@ -9,7 +9,7 @@ Depends:
     R (>= 3.5.0)
 Imports:
     dplyr,
-    PatientLevelPrediction (>= 5.0.0),
+    PatientLevelPrediction (>= 5.0.5),
     ParallelLogger,
     rlang,
     tidyr
