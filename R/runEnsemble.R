@@ -22,58 +22,106 @@ runEnsemble <- function(ensembleSettings,
   if (ensembleSettings$executionList$trainModels) {
     # make code to run this in parallel?
     ParallelLogger::logInfo("Developing level 1 models")
-    PatientLevelPrediction::runMultiplePlp(databaseDetails = ensembleSettings$databaseDetails,
-                                           modelDesignList = ensembleSettings$modelDesignList,
-                                           onlyFetchData = F,
-                                           splitSettings = ensembleSettings$splitSettings,
-                                           logSettings = logSettings,
-                                           saveDirectory = saveDirectory)
-
+    PatientLevelPrediction::runMultiplePlp(
+      databaseDetails = ensembleSettings$databaseDetails,
+      modelDesignList = ensembleSettings$modelDesignList,
+      onlyFetchData = F,
+      splitSettings = ensembleSettings$splitSettings,
+      logSettings = logSettings,
+      saveDirectory = saveDirectory
+    )
+    
     # load the results
     fileList <- dir(saveDirectory, pattern = "Analysis_", full.names = T)
-    ensembleSettings$resultList <- lapply(fileList,
-                                          function(x) PatientLevelPrediction::loadPlpResult(file.path(x,
-                                                                                                      "plpResult")))
-  }
+    
+    ensembleSettings$resultList <- lapply(
+      fileList,
+      function(x){PatientLevelPrediction::loadPlpResult(
+        file.path(
+          x,
+          "plpResult"
+        )
+      )
+      }
+    )
+
+   }
 
   if (ensembleSettings$executionList$createEnsemble) {
-
+    
+    if(is.null(ensembleSettings$resultList)){
+      stop('No ensemble resultList specified')
+    }
+    
+    # split the predictions Test is using a stacker
+    if(attr(ensembleSettings$combinerSettings, "combineFunction") == "learnStacker"){
+      ensembleSettings$resultList <- partionTestData(
+        resultList = ensembleSettings$resultList,
+        ensembleSettings = ensembleSettings$combinerSettings
+      )
+    }
+    
     ParallelLogger::logInfo("Filtering models")
-    includeModels <- do.call(filterBaseModels, list(resultList = ensembleSettings$resultList,
-                                                    filterSettings = ensembleSettings$filterSettings))
-
+    includeModels <- do.call(
+      filterBaseModels, 
+      list(
+        resultList = ensembleSettings$resultList,
+        filterSettings = ensembleSettings$filterSettings
+        )
+      )
+    
     ParallelLogger::logInfo("Learning combination mapping and evaluating")
-    ensemble <- do.call(createEnsemble, list(combinerSettings = ensembleSettings$combinerSettings,
-                                             baseModelResults = includeModels))
+    ensemble <- do.call(
+      createEnsemble, 
+      list(
+        combinerSettings = ensembleSettings$combinerSettings,
+        baseModelResults = includeModels
+        )
+      )
   }
 
   if (ensembleSettings$executionList$evaluateEnsemble) {
     # code for applying and evaluating here
 
-    prediction <- do.call(applyEnsembleToPredictions,
-                          list(predictionList = lapply(ensembleSettings$resultList,
-                                                                                   function(x) x$prediction), ensemble = ensemble))
+    prediction <- do.call(
+      applyEnsembleToPredictions,
+      list(
+        predictionList = lapply(
+          ensembleSettings$resultList,
+          function(x) x$prediction
+        ), 
+        ensemble = ensemble
+      )
+    )
 
-    evaluation <- do.call(PatientLevelPrediction::evaluatePlp,
-                          list(prediction = prediction, typeColumn = "evaluationType"))
+    evaluation <- do.call(
+      PatientLevelPrediction::evaluatePlp,
+      list(
+        prediction = prediction, 
+        typeColumn = "evaluationType"
+        )
+      )
 
-    result <- list(model = ensemble,
-                   prediction = prediction,
-                   performanceEvaluation = evaluation,
-                   analysisSettings = list(analysisId = "Ensemble"),
-                   executionSettings = ensembleSettings$resultList[[1]]$executionSettings)
+    result <- list(
+      model = ensemble,
+      prediction = prediction,
+      performanceEvaluation = evaluation,
+      analysisSettings = list(analysisId = "Ensemble"),
+      executionSettings = ensembleSettings$resultList[[1]]$executionSettings
+    )
     class(result) <- "plpEnsemble"
 
     ParallelLogger::logInfo("Saving ensemble")
     saveEnsemble(result, dirPath = file.path(saveDirectory, "Ensemble"))
 
+    return(invisible(result))
+    
   } else {
 
     ParallelLogger::logInfo("Saving ensemble")
     saveEnsembleModel(ensemble, dirPath = file.path(saveDirectory, "Ensemble"))
 
-    result <- ensemble
+    return(invisible(ensemble))
   }
 
-  return(invisible(result))
 }

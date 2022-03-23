@@ -62,13 +62,15 @@ setEnsembleFromDesign <- function(modelDesignList,
   }
 
   # population settings that exclude must be the same
-  valsOfInt <- c("includeAllOutcomes",
-                 "firstExposureOnly",
-                 "washoutPeriod",
-                 "removeSubjectsWithPriorOutcome",
-                 "priorOutcomeLookback",
-                 "requireTimeAtRisk",
-                 "minTimeAtRisk")
+  valsOfInt <- c(
+    "includeAllOutcomes",
+    "firstExposureOnly",
+    "washoutPeriod",
+    "removeSubjectsWithPriorOutcome",
+    "priorOutcomeLookback",
+    "requireTimeAtRisk",
+    "minTimeAtRisk"
+  )
   if (length(unique(lapply(modelDesignList, function(x) x$populationSettings[valsOfInt]))) != 1) {
     stop("populationSettings that impact target cohort of each model design must be the same")
   }
@@ -78,16 +80,21 @@ setEnsembleFromDesign <- function(modelDesignList,
     modelDesignList[[i]]$executeSettings$runCovariateSummary <- F
   }
   # check the combinerSettings
-
-  return(list(executionList = list(extractData = T,
-                                   trainModels = T,
-                                   createEnsemble = T,
-                                   evaluateEnsemble = T),
-              databaseDetails = databaseDetails,
-              modelDesignList = modelDesignList,
-              splitSettings = splitSettings,
-              filterSettings = filterSettings,
-              combinerSettings = combinerSettings))
+  return(
+    list(
+      executionList = list(
+        extractData = T,
+        trainModels = T,
+        createEnsemble = T,
+        evaluateEnsemble = T
+        ),
+      databaseDetails = databaseDetails,
+      modelDesignList = modelDesignList,
+      splitSettings = splitSettings,
+      filterSettings = filterSettings,
+      combinerSettings = combinerSettings
+    )
+  )
 }
 
 

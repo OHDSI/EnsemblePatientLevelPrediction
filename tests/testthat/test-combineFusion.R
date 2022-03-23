@@ -1,5 +1,5 @@
 library("testthat")
-context("Combiners")
+context("Fusion Combiners")
 
 test_that("createFusionCombiner works", {
   
