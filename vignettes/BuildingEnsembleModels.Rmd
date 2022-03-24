@@ -77,7 +77,7 @@ A visualization of how an ensemble is developed can be seen below:
 ![Ensemble model](images/ensembleDevelopment.png)
 
 
-## Example 1: Developing an ensemble using a list of model designs
+## Example 1: Developing a Fusion ensemble using a list of model designs
 
 In this example we will show you how to develop an ensemble from scratch using an OMOP CDM database connection and model designs (created using the [`PatientLevelPrediction`](http://github.com/OHDSI/PatientLevelPrediction) createModelDesign() function).
 
@@ -128,7 +128,7 @@ For the first model we predict the outcome occurring within 2 years of the index
 # example model design 1
 
 # 1. specify the cohort_definition_id for the target cohort
-targetId <- 4,
+targetId <- 4
 
 # 2. specify the cohort_definition_id for the outcome
 outcomeId <- 3 
@@ -180,7 +180,7 @@ preprocessSettings <- PatientLevelPrediction::createPreprocessSettings()
 # this generates a modelDesign object
 modelDesign1 <- PatientLevelPrediction::createModelDesign(
   targetId = targetId,
-  outcomeId = =outcomeId, 
+  outcomeId = outcomeId, 
   restrictPlpDataSettings = restrictPlpDataSettings,
   covariateSettings = covSet, 
   runCovariateSummary = F,
@@ -198,7 +198,7 @@ For the second model we predict the outcome occurring within 2 years of the inde
 # example model design 2
 
 # 1. specify the cohort_definition_id for the target cohort
-targetId <- 4,
+targetId <- 4
 
 # 2. specify the cohort_definition_id for the outcome
 outcomeId <- 3 
@@ -253,7 +253,7 @@ modelDesign2 <- PatientLevelPrediction::createModelDesign(
   restrictPlpDataSettings = restrictPlpDataSettings,
   covariateSettings = covSet, 
   runCovariateSummary = F,
-  modelSettings = modelSettings,
+  modelSettings = modelSetting,
   populationSettings = populationSet, 
   preprocessSettings = preprocessSettings
 )
@@ -267,7 +267,7 @@ For the third model we predict the outcome occurring within 2 years of the index
 # example model design 3
 
 # 1. specify the cohort_definition_id for the target cohort
-targetId <- 4,
+targetId <- 4
 
 # 2. specify the cohort_definition_id for the outcome
 outcomeId <- 3 
@@ -326,7 +326,7 @@ modelDesign3 <- PatientLevelPrediction::createModelDesign(
   restrictPlpDataSettings = restrictPlpDataSettings,
   covariateSettings = covSet, 
   runCovariateSummary = F,
-  modelSettings = modelSettings,
+  modelSettings = modelSetting,
   populationSettings = populationSet, 
   preprocessSettings = preprocessSettings
 )
@@ -364,7 +364,7 @@ filterSettings <- list(
     metric = 'AUROC',
     evaluation = 'CV',
     minValue = 0.5, 
-    maxValue = 1,
+    maxValue = 1
     )
 ```
 
@@ -427,7 +427,380 @@ EnsemblePatientLevelPrediction::saveEnsemble(
 ```
 
 
-## Example 2: Developing an ensemble using a list of runPlp objects
+## Example 2: Developing a stacker ensemble using a list of model designs
+
+In this example we will show you how to develop a stacker ensemble from scratch using an OMOP CDM database connection and model designs (created using the [`PatientLevelPrediction`](http://github.com/OHDSI/PatientLevelPrediction) createModelDesign() function).
+
+
+### Database connection
+
+We will use the `Eunomia` R package that contains an sql lite database with data in the OMOP CDM format for demonstration.
+
+The following code initiates the Eunomia OMOP CDM database, configures the connectionDetails and then uses the `createDatabaseDetails()` in PatientLevelPrediction to specify where the data required when developing a prediction are found: 
+
+```{r eval=FALSE}
+connectionDetails <- Eunomia::getEunomiaConnectionDetails()
+Eunomia::createCohorts(connectionDetails)
+
+databaseDetails <- PatientLevelPrediction::createDatabaseDetails(
+  connectionDetails = connectionDetails, 
+  cdmDatabaseSchema = "main",
+  cohortDatabaseSchema = "main", 
+  cohortTable = "cohort", 
+  cohortId = 4, 
+  outcomeIds = 3,
+  outcomeDatabaseSchema = "main", 
+  outcomeTable =  "cohort", 
+  cdmDatabaseName = 'eunomia'
+)
+```
+
+
+### Base Model Design 
+
+The next step is designing the models that we wish to potentially combine via an ensemble.  To do this, we use the `createModelDesign()` function in PatientLevelPrediction.  This requires:
+
+1. Specifying the cohortId for the target population
+2. Specifying the outcomeId for the outcome
+3. A specification of the candidate covariates (created using `FeatureExtraction::createCovariateSettings()`) that will be used by the model.
+4. Any inclusion criteria implemented at data extraction specified via the `PatientLevelPrediction::createRestrictPlpDataSettings()` such as minimum observation time in the database (washoutPeriod) or whether the include patients multiple times in the data or restrict to the first cohort entry (firstExposureOnly).
+5. Any inclusion criteria implemented after data extraction that can be specified via the `PatientLevelPrediction::createStudyPopulationSettings()` and specifications for the time-at-risk period to determine the outcome labels.
+6. The model settings the specify which classifier/survival model to train and the hyper-parameter search.
+7. The preprocessing settings specified by `PatientLevelPrediction::createPreprocessSettings()` where you can pick whether to normalize the data or remove rare/redundant covariates.
+
+You can also optionally specify feature engineering settings and data sampling settings (e.g., over/under sampling).
+
+### Model Design 1
+
+For the first model we predict the outcome occurring within 2 years of the index date using a LASSO logistic regression model with demographic covariates plus conditions/drugs that occur in the year prior to index (but not included index):
+
+```{r eval=FALSE}
+# example model design 1
+
+# 1. specify the cohort_definition_id for the target cohort
+targetId <- 4
+
+# 2. specify the cohort_definition_id for the outcome
+outcomeId <- 3 
+
+# 3. specify the covariates
+# we include gender, age, race, ethnicity, age in 5 year groups,
+# conditions groups (using the vocabulary hierarchy) in the past
+# 365 days and drug ingredients in the past 365 days
+# we do not include conditions/drugs that occur at index
+covSet <- FeatureExtraction::createCovariateSettings(
+  useDemographicsGender = T, 
+  useDemographicsAge = T, 
+  useDemographicsRace = T,
+  useDemographicsEthnicity = T, 
+  useDemographicsAgeGroup = T,
+  useConditionGroupEraLongTerm = T, 
+  useDrugEraStartLongTerm  = T, 
+  endDays = -1
+)
+
+# 4. specify inclusion for data extraction
+# we restrict to patients in the target cohort with >=365 days
+# observation prior to index and only include patients once 
+# (the first cohort entry)
+restrictPlpDataSettings <- PatientLevelPrediction::createRestrictPlpDataSettings(
+  firstExposureOnly = T, 
+  washoutPeriod = 365
+)
+
+# 5. specify inclusion and time-at-risk
+# We are predicting the outcome occurring from 1 day after index until
+# 730 days after index.  We keep patients who drop out during the 
+# time-at-risk.
+populationSet <- PatientLevelPrediction::createStudyPopulationSettings(
+  requireTimeAtRisk = F, 
+  riskWindowStart = 1, 
+  riskWindowEnd = 730
+)
+
+# 6. specify the model
+# We train a default LASSO logistic regression model
+modelSetting <- PatientLevelPrediction::setLassoLogisticRegression()
+
+# 7. specify the preprocessing
+# We use default preprocessing (normalize data and remove rare/redundant covariates)
+preprocessSettings <- PatientLevelPrediction::createPreprocessSettings()
+
+# input these into PatientLevelPrediction::createModelDesign
+# this generates a modelDesign object
+modelDesign1 <- PatientLevelPrediction::createModelDesign(
+  targetId = targetId,
+  outcomeId = outcomeId, 
+  restrictPlpDataSettings = restrictPlpDataSettings,
+  covariateSettings = covSet, 
+  runCovariateSummary = F,
+  modelSettings = modelSetting,
+  populationSettings = populationSet, 
+  preprocessSettings = preprocessSettings
+)
+```
+
+### Model Design 2
+
+For the second model we predict the outcome occurring within 2 years of the index date using a gradient boosting machine model with demographic covariates plus conditions/drugs that occur in the year prior to index (but not included index). The only difference between model design 1 and 2 is the model settings:
+
+```{r eval=FALSE}
+# example model design 2
+
+# 1. specify the cohort_definition_id for the target cohort
+targetId <- 4
+
+# 2. specify the cohort_definition_id for the outcome
+outcomeId <- 3 
+
+# 3. specify the covariates
+# we include gender, age, race, ethnicity, age in 5 year groups,
+# conditions groups (using the vocabulary hierarchy) in the past
+# 365 days and drug ingredients in the past 365 days
+# we do not include conditions/drugs that occur at index
+covSet <- FeatureExtraction::createCovariateSettings(
+  useDemographicsGender = T, 
+  useDemographicsAge = T, 
+  useDemographicsRace = T,
+  useDemographicsEthnicity = T, 
+  useDemographicsAgeGroup = T,
+  useConditionGroupEraLongTerm = T, 
+  useDrugEraStartLongTerm  = T, 
+  endDays = -1
+)
+
+# 4. specify inclusion for data extraction
+# we restrict to patients in the target cohort with >=365 days
+# observation prior to index and only include patients once 
+# (the first cohort entry)
+restrictPlpDataSettings <- PatientLevelPrediction::createRestrictPlpDataSettings(
+  firstExposureOnly = T, 
+  washoutPeriod = 365
+)
+
+# 5. specify inclusion and time-at-risk
+# We are predicting the outcome occurring from 1 day after index until
+# 730 days after index.  We keep patients who drop out during the 
+# time-at-risk.
+populationSet <- PatientLevelPrediction::createStudyPopulationSettings(
+  requireTimeAtRisk = F, 
+  riskWindowStart = 1, 
+  riskWindowEnd = 730
+)
+
+# 6. specify the model
+# We train a gradient boosting machine with default 
+# hyper-parameter search
+modelSetting <- PatientLevelPrediction::setGradientBoostingMachine()
+
+# 7. specify the preprocessing
+# We use default preprocessing (normalize data and remove rare/redundant covariates)
+preprocessSettings <- PatientLevelPrediction::createPreprocessSettings()
+
+modelDesign2 <- PatientLevelPrediction::createModelDesign(
+  targetId = targetId,
+  outcomeId = outcomeId, 
+  restrictPlpDataSettings = restrictPlpDataSettings,
+  covariateSettings = covSet, 
+  runCovariateSummary = F,
+  modelSettings = modelSetting,
+  populationSettings = populationSet, 
+  preprocessSettings = preprocessSettings
+)
+```
+
+### Model Design 3
+
+For the third model we predict the outcome occurring within 2 years of the index date using a LASSO logistic regression model (that includes the intercept in the regularization) with demographic covariates plus conditions/drugs/measurement indicators that occur in the year prior to index (but not included index). The differences between model design 1 and 3 is the inclusion of the intercept in the regularization and the addition of measurement indicator covariates:
+
+```{r eval=FALSE}
+# example model design 3
+
+# 1. specify the cohort_definition_id for the target cohort
+targetId <- 4
+
+# 2. specify the cohort_definition_id for the outcome
+outcomeId <- 3 
+
+# 3. specify the covariates
+# we include gender, age, race, ethnicity, age in 5 year groups,
+# conditions groups (using the vocabulary hierarchy) in the past
+# 365 days and drug ingredients in the past 365 days
+# we do not include conditions/drugs that occur at index
+# we also include measurements indicators in the past 365 days
+covSet <- FeatureExtraction::createCovariateSettings(
+  useDemographicsGender = T, 
+  useDemographicsAge = T, 
+  useDemographicsRace = T,
+  useDemographicsEthnicity = T, 
+  useDemographicsAgeGroup = T,
+  useConditionGroupEraLongTerm = T, 
+  useDrugEraStartLongTerm  = T, 
+  useMeasurementLongTerm = T,
+  endDays = -1
+)
+
+# 4. specify inclusion for data extraction
+# we restrict to patients in the target cohort with >=365 days
+# observation prior to index and only include patients once 
+# (the first cohort entry)
+restrictPlpDataSettings <- PatientLevelPrediction::createRestrictPlpDataSettings(
+  firstExposureOnly = T, 
+  washoutPeriod = 365
+)
+
+# 5. specify inclusion and time-at-risk
+# We are predicting the outcome occurring from 1 day after index until
+# 730 days after index.  We keep patients who drop out during the 
+# time-at-risk.
+populationSet <- PatientLevelPrediction::createStudyPopulationSettings(
+  requireTimeAtRisk = F, 
+  riskWindowStart = 1, 
+  riskWindowEnd = 730
+)
+
+# 6. specify the model
+# We train a LASSO logistic regression model but include the 
+# intercept in the regularization
+modelSetting <- PatientLevelPrediction::setLassoLogisticRegression(
+  forceIntercept = T
+  )
+
+# 7. specify the preprocessing
+# We use default preprocessing (normalize data and remove rare/redundant covariates)
+preprocessSettings <- PatientLevelPrediction::createPreprocessSettings()
+
+modelDesign3 <- PatientLevelPrediction::createModelDesign(
+  targetId = targetId,
+  outcomeId = outcomeId, 
+  restrictPlpDataSettings = restrictPlpDataSettings,
+  covariateSettings = covSet, 
+  runCovariateSummary = F,
+  modelSettings = modelSetting,
+  populationSettings = populationSet, 
+  preprocessSettings = preprocessSettings
+)
+
+```
+
+In this example we use three base models, but it is possible to add as many base models as desired.  
+
+### Ensemble Strategy
+
+Once you have specified the databaseDetails and defined all the base model designs, the next step is specifying the split settings (how much data will be used to develop each base model and how much is used to test the base models/ensemble) and the ensemble strategy, consisting of a filtering setting and a combination setting.
+
+As we are using a stacker, we will split the data into:
+- training data for the level 1 base models
+- training data for the level 2 stacker model
+- testing data for the ensemble
+
+
+The default split settings `PatientLevelPrediction::createDefaultSplitSetting()` splits the data randomly (by stratified by outcome label) into 25\% test data and 75\% train data.  The train data is split into 3 folds for cross validation.  
+
+For the stacker, the train data will be used by the level 1 base models and the test data will further split into data used to train the level 2 stacker model and the remaining will be used perform internal validation for the ensemble. Therefore, we will split the data into 50\% level 1 training data and 50\% test data (that will be split into 25\% level 2 training data and 25\% ensemble test data based on the input to `createStackerCombiner()`)
+
+```{r eval=FALSE}
+
+splitSettings <- PatientLevelPrediction::createDefaultSplitSetting(
+  testFraction = 0.5, 
+  trainFraction = 0.5
+  )
+
+```
+
+The filter settings specify criteria for including a base model in the ensemble.  It is a list with the options:
+
+1. `metric` - the metric to use when extracting the internal performance
+2. `evaluation` - either 'CV' or 'Train' specifying which internal performance evaluation type to use
+3. `minValue` - if this is set then a base model's `metric` for the `evaluation` is extracted and the base model is included into the ensemble if this value is greater or equal to `minValue`.
+3. `maxValue` - if this is set then a base model's `metric` for the `evaluation` is extracted and the base model is included into the ensemble if this value is lesser or equal to `maxValue`.
+
+In this example we will only include base models where the internal cross validation AUROC is between 0.5 and 1:
+
+```{r eval=FALSE}
+
+filterSettings <- list(
+    metric = 'AUROC',
+    evaluation = 'CV',
+    minValue = 0.5, 
+    maxValue = 1
+    )
+```
+
+The final setting is how to combine the base model that pass the filter.  This is specified by creating a `combinerSettings` object.  This can be create in a custom way, or you can select from some default functions to create this.  The default stacker function is: `EnsemblePatientLevelPrediction::createStackerCombiner`. 
+
+The inputs for the `EnsemblePatientLevelPrediction::createStackerCombiner` are:
+
+- a string `levelTwoType` that corresponds to the classifier that will be used to learn to combine the level 1 base predictions.  Currently only 'logisticRegressionStacker' a logistic model stacker is supported.  
+- a list `levelTwoHyperparameters` containing any hyper-parameters for the level two stacker.  For 'logisticRegressionStacker' this is NULL as there are no hyper-parameters for logistic regression.
+- a list `levelTwoDataSettings` that specifies whether the stacker will be learned using the 'CV' predictions or 'Test' predictions.  If using 'Test' then a proportion is requires to specify what proprotion of the 'Test' predictions will be used to learn the level 2 stacker model and the remainingn 'Test' predictions will be used to calculate the internal validation performance.
+
+
+```{r eval=FALSE}
+combinerSettings <- EnsemblePatientLevelPrediction::createStackerCombiner(
+  levelTwoType = 'logisticRegressionStacker',
+  levelTwoDataSettings = list(
+    type = 'Test', 
+    proportion = 0.5
+    )
+)
+
+# if you have smaller data and you dont want to split the Test data into two, you can train the stacker on the CV predictions using:
+
+combinerSettings2 <- EnsemblePatientLevelPrediction::createStackerCombiner(
+  levelTwoType = 'logisticRegressionStacker',
+  levelTwoDataSettings = list(type = 'CV')
+)
+
+```
+
+Finally, putting all these together, we run the `EnsemblePatientLevelPrediction::setEnsembleFromDesign()` function to create the ensemble settings:
+
+```{r eval=FALSE}
+ensembleSettings <- EnsemblePatientLevelPrediction::setEnsembleFromDesign(
+  modelDesignList = list(modelDesign1, modelDesign2, modelDesign3),
+  databaseDetails = databaseDetails,
+  splitSettings = splitSettings,
+  filterSettings = filterSettings,
+  combinerSettings = combinerSettings
+)
+```
+
+
+### Running The Ensemble Development
+
+The final step is now running the ensemble development.  This requires the ensemble setting, a log setting (specifying what progress text is output during the ensemble development) and the location to save the ensemble.  In this example we use the previously specified ensemble settings, we create a log setting named 'ensemble' and we save the ensemble to a directory named 'testingEnsemble' within the current working directory.
+
+```{r eval=FALSE}
+ensemble <- EnsemblePatientLevelPrediction::runEnsemble(
+  ensembleSettings = ensembleSettings,
+  logSettings = PatientLevelPrediction::createLogSettings(logName = 'ensemble'),
+  saveDirectory = './testingEnsemble'
+)
+
+```
+
+If all the settings are specified correctly, you will see progress text telling you the data are being extracted, then telling you each base model is being developed and finally telling you the evaluation of the base models and the ensemble.  The result will be `ensemble` that is an object of class `plpEnsemble` containing:
+
+1. model - the ensemble model
+2. prediction - a data.frame with the predictions for the ensemble and base models
+3. performanceEvaluation - a list of objects with the internal validation of the base models and ensemble
+4. analysisSettings - the analysisId for the ensemble
+5. executionSettings - information about the execution of the ensemble development
+
+The function `EnsemblePatientLevelPrediction::runEnsemble()` will save the ensemble result in the directory specified by `saveDirectory`, but you can save it somewhere else by running:
+
+```{r eval=FALSE}
+
+EnsemblePatientLevelPrediction::saveEnsemble(
+  ensemble,
+  'C:/any/location/here'
+)
+
+```
+
+
+## Example 3: Developing a Fusion ensemble using a list of runPlp objects
 
 In this example we show you how you can develop an ensemble using previously developed base models (maybe you have developed models previously and wish to combine them).  This can be used to combine models developed using different databases.
 
