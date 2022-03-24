@@ -17,7 +17,9 @@ Suggests:
     DT,
     Eunomia,
     FeatureExtraction,
+    formatR,
     knitr,
+    markdown,
     rmarkdown,
     shiny,
     testthat

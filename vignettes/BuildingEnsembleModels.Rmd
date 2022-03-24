@@ -79,7 +79,7 @@ A visualization of how an ensemble is developed can be seen below:
 
 ## Example 1: Developing a Fusion ensemble using a list of model designs
 
-In this example we will show you how to develop an ensemble from scratch using an OMOP CDM database connection and model designs (created using the [`PatientLevelPrediction`](http://github.com/OHDSI/PatientLevelPrediction) createModelDesign() function).
+In this example we will show you how to develop an ensemble from scratch using an OMOP CDM database connection and model designs (created using the [`PatientLevelPrediction`](http://github.com/OHDSI/PatientLevelPrediction) `createModelDesign()` function).
 
 
 ### Database connection
