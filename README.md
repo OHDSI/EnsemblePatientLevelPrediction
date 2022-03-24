@@ -11,6 +11,8 @@ Introduction
 
 EnsemblePatientLevelPrediction is an R package for building and validating ensemble patient-level predictive models using data in the OMOP Common Data Model format.  The package expands the OHDSI R PatientLevelPrediction package to enable ensemble learning.
 
+In our study [here](https://www.researchsquare.com/article/rs-1217376/v1) we found that combining models developed using different databases resulted in models that had better discrimination performance compared to the level 1 models (single database) when transported to new data.  However, calibration was poor.  This has prompted the EnsemblePatientLevelPrediction package where users can combine models developed on the same database or models developed on different databases.
+
 
 User Documentation
 ==================

@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">EnsemblePatientLevelPrediction</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2</span>
       </span>
     </div>
 
@@ -176,6 +176,25 @@
     </tbody><tbody>
       <tr>
         <th colspan="2">
+          <h2 id="section-filter-functions" class="hasAnchor"><a href="#section-filter-functions" class="anchor"></a>Filter functions</h2>
+          <p class="section-desc"><p>Functions for filtering base level models.</p></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="filterBaseModels.html">filterBaseModels()</a></code> </p>
+        </td>
+        <td><p>Filter our base level 1 models that do not perform sufficiently well</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
           <h2 id="section-different-combiners" class="hasAnchor"><a href="#section-different-combiners" class="anchor"></a>Different combiners</h2>
           <p class="section-desc"><p>Functions combining based models (e.g., fusion or stacking).</p></p>
         </th>
@@ -191,6 +210,13 @@
           <p><code><a href="createFusionCombiner.html">createFusionCombiner()</a></code> </p>
         </td>
         <td><p>Create the settings for a fusion ensemble</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="createStackerCombiner.html">createStackerCombiner()</a></code> </p>
+        </td>
+        <td><p>Create the settings for a stacker ensemble - this is an emsemble that learns how to combine 
+ level 1 models using labelled data</p></td>
       </tr>
     </tbody><tbody>
       <tr>

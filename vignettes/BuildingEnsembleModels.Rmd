@@ -852,7 +852,7 @@ filterSettings <- list(
     metric = 'AUROC',
     evaluation = 'CV',
     minValue = 0.5, 
-    maxValue = 1,
+    maxValue = 1
     )
 ```
 

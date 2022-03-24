@@ -1,6 +1,6 @@
 #' Create the settings for a stacker ensemble - this is an emsemble that learns how to combine 
 #'  level 1 models using labelled data
-#' @param levelTwoType         The type of level 2 model (linear, GBM, randomForest,...)
+#' @param levelTwoType         The type of level 2 model (currently only supports "logisticRegressionStacker")
 #' @param levelTwoHyperparameters The hyperparameter settings for the level 2 model
 #' @param levelTwoDataSettings  The settings specifying the data type to use to learn the level 2 model and the proportion of the data  
 #'
@@ -17,7 +17,7 @@
 #' }
 #' @export
 createStackerCombiner <- function(
-  levelTwoType = "logisticRegression",
+  levelTwoType = "logisticRegressionStacker",
   levelTwoHyperparameters = NULL,
   levelTwoDataSettings = list(type = 'CV')
 ) {

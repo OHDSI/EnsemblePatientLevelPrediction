@@ -6,13 +6,13 @@
  level 1 models using labelled data}
 \usage{
 createStackerCombiner(
-  levelTwoType = "logisticRegression",
+  levelTwoType = "logisticRegressionStacker",
   levelTwoHyperparameters = NULL,
   levelTwoDataSettings = list(type = "CV")
 )
 }
 \arguments{
-\item{levelTwoType}{The type of level 2 model (linear, GBM, randomForest,...)}
+\item{levelTwoType}{The type of level 2 model (currently only supports "logisticRegressionStacker")}
 
 \item{levelTwoHyperparameters}{The hyperparameter settings for the level 2 model}
 

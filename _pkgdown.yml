@@ -48,11 +48,17 @@ reference:
       - setEnsembleFromDesign
       - setEnsembleFromResults
       - setEnsembleFromFiles
+  - title: "Filter functions"
+    desc: >
+      Functions for filtering base level models.
+    contents:
+      - filterBaseModels
   - title: "Different combiners"
     desc: >
       Functions combining based models (e.g., fusion or stacking).
     contents:
       - createFusionCombiner
+      - createStackerCombiner
   - title: "Creating the ensemble "
     desc: >
       Functions creating an ensemble model and then applying it to make predictions.

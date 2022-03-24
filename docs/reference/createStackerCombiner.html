@@ -6,7 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>EnsemblePatientLevelPrediction — EnsemblePatientLevelPrediction • EnsemblePatientLevelPrediction</title>
+<title>Create the settings for a stacker ensemble - this is an emsemble that learns how to combine 
+ level 1 models using labelled data — createStackerCombiner • EnsemblePatientLevelPrediction</title>
 
 
 <!-- jquery -->
@@ -39,8 +40,10 @@
 
 
 
-<meta property="og:title" content="EnsemblePatientLevelPrediction — EnsemblePatientLevelPrediction" />
-<meta property="og:description" content="A package for developing ensembles using the PatientLevelPrediction framework" />
+<meta property="og:title" content="Create the settings for a stacker ensemble - this is an emsemble that learns how to combine 
+ level 1 models using labelled data — createStackerCombiner" />
+<meta property="og:description" content="Create the settings for a stacker ensemble - this is an emsemble that learns how to combine 
+ level 1 models using labelled data" />
 
 
 
@@ -132,18 +135,53 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>EnsemblePatientLevelPrediction</h1>
+    <h1>Create the settings for a stacker ensemble - this is an emsemble that learns how to combine 
+ level 1 models using labelled data</h1>
     
-    <div class="hidden name"><code>EnsemblePatientLevelPrediction.Rd</code></div>
+    <div class="hidden name"><code>createStackerCombiner.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>A package for developing ensembles using the PatientLevelPrediction framework</p>
+    <p>Create the settings for a stacker ensemble - this is an emsemble that learns how to combine 
+ level 1 models using labelled data</p>
     </div>
 
+    <pre class="usage"><span class='fu'>createStackerCombiner</span><span class='op'>(</span>
+  levelTwoType <span class='op'>=</span> <span class='st'>"logisticRegressionStacker"</span>,
+  levelTwoHyperparameters <span class='op'>=</span> <span class='cn'>NULL</span>,
+  levelTwoDataSettings <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>"CV"</span><span class='op'>)</span>
+<span class='op'>)</span></pre>
+
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>levelTwoType</th>
+      <td><p>The type of level 2 model (currently only supports "logisticRegressionStacker")</p></td>
+    </tr>
+    <tr>
+      <th>levelTwoHyperparameters</th>
+      <td><p>The hyperparameter settings for the level 2 model</p></td>
+    </tr>
+    <tr>
+      <th>levelTwoDataSettings</th>
+      <td><p>The settings specifying the data type to use to learn the level 2 model and the proportion of the data</p></td>
+    </tr>
+    </table>
 
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
 
+<span class='va'>stackerCombine</span> <span class='op'>&lt;-</span> <span class='fu'>createStackerCombiner</span><span class='op'>(</span>
+levelTwoType <span class='op'>=</span> <span class='st'>"logisticRegressionStacker"</span>,
+levelTwoHyperparameters <span class='op'>=</span> <span class='cn'>NULL</span>,
+levelTwoDataSettings <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>type <span class='op'>=</span> <span class='st'>'Test'</span>, proportion <span class='op'>=</span> <span class='fl'>0.5</span><span class='op'>)</span>
+<span class='op'>)</span>
+
+
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
