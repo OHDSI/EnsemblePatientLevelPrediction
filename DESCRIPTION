@@ -22,7 +22,8 @@ Suggests:
     markdown,
     rmarkdown,
     shiny,
-    testthat
+    testthat,
+    xgboost
 Remotes:
     ohdsi/PatientLevelPrediction,
     ohdsi/FeatureExtraction,
