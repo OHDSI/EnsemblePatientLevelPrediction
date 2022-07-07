@@ -2,9 +2,6 @@
 #' @param modelDesignList    A list of model designs to develop and then combine. Each model design is
 #'                           created by \code{PatientLevelPrediction::createModelDesign()}
 #' @param databaseDetails    The OMOP CDM database details and connection for extracting the data
-#' @param splitSettings      The test/train and cross validation settings created using
-#'                           \code{PatientLevelPrediction::createDefaultSplitSetting()} or via a custom
-#'                           function
 #' @param filterSettings     Setting specifying rules to use to filter (remove) any model specified in
 #'                           the list of model designs that performs insufficiently (these models get
 #'                           ignored from the ensemble)
@@ -31,7 +28,6 @@
 #'
 #' ensembleSettings <- setEnsembleFromDesign(modelDesignList = list(modelDesign1, modelDesign2),
 #'                                           databaseDetails = PatientLevelPrediction::createDatabaseDetails(),
-#'                                           splitSettings = PatientLevelPrediction::createDefaultSplitSetting(),
 #'                                           filterSettings = list(minValue = 0.5, maxValue = 1),
 #'                                           combinerSettings = createFusionCombiner(type = "uniform",
 #'                                                                                   evaluation = "CV",
@@ -40,7 +36,6 @@
 #' @export
 setEnsembleFromDesign <- function(modelDesignList,
                                   databaseDetails,
-                                  splitSettings = PatientLevelPrediction::createDefaultSplitSetting(),
                                   filterSettings,
                                   combinerSettings) {
   # checking the class of the modelList
@@ -90,7 +85,6 @@ setEnsembleFromDesign <- function(modelDesignList,
         ),
       databaseDetails = databaseDetails,
       modelDesignList = modelDesignList,
-      splitSettings = splitSettings,
       filterSettings = filterSettings,
       combinerSettings = combinerSettings
     )

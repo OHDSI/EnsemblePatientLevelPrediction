@@ -3,20 +3,43 @@
 #' @param logSettings        The settings used to specify the logging, created using
 #'                           \code{PatientLevelPrediction::createLogSettings()}
 #' @param saveDirectory      The location to save the ensemble
+#' @param cohortDefinitions  The cohort definitions for cohorts used in the ensemble
 #'
 #' @export
 runEnsemble <- function(ensembleSettings,
                         logSettings = PatientLevelPrediction::createLogSettings(logName = "ensemble"),
-                        saveDirectory) {
+                        saveDirectory,
+                        cohortDefinitions = NULL) {
+  
+  if(is.null(cohortDefinitions)){
+    ids <- unique(
+      unlist(
+        lapply(
+          ensembleSettings$modelDesignList, 
+          function(x){c(x$targetId, x$outcomeId)}
+        )
+      )
+    )
+    cohortDefinitions <- list()
+    length(cohortDefinitions) <- length(ids)
+    for(i in 1:length(ids)){
+      cohortDefinitions[[i]] <- list(
+        id = ids[i], 
+        name = paste0('cohort: ',ids[i])
+      ) 
+    }
+  }
 
   if (ensembleSettings$executionList$extractData) {
     ParallelLogger::logInfo("Extracting data")
-    PatientLevelPrediction::runMultiplePlp(databaseDetails = ensembleSettings$databaseDetails,
-                                           modelDesignList = ensembleSettings$modelDesignList,
-                                           onlyFetchData = T,
-                                           splitSettings = ensembleSettings$splitSettings,
-                                           logSettings = logSettings,
-                                           saveDirectory = saveDirectory)
+    PatientLevelPrediction::runMultiplePlp(
+      databaseDetails = ensembleSettings$databaseDetails,
+      cohortDefinitions = cohortDefinitions,
+      modelDesignList = ensembleSettings$modelDesignList,
+      onlyFetchData = T,
+      logSettings = logSettings,
+      saveDirectory = saveDirectory
+    )
   }
 
   if (ensembleSettings$executionList$trainModels) {
@@ -24,9 +47,9 @@ runEnsemble <- function(ensembleSettings,
     ParallelLogger::logInfo("Developing level 1 models")
     PatientLevelPrediction::runMultiplePlp(
       databaseDetails = ensembleSettings$databaseDetails,
+      cohortDefinitions = cohortDefinitions,
       modelDesignList = ensembleSettings$modelDesignList,
       onlyFetchData = F,
-      splitSettings = ensembleSettings$splitSettings,
       logSettings = logSettings,
       saveDirectory = saveDirectory
     )

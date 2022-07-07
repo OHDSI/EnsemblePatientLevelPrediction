@@ -8,7 +8,7 @@ databaseDetails <- PatientLevelPrediction::createDatabaseDetails(
   cdmDatabaseSchema = "main",
   cohortDatabaseSchema = "main", 
   cohortTable = "cohort", 
-  cohortId = 4, 
+  targetId = 4, 
   outcomeIds = 3,
   outcomeDatabaseSchema = "main", 
   outcomeTable =  "cohort", 
@@ -63,6 +63,11 @@ modelSetting <- PatientLevelPrediction::setLassoLogisticRegression()
 # We use default preprocessing (normalize data and remove rare/redundant covariates)
 preprocessSettings <- PatientLevelPrediction::createPreprocessSettings()
 
+splitSettings <- PatientLevelPrediction::createDefaultSplitSetting(
+  testFraction = 0.5, 
+  trainFraction = 0.5
+)
+
 # input these into PatientLevelPrediction::createModelDesign
 # this generates a modelDesign object
 modelDesign1 <- PatientLevelPrediction::createModelDesign(
@@ -73,7 +78,8 @@ modelDesign1 <- PatientLevelPrediction::createModelDesign(
   runCovariateSummary = F,
   modelSettings = modelSetting,
   populationSettings = populationSet, 
-  preprocessSettings = preprocessSettings
+  preprocessSettings = preprocessSettings,
+  splitSettings = splitSettings
 )
 
 targetId <- 4
@@ -133,7 +139,8 @@ modelDesign2 <- PatientLevelPrediction::createModelDesign(
   runCovariateSummary = F,
   modelSettings = modelSetting,
   populationSettings = populationSet, 
-  preprocessSettings = preprocessSettings
+  preprocessSettings = preprocessSettings, 
+  splitSettings = splitSettings
 )
 
 targetId <- 4
@@ -197,13 +204,11 @@ modelDesign3 <- PatientLevelPrediction::createModelDesign(
   runCovariateSummary = F,
   modelSettings = modelSetting,
   populationSettings = populationSet, 
-  preprocessSettings = preprocessSettings
+  preprocessSettings = preprocessSettings,
+  splitSettings = splitSettings
 )
 
-splitSettings <- PatientLevelPrediction::createDefaultSplitSetting(
-  testFraction = 0.5, 
-  trainFraction = 0.5
-)
+
 
 filterSettings <- list(
   metric = 'AUROC',
@@ -220,7 +225,6 @@ combinerSettings <- EnsemblePatientLevelPrediction::createStackerCombiner(
 ensembleSettings <- setEnsembleFromDesign(
   modelDesignList = list(modelDesign1, modelDesign2, modelDesign3),
   databaseDetails = databaseDetails,
-  splitSettings = splitSettings,
   filterSettings = filterSettings,
   combinerSettings = combinerSettings
 )
@@ -241,7 +245,6 @@ combinerSettings2 <- EnsemblePatientLevelPrediction::createStackerCombiner(
 ensembleSettings2 <- setEnsembleFromDesign(
   modelDesignList = list(modelDesign1, modelDesign2, modelDesign3),
   databaseDetails = databaseDetails,
-  splitSettings = splitSettings,
   filterSettings = filterSettings,
   combinerSettings = combinerSettings2
 )

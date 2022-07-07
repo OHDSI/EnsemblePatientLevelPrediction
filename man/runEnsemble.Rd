@@ -7,7 +7,8 @@
 runEnsemble(
   ensembleSettings,
   logSettings = PatientLevelPrediction::createLogSettings(logName = "ensemble"),
-  saveDirectory
+  saveDirectory,
+  cohortDefinitions = NULL
 )
 }
 \arguments{
@@ -17,6 +18,8 @@ runEnsemble(
 \code{PatientLevelPrediction::createLogSettings()}}
 
 \item{saveDirectory}{The location to save the ensemble}
+
+\item{cohortDefinitions}{The cohort definitions for cohorts used in the ensemble}
 }
 \description{
 Code to run the ensemble model development

@@ -6,7 +6,6 @@ test_that("setEnsembleFromDesign works", {
 fromDesign <- setEnsembleFromDesign(
   modelDesignList = list(modelDesign1, modelDesign2),
   databaseDetails = databaseDetails,
-  splitSettings = PatientLevelPrediction::createDefaultSplitSetting(),
   filterSettings = list(
     minValue = 0.5, 
     maxValue = 1,
@@ -22,7 +21,7 @@ fromDesign <- setEnsembleFromDesign(
 
 expectedNames <- c(
   'executionList', 'databaseDetails', 
-  'modelDesignList', 'splitSettings', 
+  'modelDesignList', 
   'filterSettings', 'combinerSettings'
 )
 

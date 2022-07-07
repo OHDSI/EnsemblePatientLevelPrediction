@@ -25,7 +25,7 @@ databaseDetails <- PatientLevelPrediction::createDatabaseDetails(connectionDetai
                                                                  cdmDatabaseSchema = "main",
                                                                  cohortDatabaseSchema = "main",
                                                                  cohortTable = "cohort",
-                                                                 cohortId = 4,
+                                                                 targetId = 4,
                                                                  outcomeIds = 3,
                                                                  outcomeDatabaseSchema = "main",
                                                                  outcomeTable = "cohort",

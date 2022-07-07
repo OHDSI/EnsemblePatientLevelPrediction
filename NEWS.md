@@ -1,3 +1,7 @@
+EnsemblePatientLevelPrediction 0.1.0
+======================
+- Updated for PatientLevelPrediction 5.4.0 that has splitSettings in ModelDesign
+
 EnsemblePatientLevelPrediction 0.0.2
 ======================
 - Added stacker ensemble code (currently only for logistic regression)
