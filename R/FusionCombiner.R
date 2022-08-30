@@ -97,7 +97,7 @@ applyWeightedEnsemble <- function(settings, predictionList) {
   prediction <- createPredictionMatrix(predictionList)
 
   modelNames <- grep("basemodel", colnames(prediction))
-  prediction$ensemble <- as.matrix(prediction[, modelNames]) %*% as.matrix(settings$weights)
+  prediction$ensemble <- as.vector(as.matrix(prediction[, modelNames]) %*% as.matrix(settings$weights))
 
   # now convert to: rowId, outcomeCount, evaluationType, value with evaluationType =
   # modelType+evaluationType
