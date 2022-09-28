@@ -67,7 +67,7 @@ saveEnsembleModel <- function(ensembleModel, dirPath) {
   }
 
   # save the models - not needed if models already saved
-  if (class(ensembleModel$model$baseModels[[1]]) == "plpModel") {
+  if (inherits(ensembleModel$model$baseModels[[1]], "plpModel")) {
     for (i in 1:length(ensembleModel$model$baseModels)) {
       PatientLevelPrediction::savePlpModel(
         plpModel = ensembleModel$model$baseModels[[i]],

@@ -39,11 +39,11 @@ setEnsembleFromDesign <- function(modelDesignList,
                                   filterSettings,
                                   combinerSettings) {
   # checking the class of the modelList
-  if (class(modelDesignList) == "modelDesign") {
+  if (inherits(modelDesignList, "modelDesign")) {
     modelDesignList <- list(modelDesignList)
   }
   if (sum(unlist(lapply(modelDesignList,
-                        function(x) class(x) == "modelDesign"))) != length(modelDesignList)) {
+                        function(x) inherits(x, "modelDesign")))) != length(modelDesignList)) {
     stop("Incorrect modelDesignList - must be a list of modelDesign")
   }
 
@@ -116,10 +116,10 @@ setEnsembleFromDesign <- function(modelDesignList,
 #' @export
 setEnsembleFromResults <- function(resultList, filterSettings, combinerSettings) {
   # checking the class of the modelList
-  if (class(resultList) == "runPlp") {
+  if (inherits(resultList, "runPlp")) {
     resultList <- list(resultList)
   }
-  if (sum(unlist(lapply(resultList, function(x) class(x) == "runPlp"))) != length(resultList)) {
+  if (sum(unlist(lapply(resultList, function(x) inherits(x, "runPlp")))) != length(resultList)) {
     stop("Incorrect resultList - must be a list of runPlp objects")
   }
 
@@ -169,7 +169,7 @@ setEnsembleFromResults <- function(resultList, filterSettings, combinerSettings)
 #' @export
 setEnsembleFromFiles <- function(fileVector, filterSettings, combinerSettings) {
   # checking the class of the modelList
-  if (class(fileVector) != "character") {
+  if (!inherits(fileVector, "character")) {
     stop("Incorrect fileVector")
   }
 

@@ -10,7 +10,7 @@ test_that("createStackerCombiner works", {
   )
   
   expect_equal(attr(result, 'combineFunction'), 'learnStacker')
-  expect_equal(class(result), 'combinerSettings')
+  expect_true(inherits(result, 'combinerSettings'))
   
   expect_true(!is.null(result$levelTwoDataSettings$seed))
   
