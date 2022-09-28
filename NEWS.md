@@ -1,3 +1,7 @@
+EnsemblePatientLevelPrediction 1.0.0
+======================
+- Updated for PatientLevelPrediction 6.0.0 
+
 EnsemblePatientLevelPrediction 0.1.0
 ======================
 - Updated for PatientLevelPrediction 5.4.0 that has splitSettings in ModelDesign

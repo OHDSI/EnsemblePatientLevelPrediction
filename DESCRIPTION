@@ -1,7 +1,7 @@
 Package: EnsemblePatientLevelPrediction
 Type: Package
 Title: Expanding PatientLevelPrediction with ensemble capabilities
-Version: 0.1.0
+Version: 1.0.0
 Author: Jenna Reps [aut, cre]
 Maintainer: Jenna M Reps <reps@ohdsi.org>
 Description: This package uses functions in PatientLevelPrediction to develop and evaluate ensemble models.
@@ -9,7 +9,7 @@ Depends:
     R (>= 3.5.0)
 Imports:
     dplyr,
-    PatientLevelPrediction (>= 5.4.0),
+    PatientLevelPrediction (>= 6.0.0),
     ParallelLogger,
     rlang,
     tidyr

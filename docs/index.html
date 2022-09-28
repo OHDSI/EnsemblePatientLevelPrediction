@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">EnsemblePatientLevelPrediction</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.0</span>
       </span>
     </div>
 
@@ -47,7 +49,7 @@
   <a href="reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -59,10 +61,10 @@
   </ul>
 </li>
 <li>
-  <a href="https://ohdsi.github.io/PatientLevelPrediction">PatientLevelPrediction</a>
+  <a href="https://ohdsi.github.io/PatientLevelPrediction" class="external-link">PatientLevelPrediction</a>
 </li>
 <li>
-  <a href="https://ohdsi.github.io/PatientLevelPrediction/articles/BestPractices.html">Best Practices</a>
+  <a href="https://ohdsi.github.io/PatientLevelPrediction/articles/BestPractices.html" class="external-link">Best Practices</a>
 </li>
 <li>
   <a href="news/index.html">Changelog</a>
@@ -70,10 +72,10 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://ohdsi.github.io/Hades"><img src='https://ohdsi.github.io/Hades/images/hadesMini.png' width=80 height=17 style='vertical-align: top;'></a>
+  <a href="https://ohdsi.github.io/Hades" class="external-link"><img src='https://ohdsi.github.io/Hades/images/hadesMini.png' width=80 height=17 style='vertical-align: top;'></a>
 </li>
 <li>
-  <a href="https://github.com/OHDSI/EnsemblePatientLevelPrediction">
+  <a href="https://github.com/OHDSI/EnsemblePatientLevelPrediction" class="external-link">
     <span class="fa fa-github fa-lg"></span>
      
   </a>
@@ -91,98 +93,108 @@
       </header><div class="row">
   <div class="contents col-md-9">
 
-<div id="ensemblepatientlevelprediction" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#ensemblepatientlevelprediction" class="anchor"></a>EnsemblePatientLevelPrediction</h1></div>
+<div class="section level1">
+<div class="page-header"><h1 id="ensemblepatientlevelprediction">EnsemblePatientLevelPrediction<a class="anchor" aria-label="anchor" href="#ensemblepatientlevelprediction"></a>
+</h1></div>
 
-<p>EnsemblePatientLevelPrediction is part of <a href="https://ohdsi.github.io/Hades">HADES</a>.</p>
+<p>EnsemblePatientLevelPrediction is part of <a href="https://ohdsi.github.io/Hades" class="external-link">HADES</a>.</p>
 </div>
-<div id="introduction" class="section level1">
-<h1 class="hasAnchor">
-<a href="#introduction" class="anchor"></a>Introduction</h1>
+<div class="section level1">
+<h1 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h1>
 <p>EnsemblePatientLevelPrediction is an R package for building and validating ensemble patient-level predictive models using data in the OMOP Common Data Model format. The package expands the OHDSI R PatientLevelPrediction package to enable ensemble learning.</p>
-<p>In our study <a href="https://www.researchsquare.com/article/rs-1217376/v1">here</a> we found that combining models developed using different databases resulted in models that had better discrimination performance compared to the level 1 models (single database) when transported to new data. However, calibration was poor. This has prompted the EnsemblePatientLevelPrediction package where users can combine models developed on the same database or models developed on different databases.</p>
+<p>In our study <a href="https://www.researchsquare.com/article/rs-1217376/v1" class="external-link">here</a> we found that combining models developed using different databases resulted in models that had better discrimination performance compared to the level 1 models (single database) when transported to new data. However, calibration was poor. This has prompted the EnsemblePatientLevelPrediction package where users can combine models developed on the same database or models developed on different databases.</p>
 </div>
-<div id="user-documentation" class="section level1">
-<h1 class="hasAnchor">
-<a href="#user-documentation" class="anchor"></a>User Documentation</h1>
-<p>Vignette: <a href="https://raw.githubusercontent.com/OHDSI/EnsemblePatientLevelPrediction/main/inst/doc/BuildingEnsembleModels.pdf">EnsemblePatientLevelPrediction</a></p>
-<p>Website: Documentation can be found on the <a href="https://ohdsi.github.io/EnsemblePatientLevelPrediction">package website</a>.</p>
-<p>Package manual: <a href="https://github.com/OHDSI/EnsemblePatientLevelPrediction/blob/master/extras/EnsemblePatientLevelPrediction.pdf">EnsemblePatientLevelPrediction.pdf</a></p>
+<div class="section level1">
+<h1 id="user-documentation">User Documentation<a class="anchor" aria-label="anchor" href="#user-documentation"></a>
+</h1>
+<p>Vignette: <a href="https://raw.githubusercontent.com/OHDSI/EnsemblePatientLevelPrediction/main/inst/doc/BuildingEnsembleModels.pdf" class="external-link">EnsemblePatientLevelPrediction</a></p>
+<p>Website: Documentation can be found on the <a href="https://ohdsi.github.io/EnsemblePatientLevelPrediction" class="external-link">package website</a>.</p>
+<p>Package manual: <a href="https://github.com/OHDSI/EnsemblePatientLevelPrediction/blob/master/extras/EnsemblePatientLevelPrediction.pdf" class="external-link">EnsemblePatientLevelPrediction.pdf</a></p>
 </div>
-<div id="support" class="section level1">
-<h1 class="hasAnchor">
-<a href="#support" class="anchor"></a>Support</h1>
+<div class="section level1">
+<h1 id="support">Support<a class="anchor" aria-label="anchor" href="#support"></a>
+</h1>
 <ul>
-<li>Developer questions/comments/feedback: <a href="http://forums.ohdsi.org/c/developers">OHDSI Forum</a>
+<li>Developer questions/comments/feedback: <a href="http://forums.ohdsi.org/c/developers" class="external-link">OHDSI Forum</a>
 </li>
-<li>We use the <a href="https://github.com/OHDSI/EnsemblePatientLevelPrediction/issues">GitHub issue tracker</a> for all bugs/issues/enhancements</li>
+<li>We use the <a href="https://github.com/OHDSI/EnsemblePatientLevelPrediction/issues" class="external-link">GitHub issue tracker</a> for all bugs/issues/enhancements</li>
 </ul>
 </div>
-<div id="contributing" class="section level1">
-<h1 class="hasAnchor">
-<a href="#contributing" class="anchor"></a>Contributing</h1>
-<p>Read <a href="https://ohdsi.github.io/Hades/contribute.html">here</a> how you can contribute to this package.</p>
+<div class="section level1">
+<h1 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>
+</h1>
+<p>Read <a href="https://ohdsi.github.io/Hades/contribute.html" class="external-link">here</a> how you can contribute to this package.</p>
 </div>
-<div id="license" class="section level1">
-<h1 class="hasAnchor">
-<a href="#license" class="anchor"></a>License</h1>
+<div class="section level1">
+<h1 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
+</h1>
 <p>EnsemblePatientLevelPrediction is licensed under Apache License 2.0</p>
 </div>
-<div id="development" class="section level1">
-<h1 class="hasAnchor">
-<a href="#development" class="anchor"></a>Development</h1>
+<div class="section level1">
+<h1 id="development">Development<a class="anchor" aria-label="anchor" href="#development"></a>
+</h1>
 <p>EnsemblePatientLevelPrediction is being developed in R Studio.</p>
 <p>Beta</p>
 </div>
-<div id="acknowledgements" class="section level1">
-<h1 class="hasAnchor">
-<a href="#acknowledgements" class="anchor"></a>Acknowledgements</h1>
-<ul>
-<li>The package is maintained by Jenna Reps</li>
-</ul>
+<div class="section level1">
+<h1 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>
+</h1>
+<ul><li>The package is maintained by Jenna Reps</li></ul>
 </div>
 
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Ask a question at <br><a href="http://forums.ohdsi.org">http://​forums.ohdsi.org</a>
-</li>
+<li><a href="http://forums.ohdsi.org" class="external-link">Ask a question</a></li>
 </ul>
 </div>
+
 <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li>Apache License 2.0</li>
 </ul>
 </div>
+
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
+<ul class="list-unstyled">
+<li><a href="authors.html#citation">Citing EnsemblePatientLevelPrediction</a></li>
+</ul>
+</div>
+
 <div class="developers">
-<h2>Developers</h2>
+<h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>Jenna M Reps <br><small class="roles"> Maintainer </small>  </li>
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/OHDSI/EnsemblePatientLevelPrediction/actions?query=workflow%3AR-CMD-check"><img src="https://github.com/OHDSI/EnsemblePatientLevelPrediction/workflows/R-CMD-check/badge.svg" alt="Build Status"></a></li>
-<li><a href="https://codecov.io/github/OHDSI/EnsemblePatientLevelPrediction?branch=main"><img src="https://codecov.io/github/OHDSI/EnsemblePatientLevelPrediction/coverage.svg?branch=main" alt="codecov.io"></a></li>
+<li><a href="https://github.com/OHDSI/EnsemblePatientLevelPrediction/actions?query=workflow%3AR-CMD-check" class="external-link"><img src="https://github.com/OHDSI/EnsemblePatientLevelPrediction/workflows/R-CMD-check/badge.svg" alt="Build Status"></a></li>
+<li><a href="https://codecov.io/github/OHDSI/EnsemblePatientLevelPrediction?branch=main" class="external-link"><img src="https://codecov.io/github/OHDSI/EnsemblePatientLevelPrediction/coverage.svg?branch=main" alt="codecov.io"></a></li>
 </ul>
 </div>
-</div>
+
+  </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Jenna M Reps.</p>
+  <p></p>
+<p>Developed by Jenna M Reps.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer>
@@ -190,6 +202,8 @@
 
   
 
+
+  
 
   </body>
 </html>

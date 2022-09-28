@@ -94,7 +94,7 @@ Eunomia::createCohorts(connectionDetails)
 
 databaseDetails <- PatientLevelPrediction::createDatabaseDetails(
   connectionDetails = connectionDetails, 
-  cdmDatabaseSchema = "main",
+  cdmDatabaseSchema = "main", cdmDatabaseId = 'eunomia',
   cohortDatabaseSchema = "main", 
   cohortTable = "cohort", 
   cohortId = 4, 
@@ -444,7 +444,7 @@ Eunomia::createCohorts(connectionDetails)
 
 databaseDetails <- PatientLevelPrediction::createDatabaseDetails(
   connectionDetails = connectionDetails, 
-  cdmDatabaseSchema = "main",
+  cdmDatabaseSchema = "main", cdmDatabaseId = 'eunomia',
   cohortDatabaseSchema = "main", 
   cohortTable = "cohort", 
   cohortId = 4, 
