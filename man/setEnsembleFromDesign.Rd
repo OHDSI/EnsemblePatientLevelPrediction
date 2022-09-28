@@ -7,7 +7,6 @@
 setEnsembleFromDesign(
   modelDesignList,
   databaseDetails,
-  splitSettings = PatientLevelPrediction::createDefaultSplitSetting(),
   filterSettings,
   combinerSettings
 )
@@ -17,10 +16,6 @@ setEnsembleFromDesign(
 created by \code{PatientLevelPrediction::createModelDesign()}}
 
 \item{databaseDetails}{The OMOP CDM database details and connection for extracting the data}
-
-\item{splitSettings}{The test/train and cross validation settings created using
-\code{PatientLevelPrediction::createDefaultSplitSetting()} or via a custom
-function}
 
 \item{filterSettings}{Setting specifying rules to use to filter (remove) any model specified in
 the list of model designs that performs insufficiently (these models get
@@ -52,7 +47,6 @@ modelDesign2 <- PatientLevelPrediction::createModelDesign(targetId = 4,
 
 ensembleSettings <- setEnsembleFromDesign(modelDesignList = list(modelDesign1, modelDesign2),
                                           databaseDetails = PatientLevelPrediction::createDatabaseDetails(),
-                                          splitSettings = PatientLevelPrediction::createDefaultSplitSetting(),
                                           filterSettings = list(minValue = 0.5, maxValue = 1),
                                           combinerSettings = createFusionCombiner(type = "uniform",
                                                                                   evaluation = "CV",

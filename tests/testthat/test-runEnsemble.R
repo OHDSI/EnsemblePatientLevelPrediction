@@ -5,6 +5,6 @@ test_that("runEnsemble works", {
   
   expect_true(dir.exists(file.path(saveDirectory, 'Ensemble')))
   
-  expect_equal(class(ensemble), 'plpEnsemble')
+  expect_true(inherits(ensemble, 'plpEnsemble'))
 
 })

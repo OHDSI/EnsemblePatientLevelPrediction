@@ -22,10 +22,10 @@ covSet <- FeatureExtraction::createCovariateSettings(useDemographicsGender = T,
                                                      endDays = -1)
 
 databaseDetails <- PatientLevelPrediction::createDatabaseDetails(connectionDetails = connectionDetails,
-                                                                 cdmDatabaseSchema = "main",
+                                                                 cdmDatabaseSchema = "main", cdmDatabaseId = 'eunomia',
                                                                  cohortDatabaseSchema = "main",
                                                                  cohortTable = "cohort",
-                                                                 cohortId = 4,
+                                                                 targetId = 4,
                                                                  outcomeIds = 3,
                                                                  outcomeDatabaseSchema = "main",
                                                                  outcomeTable = "cohort",

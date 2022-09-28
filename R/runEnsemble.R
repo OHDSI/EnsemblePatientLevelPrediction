@@ -3,20 +3,24 @@
 #' @param logSettings        The settings used to specify the logging, created using
 #'                           \code{PatientLevelPrediction::createLogSettings()}
 #' @param saveDirectory      The location to save the ensemble
+#' @param cohortDefinitions  The cohort definitions for cohorts used in the ensemble
 #'
 #' @export
 runEnsemble <- function(ensembleSettings,
                         logSettings = PatientLevelPrediction::createLogSettings(logName = "ensemble"),
-                        saveDirectory) {
-
+                        saveDirectory,
+                        cohortDefinitions = NULL) {
+  
   if (ensembleSettings$executionList$extractData) {
     ParallelLogger::logInfo("Extracting data")
-    PatientLevelPrediction::runMultiplePlp(databaseDetails = ensembleSettings$databaseDetails,
-                                           modelDesignList = ensembleSettings$modelDesignList,
-                                           onlyFetchData = T,
-                                           splitSettings = ensembleSettings$splitSettings,
-                                           logSettings = logSettings,
-                                           saveDirectory = saveDirectory)
+    PatientLevelPrediction::runMultiplePlp(
+      databaseDetails = ensembleSettings$databaseDetails,
+      cohortDefinitions = cohortDefinitions,
+      modelDesignList = ensembleSettings$modelDesignList,
+      onlyFetchData = T,
+      logSettings = logSettings,
+      saveDirectory = saveDirectory
+    )
   }
 
   if (ensembleSettings$executionList$trainModels) {
@@ -24,9 +28,9 @@ runEnsemble <- function(ensembleSettings,
     ParallelLogger::logInfo("Developing level 1 models")
     PatientLevelPrediction::runMultiplePlp(
       databaseDetails = ensembleSettings$databaseDetails,
+      cohortDefinitions = cohortDefinitions,
       modelDesignList = ensembleSettings$modelDesignList,
       onlyFetchData = F,
-      splitSettings = ensembleSettings$splitSettings,
       logSettings = logSettings,
       saveDirectory = saveDirectory
     )

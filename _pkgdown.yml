@@ -74,3 +74,8 @@ reference:
       - loadEnsemble
       - saveEnsembleModel
       - loadEnsembleModel
+  - title: "EnsemblePatientLevelPrediction"
+    desc: >
+      The package name
+    contents:
+      - EnsemblePatientLevelPrediction

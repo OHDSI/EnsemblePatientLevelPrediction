@@ -16,10 +16,16 @@ saveEnsemble <- function(ensemble, dirPath) {
   }
 
   # save the ensemble
-  saveEnsembleModel(ensembleModel = ensemble$model, dirPath = file.path(dirPath, "ensemble"))
+  saveEnsembleModel(
+    ensembleModel = ensemble$model, 
+    dirPath = file.path(dirPath, "ensemble")
+    )
 
   ensemble$model <- NULL
-  saveRDS(ensemble, file = file.path(dirPath, "ensemblePlp.rds"))
+  saveRDS(
+    object = ensemble, 
+    file = file.path(dirPath, "ensemblePlp.rds")
+    )
 
 }
 
@@ -36,7 +42,9 @@ saveEnsemble <- function(ensemble, dirPath) {
 loadEnsemble <- function(dirPath) {
 
   ensemble <- readRDS(file = file.path(dirPath, "ensemblePlp.rds"))
-  ensemble$model <- loadEnsembleModel(dirPath = file.path(dirPath, "ensemble"))
+  ensemble$model <- loadEnsembleModel(
+    dirPath = file.path(dirPath, "ensemble")
+    )
 
   return(ensemble)
 }
@@ -59,12 +67,16 @@ saveEnsembleModel <- function(ensembleModel, dirPath) {
   }
 
   # save the models - not needed if models already saved
-  if (class(ensembleModel$model$baseModels[[1]]) == "plpModel") {
+  if (inherits(ensembleModel$model$baseModels[[1]], "plpModel")) {
     for (i in 1:length(ensembleModel$model$baseModels)) {
-      PatientLevelPrediction::savePlpModel(plpModel = ensembleModel$model$baseModels[[i]],
-                                           dirPath = file.path(dirPath,
-                                                               "base",
-                                                               paste0("basemodel_", i)))
+      PatientLevelPrediction::savePlpModel(
+        plpModel = ensembleModel$model$baseModels[[i]],
+        dirPath = file.path(
+          dirPath,
+          "base",
+          paste0("basemodel_", i)
+          )
+        )
     }
 
     # save the ensemble

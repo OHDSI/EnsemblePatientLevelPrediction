@@ -27,7 +27,7 @@ test_that("createEnsemble works", {
     baseModelResults
   )
   
-  expect_equal(class(result), 'ensembleModel')
+  expect_true(inherits(result, 'ensembleModel'))
     
 }
 )

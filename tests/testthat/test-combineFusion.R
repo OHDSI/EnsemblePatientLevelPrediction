@@ -10,7 +10,7 @@ test_that("createFusionCombiner works", {
   )
   
   expect_equal(attr(result, 'combineFunction'), 'learnFusion')
-  expect_equal(class(result), 'combinerSettings')
+  expect_true(inherits(result, 'combinerSettings'))
   
   expect_true(3 == sum(names(result) %in% c('type', 'evaluation', 'scaleFunction')))
   
@@ -41,7 +41,7 @@ test_that("createFusionCombiner works", {
     
   result <- createPredictionMatrix(predictionList)
   
-  expect_true(class(result) == "data.frame")
+  expect_true(inherits(result,"data.frame"))
   expect_true(nrow(result) == 5)
   expect_true(ncol(result) == 7)
   
