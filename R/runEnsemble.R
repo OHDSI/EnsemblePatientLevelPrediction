@@ -11,25 +11,6 @@ runEnsemble <- function(ensembleSettings,
                         saveDirectory,
                         cohortDefinitions = NULL) {
   
-  if(is.null(cohortDefinitions)){
-    ids <- unique(
-      unlist(
-        lapply(
-          ensembleSettings$modelDesignList, 
-          function(x){c(x$targetId, x$outcomeId)}
-        )
-      )
-    )
-    cohortDefinitions <- list()
-    length(cohortDefinitions) <- length(ids)
-    for(i in 1:length(ids)){
-      cohortDefinitions[[i]] <- list(
-        id = ids[i], 
-        name = paste0('cohort: ',ids[i])
-      ) 
-    }
-  }
-
   if (ensembleSettings$executionList$extractData) {
     ParallelLogger::logInfo("Extracting data")
     PatientLevelPrediction::runMultiplePlp(

@@ -16,7 +16,7 @@ covSet <- FeatureExtraction::createCovariateSettings(
 
 databaseDetails <- PatientLevelPrediction::createDatabaseDetails(
   connectionDetails = connectionDetails,
-  cdmDatabaseSchema = "main",
+  cdmDatabaseSchema = "main", cdmDatabaseId = 'eunomia',
   cohortDatabaseSchema = "main",
   cohortTable = "cohort",
   targetId = 4,
@@ -61,6 +61,7 @@ modelDesign2 <- PatientLevelPrediction::createModelDesign(
   preprocessSettings = PatientLevelPrediction::createPreprocessSettings(),
   splitSettings = PatientLevelPrediction::createDefaultSplitSetting()
 )
+# current issue with model 2 due to ParallelLogger json saving... (maybe fixed)
 
 modelDesign3 <- PatientLevelPrediction::createModelDesign(
   targetId = 4,
