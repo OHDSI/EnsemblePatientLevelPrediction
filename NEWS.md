@@ -1,3 +1,7 @@
+EnsemblePatientLevelPrediction 1.0.1
+======================
+- Fixed Demo
+
 EnsemblePatientLevelPrediction 1.0.0
 ======================
 - Updated for PatientLevelPrediction 6.0.0 

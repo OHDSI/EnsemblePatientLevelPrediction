@@ -1,7 +1,7 @@
 Package: EnsemblePatientLevelPrediction
 Type: Package
 Title: Expanding PatientLevelPrediction with ensemble capabilities
-Version: 1.0.0
+Version: 1.0.1
 Author: Jenna Reps [aut, cre]
 Maintainer: Jenna M Reps <reps@ohdsi.org>
 Description: This package uses functions in PatientLevelPrediction to develop and evaluate ensemble models.
