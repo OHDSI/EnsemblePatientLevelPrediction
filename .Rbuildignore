@@ -4,3 +4,5 @@ extras
 ^\.Rprofile$
 documents
 readme.md
+deploy.sh
+compare_versions
