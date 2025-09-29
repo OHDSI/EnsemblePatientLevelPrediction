@@ -17,11 +17,11 @@ In our study [here](https://www.researchsquare.com/article/rs-1217376/v1) we fou
 User Documentation
 ==================
 
-Vignette: [EnsemblePatientLevelPrediction](https://raw.githubusercontent.com/OHDSI/EnsemblePatientLevelPrediction/main/inst/doc/BuildingEnsembleModels.pdf)
+Vignette: [EnsemblePatientLevelPrediction](https://ohdsi.github.io/EnsemblePatientLevelPrediction/reference/index.html)
 
 Website: Documentation can be found on the [package website](https://ohdsi.github.io/EnsemblePatientLevelPrediction).
 
-Package manual: [EnsemblePatientLevelPrediction.pdf](https://github.com/OHDSI/EnsemblePatientLevelPrediction/blob/master/extras/EnsemblePatientLevelPrediction.pdf)
+Package manual: [EnsemblePatientLevelPrediction](https://ohdsi.github.io/EnsemblePatientLevelPrediction/articles/BuildingEnsembleModels.html)
 
 
 Support
