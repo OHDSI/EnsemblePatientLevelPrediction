@@ -15,16 +15,16 @@ output:
   pdf_document:
     includes:
       in_header: preamble.tex
-    number_sections: yes
-    toc: yes
+    number_sections: true
+    toc: true
   word_document:
-    toc: yes
+    toc: true
   html_document:
-    number_sections: yes
-    toc: yes
+    number_sections: true
+    toc: true
 ---
 <!--
-%\VignetteEngine{knitr}
+%\VignetteEngine{knitr::knitr}
 %\VignetteIndexEntry{Building Ensemble Models}
 -->
   

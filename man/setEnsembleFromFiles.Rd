@@ -22,10 +22,14 @@ Create setting for creating ensemble from model settings
 \examples{
 \dontrun{
 
-ensembleSettings <- setEnsembleFromFiles(fileVector = c("./result1", "./result2", "./result3"),
-                                         filterSettings = list(minValue = 0.5, maxValue = 1),
-                                         combinerSettings = createFusionCombiner(type = "uniform",
-                                                                                 evaluation = "CV",
-                                                                                 scaleFunction = "normalize"))
+ensembleSettings <- setEnsembleFromFiles(
+  fileVector = c("./result1", "./result2", "./result3"),
+  filterSettings = list(minValue = 0.5, maxValue = 1),
+  combinerSettings = createFusionCombiner(
+    type = "uniform",
+    evaluation = "CV",
+    scaleFunction = "normalize"
+   )
+ )
 }
 }
