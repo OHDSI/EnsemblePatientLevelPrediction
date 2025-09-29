@@ -9,29 +9,47 @@
 #'
 #' @examples
 #' \dontrun{
-#' modelDesign1 <- PatientLevelPrediction::createModelDesign(targetId = 4,
-#'                                                           outcomeId = 3,
-#'                                                           restrictPlpDataSettings = restrictPlpDataSettings,
-#'                                                           covariateSettings = covSet,
-#'                                                           runCovariateSummary = F,
-#'                                                           modelSettings = PatientLevelPrediction::setLassoLogisticRegression(),
-#'                                                           populationSettings = populationSet,
-#'                                                           preprocessSettings = PatientLevelPrediction::createPreprocessSettings())
-#' modelDesign2 <- PatientLevelPrediction::createModelDesign(targetId = 4,
-#'                                                           outcomeId = 3,
-#'                                                           restrictPlpDataSettings = restrictPlpDataSettings,
-#'                                                           covariateSettings = covSet,
-#'                                                           runCovariateSummary = F,
-#'                                                           modelSettings = PatientLevelPrediction::setGradientBoostingMachine(),
-#'                                                           populationSettings = populationSet,
-#'                                                           preprocessSettings = PatientLevelPrediction::createPreprocessSettings())
+#' library(FeatureExtraction)
+#' library(PatientLevelPrediction)
+#' 
+#' covSet <- createCovariateSettings(
+#'   useDemographicsGender = TRUE,  
+#'   useDemographicsAgeGroup = TRUE
+#'   )
+#'   
+#' restrictPlpDataSettings <- createRestrictPlpDataSettings()
+#'   
+#' modelDesign1 <- createModelDesign(
+#'   targetId = 4,
+#'   outcomeId = 3,
+#'   restrictPlpDataSettings = restrictPlpDataSettings,
+#'   covariateSettings = covSet,
+#'   runCovariateSummary = F,
+#'   modelSettings = setLassoLogisticRegression(),
+#'   populationSettings = populationSet,
+#'   preprocessSettings = createPreprocessSettings()
+#'   )
+#' modelDesign2 <- createModelDesign(
+#'   targetId = 4,
+#'   outcomeId = 3,
+#'   restrictPlpDataSettings = restrictPlpDataSettings,
+#'   covariateSettings = covSet,
+#'   runCovariateSummary = F,
+#'   modelSettings = setGradientBoostingMachine(),
+#'   populationSettings = populationSet,
+#'   preprocessSettings = createPreprocessSettings()
+#'   )
 #'
-#' ensembleSettings <- setEnsembleFromDesign(modelDesignList = list(modelDesign1, modelDesign2),
-#'                                           databaseDetails = PatientLevelPrediction::createDatabaseDetails(),
-#'                                           filterSettings = list(minValue = 0.5, maxValue = 1),
-#'                                           combinerSettings = createFusionCombiner(type = "uniform",
-#'                                                                                   evaluation = "CV",
-#'                                                                                   scaleFunction = "normalize"))
+#' ensembleSettings <- setEnsembleFromDesign(
+#'   modelDesignList = list(modelDesign1, modelDesign2),
+#'   databaseDetails = createDatabaseDetails(),
+#'   filterSettings = list(minValue = 0.5, maxValue = 1),
+#'   combinerSettings = createFusionCombiner(
+#'     type = "uniform",
+#'     evaluation = "CV",
+#'     scaleFunction = "normalize"
+#'     )
+#'   )
 #' }
 #' @export
 setEnsembleFromDesign <- function(modelDesignList,
@@ -107,11 +125,18 @@ setEnsembleFromDesign <- function(modelDesignList,
 #' plpResult2 <- PatientLevelPrediction::loadPlpResult("./result2")
 #' plpResult3 <- PatientLevelPrediction::loadPlpResult("./result3")
 #'
-#' ensembleSettings <- setEnsembleFromResults(resultList = list(plpResult1, plpResult2, plpResult3),
-#'                                            filterSettings = list(minValue = 0.5, maxValue = 1),
-#'                                            combinerSettings = createFusionCombiner(type = "uniform",
-#'                                                                                    evaluation = "CV",
-#'                                                                                    scaleFunction = "normalize"))
+#' ensembleSettings <- setEnsembleFromResults(
+#'   resultList = list(plpResult1, plpResult2, plpResult3),
+#'   filterSettings = list(
+#'     minValue = 0.5, 
+#'     maxValue = 1
+#'    ),
+#'   combinerSettings = createFusionCombiner(
+#'     type = "uniform",
+#'     evaluation = "CV",
+#'     scaleFunction = "normalize"
+#'     )
+#'  )
 #' }
 #' @export
 setEnsembleFromResults <- function(resultList, filterSettings, combinerSettings) {
@@ -160,11 +185,15 @@ setEnsembleFromResults <- function(resultList, filterSettings, combinerSettings)
 #' @examples
 #' \dontrun{
 #'
-#' ensembleSettings <- setEnsembleFromFiles(fileVector = c("./result1", "./result2", "./result3"),
-#'                                          filterSettings = list(minValue = 0.5, maxValue = 1),
-#'                                          combinerSettings = createFusionCombiner(type = "uniform",
-#'                                                                                  evaluation = "CV",
-#'                                                                                  scaleFunction = "normalize"))
+#' ensembleSettings <- setEnsembleFromFiles(
+#'   fileVector = c("./result1", "./result2", "./result3"),
+#'   filterSettings = list(minValue = 0.5, maxValue = 1),
+#'   combinerSettings = createFusionCombiner(
+#'     type = "uniform",
+#'     evaluation = "CV",
+#'     scaleFunction = "normalize"
+#'    )
+#'  )
 #' }
 #' @export
 setEnsembleFromFiles <- function(fileVector, filterSettings, combinerSettings) {

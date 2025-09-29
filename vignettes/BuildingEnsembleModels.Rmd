@@ -15,16 +15,16 @@ output:
   pdf_document:
     includes:
       in_header: preamble.tex
-    number_sections: yes
-    toc: yes
+    number_sections: true
+    toc: true
   word_document:
-    toc: yes
+    toc: true
   html_document:
-    number_sections: yes
-    toc: yes
+    number_sections: true
+    toc: true
 ---
 <!--
-%\VignetteEngine{knitr}
+%\VignetteEngine{knitr::knitr}
 %\VignetteIndexEntry{Building Ensemble Models}
 -->
   
@@ -39,7 +39,7 @@ An ensemble model consists of a set of base models that make predictions and a m
 
 ![Making predictions with an ensemble model](images/ensemblePredictions.png)
 
-This vignette describes how you can use the Observational Health Data Science and Informatics (OHDSI) [`EnsemblePatientLevelPrediction`](http://github.com/OHDSI/EnsemblePatientLevelPrediction) package to build ensemble models. This vignette assumes you have read and are comfortable with building single patient level prediction models as described in the  [`BuildingPredictiveModels` vignette](https://github.com/OHDSI/PatientLevelPrediction/blob/master/inst/doc/BuildingPredictiveModels.pdf).
+This vignette describes how you can use the Observational Health Data Science and Informatics (OHDSI) [`EnsemblePatientLevelPrediction`](http://github.com/OHDSI/EnsemblePatientLevelPrediction) package to build ensemble models. This vignette assumes you have read and are comfortable with building single patient level prediction models as described in the  [`BuildingPredictiveModels` vignette](https://ohdsi.github.io/PatientLevelPrediction/articles/BuildingMultiplePredictiveModels.html).
 
 This will enable studying ensemble methods at scale in the OHDSI data network.
 

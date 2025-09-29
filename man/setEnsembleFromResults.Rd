@@ -25,10 +25,17 @@ plpResult1 <- PatientLevelPrediction::loadPlpResult("./result1")
 plpResult2 <- PatientLevelPrediction::loadPlpResult("./result2")
 plpResult3 <- PatientLevelPrediction::loadPlpResult("./result3")
 
-ensembleSettings <- setEnsembleFromResults(resultList = list(plpResult1, plpResult2, plpResult3),
-                                           filterSettings = list(minValue = 0.5, maxValue = 1),
-                                           combinerSettings = createFusionCombiner(type = "uniform",
-                                                                                   evaluation = "CV",
-                                                                                   scaleFunction = "normalize"))
+ensembleSettings <- setEnsembleFromResults(
+  resultList = list(plpResult1, plpResult2, plpResult3),
+  filterSettings = list(
+    minValue = 0.5, 
+    maxValue = 1
+   ),
+  combinerSettings = createFusionCombiner(
+    type = "uniform",
+    evaluation = "CV",
+    scaleFunction = "normalize"
+    )
+ )
 }
 }

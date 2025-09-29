@@ -4,5 +4,8 @@ extras
 ^\.Rprofile$
 documents
 readme.md
+_pkgdown.yml
+.github
+^\.github
 deploy.sh
 compare_versions

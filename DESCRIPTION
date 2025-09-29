@@ -1,7 +1,7 @@
 Package: EnsemblePatientLevelPrediction
 Type: Package
 Title: Expanding PatientLevelPrediction with ensemble capabilities
-Version: 1.0.2
+Version: 1.0.3
 Author: Jenna Reps [aut, cre]
 Maintainer: Jenna M Reps <reps@ohdsi.org>
 Description: This package uses functions in PatientLevelPrediction to develop and evaluate ensemble models.
@@ -22,12 +22,9 @@ Suggests:
     rmarkdown,
     testthat,
     xgboost
-Remotes:
-    ohdsi/PatientLevelPrediction,
-    ohdsi/FeatureExtraction,
-    ohdsi/Eunomia,
-    ohdsi/ResultModelManager
 License: Apache License 2.0
 VignetteBuilder: knitr
 LazyData: TRUE
-RoxygenNote: 7.2.0
+RoxygenNote: 7.3.2
+Encoding: UTF-8
+
